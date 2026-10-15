@@ -111,6 +111,39 @@ body #decksPage .feature-actions button.primary{background:#8bd6ff!important;col
 body #decksPage #deckSummary span{background:#dcecff!important;color:#15243b!important;border:1px solid #8cadd1;font-weight:800}
 
 .card-mini-preview{display:block!important;width:100%;aspect-ratio:5/7!important;object-fit:contain!important;max-height:350px;border:1px solid #7297ba;background:#fff}.card-status{display:block;font-size:12px;color:#cbe6ff;margin:6px 0}.deck-tools{display:flex;gap:8px;flex-wrap:wrap;margin:9px 0}.deck-tools input,.deck-tools select{flex:1;min-width:140px;padding:8px;background:#eff5ff;color:#14213a;border:1px solid #7899b2;border-radius:3px}
+
+/* Mobile layout fixes and section-based Card Master */
+html,body{max-width:100%;overflow-x:clip}
+.feature-page,.feature-page .panel,.art-grid,.art-tile,.master-grid,.master-entry,.master-creator,.grid2,.field{min-width:0;max-width:100%;box-sizing:border-box}
+#galleryGrid,#sharedArtGrid,#sharedGrid,#masterCards,#masterArtwork{grid-template-columns:repeat(auto-fill,minmax(min(100%,230px),1fr))}
+#galleryGrid .art-tile,#sharedArtGrid .art-tile,#sharedGrid .art-tile{width:100%;min-width:0;overflow:hidden}
+.gallery-actions{display:flex;flex-direction:column;align-items:stretch;gap:7px;width:100%;min-width:0}
+.gallery-actions .btn,.art-tile .btn,.master-entry .btn,.master-creator .btn{max-width:100%;min-width:0;white-space:normal!important;overflow-wrap:anywhere;text-align:center;line-height:1.35;height:auto}
+.gallery-actions .btn{display:block;width:100%;margin:0!important;padding:9px 6px!important;font-size:12px!important}
+.art-tile strong,.art-tile small{white-space:normal!important;overflow-wrap:anywhere}
+.art-tile strong{color:#18243a!important}.art-tile small{color:#40526e!important}
+.master-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:16px 0}
+.master-tabs button{min-width:0;max-width:100%;padding:12px 7px!important;white-space:normal!important;overflow-wrap:anywhere;line-height:1.3}
+.master-global-controls{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.master-global-controls .btn{max-width:100%;white-space:normal}
+[data-master-panel][hidden]{display:none!important}
+.master-creator{flex-wrap:wrap;align-items:flex-start;gap:9px}
+.master-creator>span{flex:1 1 110px;overflow-wrap:anywhere}
+.master-creator>div{display:flex;flex:1 1 175px;flex-wrap:wrap;gap:6px;min-width:0}
+.master-creator>div .btn{flex:1 1 120px;margin:0}
+#masterPage .grid2{grid-template-columns:repeat(auto-fit,minmax(min(100%,210px),1fr))}
+#masterPage input,#masterPage select,#masterPage textarea{min-width:0;max-width:100%}
+@media(max-width:760px){
+ #galleryGrid,#sharedArtGrid,#sharedGrid,#masterCards,#masterArtwork{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+ #galleryGrid .art-tile,#sharedArtGrid .art-tile,#sharedGrid .art-tile{padding:8px!important}
+ #menuToggle{position:fixed!important;left:12px!important;bottom:calc(12px + env(safe-area-inset-bottom,0px))!important;z-index:1000!important;max-width:155px;padding:11px 13px!important;font-size:14px!important}
+ body{padding-bottom:calc(95px + env(safe-area-inset-bottom,0px))}
+ .feature-page{padding-inline:12px!important}
+ .master-tabs{grid-template-columns:1fr;gap:7px}
+ .master-tabs button{width:100%}
+ .master-creator>div{flex-basis:100%}
+}
+@media(max-width:430px){.gallery-actions .btn{font-size:11px!important;padding:8px 4px!important}.art-tile{padding:7px!important}}
 </style></head><body>
 <header><div><h1>✦ Card Studio</h1><small>Offline-ready • create, draw, collect, export</small></div><div class="top-actions"><button class="btn" id="newBtn">＋ New card</button><button class="btn" id="backupBtn">↓ Backup JSON</button><label class="btn" for="importBackup">↑ Import backup<input id="importBackup" type="file" accept="application/json,.json" hidden></label></div></header>
 <button id="menuToggle" type="button" aria-label="Open navigation" aria-expanded="false">☰ <span>Menu</span></button>
@@ -119,10 +152,28 @@ body #decksPage #deckSummary span{background:#dcecff!important;color:#15243b!imp
 <h2>Card Master · Billy's Workshop</h2><p class="muted">Only approved submissions appear in The Deck. Creator codes are stored and checked on the server.</p>
 <div id="masterGate"><div class="field"><label for="masterPass">Card Master password</label><input id="masterPass" type="password" autocomplete="off" placeholder="Enter Billy's password"></div><button type="button" class="btn primary" id="masterUnlock">Unlock Card Master</button></div>
 <div id="masterControls" hidden>
-<div class="feature-actions"><button class="btn" id="masterRefresh">Refresh submissions</button><button class="btn primary" id="masterDeckExport">Export Approved Deck (print)</button><button class="btn" id="masterLock">Lock</button></div>
-<h3>Card submissions</h3><div class="muted" id="masterStatus" role="status"></div><div id="masterCards" class="master-grid"></div>
-<hr><h3>Shared Gallery management</h3><p class="muted">Edit names and tags, or remove artwork from the public gallery.</p><div id="masterArtwork" class="master-grid"></div><hr><h3>Creator codes</h3><p class="muted">Codes are never displayed once created. Give each creator their code privately.</p>
-<div class="grid2"><div class="field"><label for="masterCreatorName">Friend's name</label><input id="masterCreatorName" placeholder="Display name"></div><div class="field"><label for="masterCreatorCode">New code (6–64 characters)</label><input id="masterCreatorCode" placeholder="Private creator code" autocomplete="off"></div></div><button class="btn primary" id="masterAddCreator">Add creator</button><div id="masterCreators"></div></div>
+<div class="master-tabs" role="tablist" aria-label="Card Master sections">
+<button type="button" class="btn primary" data-master-tab="review" role="tab" aria-selected="true">Card Review</button>
+<button type="button" class="btn" data-master-tab="gallery" role="tab" aria-selected="false">Gallery Management</button>
+<button type="button" class="btn" data-master-tab="users" role="tab" aria-selected="false">User Management</button>
+</div>
+<div class="master-global-controls"><button class="btn" id="masterRefresh">Refresh</button><button class="btn" id="masterLock">Lock</button></div>
+<p class="muted" id="masterStatus" role="status"></p>
+<div data-master-panel="review" role="tabpanel">
+<h3>Card submissions</h3>
+<div class="feature-actions"><button class="btn primary" id="masterDeckExport">Export Approved Deck (print)</button></div>
+<div id="masterCards" class="master-grid"></div>
+</div>
+<div data-master-panel="gallery" role="tabpanel" hidden>
+<h3>Shared Gallery Management</h3><p class="muted">Edit names and tags, replace artwork, or remove images from the public gallery.</p>
+<div id="masterArtwork" class="master-grid"></div>
+</div>
+<div data-master-panel="users" role="tabpanel" hidden>
+<h3>Creator Codes</h3><p class="muted">Codes are never displayed once created. Give each creator their code privately.</p>
+<div class="grid2"><div class="field"><label for="masterCreatorName">Friend's name</label><input id="masterCreatorName" placeholder="Display name"></div><div class="field"><label for="masterCreatorCode">New code (6–64 characters)</label><input id="masterCreatorCode" placeholder="Private creator code" autocomplete="off"></div></div>
+<button class="btn primary" id="masterAddCreator">Add creator</button><div id="masterCreators"></div>
+</div>
+</div>
 </div></section><main class="layout"><section class="panel editor-panel"><h2>Edit card <span id="dirtyFlag" class="muted"></span></h2>
 <div class="field"><label class="field-label">Card type</label><div class="types"><button type="button" data-type="attack" class="active">Attack</button><button type="button" data-type="modifier">Modifier</button><button type="button" data-type="fate">Fate</button></div></div>
 <div class="field"><label for="cardName">Card title</label><input id="cardName" maxlength="52" placeholder="e.g. Rat King"></div>
@@ -402,6 +453,7 @@ for(const c of data.codes){
 }
 msg(data.cards.length+' total submissions · '+data.cards.filter(c=>c.review_status==='pending').length+' pending approval.');return true}catch(e){msg(e.message);return false}}
 $('masterUnlock').onclick=()=>{pass=$('masterPass').value;refresh().then(ok=>{if(ok){$('masterGate').hidden=true;$('masterControls').hidden=false}})};
+document.querySelectorAll('[data-master-tab]').forEach(b=>b.addEventListener('click',()=>{const chosen=b.dataset.masterTab;document.querySelectorAll('[data-master-tab]').forEach(x=>{const active=x.dataset.masterTab===chosen;x.classList.toggle('primary',active);x.setAttribute('aria-selected',String(active))});document.querySelectorAll('[data-master-panel]').forEach(p=>p.hidden=p.dataset.masterPanel!==chosen)}));
 $('masterRefresh').onclick=refresh;
 $('masterDeckExport').onclick=async()=>{try{const approved=currentCards.filter(c=>c.review_status==='approved');if(!approved.length)return msg('There are no approved cards to export yet.');msg('Preparing '+approved.length+' approved cards for printing…');const w=window.open('','_blank');if(!w){msg('Allow pop-ups to export the approved deck.');return}w.document.open();w.document.write('<!doctype html><html><head><title>Approved Card Deck</title><style>@page{size:letter;margin:.25in}body{margin:0;font-family:sans-serif}.sheet{width:7.5in;margin:auto;display:grid;grid-template-columns:repeat(3,2.5in);grid-auto-rows:3.5in;page-break-after:always}.sheet img{width:2.5in;height:3.5in;object-fit:fill}@media screen{body{padding:20px}.sheet{margin:12px auto;box-shadow:0 0 8px #999}}</style></head><body>');for(let i=0;i<approved.length;i+=9){w.document.write('<div class="sheet">');for(const c of approved.slice(i,i+9)){const img=window.glepRenderCard?await window.glepRenderCard({...c.card_data,name:c.name,type:c.card_type,image:c.artwork_url||'',strokes:[]}):c.artwork_url||'';w.document.write('<img alt="card" src="'+img+'">')}w.document.write('</div>')}w.document.write('</body></html>');w.document.close();msg('Approved deck opened in a new tab. Use Print / Save as PDF at actual size.')}catch(e){msg('Export failed: '+e.message)}};
 

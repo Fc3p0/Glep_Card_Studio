@@ -49,6 +49,20 @@ input[type=checkbox]{accent-color:#ef34cb}
 @media(max-width:760px){header{padding:14px 14px 16px}header h1{font-size:22px}.panel{box-shadow:3px 3px 0 #080c16}.layout{gap:16px}#menuToggle{bottom:18px;left:14px}}
 @media print{body{background:white!important;color:black!important}.panel{background:white!important;border:0!important;box-shadow:none!important}body:before,header:before{display:none!important}}
 .stat-range-hint{font-size:13px;line-height:1.5;margin-top:6px;color:#cad6eb;font-weight:650}.field select#damage,.field select#stars{font-size:18px!important;font-weight:800!important;min-height:48px;line-height:1.4!important}.chips{max-height:88px;overflow-y:auto}.chips button{min-width:32px;min-height:30px}#damageChips,#starsChips{gap:5px}
+
+/* vPixel contrast repair: explicit backgrounds and accessible foregrounds */
+body .panel, body #scorePage .panel, body .lib-card, body .notice, body .score-leader, body .score-person, body .score-setup, body .score-player, body .cloud-card,body .art-tile{color:#eff5ff}
+body .panel{background:#162139!important;border-color:#43567e!important;color:#f0f4ff!important}
+body .panel h2,body .panel h3,body .panel strong,body .lib-card strong,body .field>label,body .field-label,body .score-person strong,body .score-head h2{color:#f5f7ff!important}
+body .muted,body .footer-note,body .score-help,body .score-history,body .lib-card small,body .score-person small{color:#c4d4ed!important}
+body .field input:not([type=file]),body .field textarea,body .field select,body .score-setup input,body input:not([type=checkbox]):not([type=radio]):not([type=color]):not([type=range]):not([type=file]),body select,body textarea{background:#eef3fc!important;color:#101a2c!important;border:2px solid #7289b0!important;opacity:1}
+body input::placeholder,body textarea::placeholder{color:#4e5b71!important;opacity:1}
+body button.btn,body .chips button,body .lib-buttons button,body .score-btn,body .score-setup-row button{background:#e8eeff;color:#162039;border:2px solid #8399bc}
+body button.btn.primary,body button.btn.accent,body .score-btn.plus{background:#e83bc4;color:#150b20;border-color:#fa8dec}
+body .notice,body .lib-card,body .score-leader{background:#223252!important;color:#f2f6ff!important;border-color:#657fae!important}
+body .stat-range-hint{color:#d6e8ff!important;font-size:14px!important}
+body .field select#damage,body .field select#stars{font-size:20px!important;font-weight:800!important;min-height:52px}
+body .field select option{background:#eef3fc;color:#101a2c}
 </style></head><body>
 <header><div><h1>✦ Card Studio</h1><small>Offline-ready • create, draw, collect, export</small></div><div class="top-actions"><button class="btn" id="newBtn">＋ New card</button><button class="btn" id="backupBtn">↓ Backup JSON</button><label class="btn" for="importBackup">↑ Import backup<input id="importBackup" type="file" accept="application/json,.json" hidden></label></div></header>
 <button id="menuToggle" type="button" aria-label="Open navigation" aria-expanded="false">☰ <span>Menu</span></button>

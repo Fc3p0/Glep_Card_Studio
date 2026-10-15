@@ -68,6 +68,24 @@ body .field select option{background:#eef3fc;color:#101a2c}
 #damageChips,#starsChips{display:none!important}
 .field input#damage,.field input#stars{display:block!important;width:100%!important;min-height:54px!important;font-size:20px!important;font-weight:800!important;background:#eef3fc!important;color:#101a2c!important;border:2px solid #7289b0!important}
 
+
+/* Cool-blue studio accents and clean reference-style drawing canvas.
+   Visual UI only — card export paint() remains unchanged. */
+:root{--glep-magenta:#8cd9ff;--glep-cyan:#8cd9ff;accent-color:#79cfff}
+body .btn.primary,body .btn.accent,body .nav-tabs button.active,body #menuToggle,
+body .score-btn.plus{background:#8bd6ff!important;color:#0c1a30!important;border-color:#b6eaff!important}
+body .btn.primary:hover,body .btn.accent:hover,body #menuToggle:hover{background:#b7eaff!important}
+body .types button.active{border-color:#8bd6ff!important;box-shadow:0 0 0 2px #254863!important}
+body #sideNav{border-right-color:#6bb8ea!important}
+body #sideNav button[data-go].selected{background:#1d3652!important;border-left:4px solid #8bd6ff!important;color:#bdeaff!important}
+body #sideNav .side-title{text-shadow:2px 2px #174f74!important}
+body .field input:focus,body .field textarea:focus,body .field select:focus,
+body button:focus-visible{outline:3px solid #8bd6ff!important;outline-offset:2px}
+body input[type=checkbox],body input[type=radio]{accent-color:#71c9fa!important}
+body #drawPad{display:block!important;width:100%!important;height:auto!important;aspect-ratio:538/378!important;background:#fff!important;border:3px dashed #8398ba!important;border-radius:3px!important;box-shadow:none!important;touch-action:none}
+body .draw-tools{background:transparent!important}
+body .stat-range-hint{color:#c4dfff!important}
+@media(max-width:760px){body #drawPad{border-width:3px!important}}
 </style></head><body>
 <header><div><h1>✦ Card Studio</h1><small>Offline-ready • create, draw, collect, export</small></div><div class="top-actions"><button class="btn" id="newBtn">＋ New card</button><button class="btn" id="backupBtn">↓ Backup JSON</button><label class="btn" for="importBackup">↑ Import backup<input id="importBackup" type="file" accept="application/json,.json" hidden></label></div></header>
 <button id="menuToggle" type="button" aria-label="Open navigation" aria-expanded="false">☰ <span>Menu</span></button>

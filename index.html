@@ -63,6 +63,10 @@ body .notice,body .lib-card,body .score-leader{background:#223252!important;colo
 body .stat-range-hint{color:#d6e8ff!important;font-size:14px!important}
 body .field select#damage,body .field select#stars{font-size:20px!important;font-weight:800!important;min-height:52px}
 body .field select option{background:#eef3fc;color:#101a2c}
+
+/* Verified editor controls, October 15 build */
+#damageChips,#starsChips{display:none!important}
+.field select#damage,.field select#stars{display:block!important;width:100%!important;min-height:54px!important;font-size:20px!important;color:#101a2c!important;background:#f4f7ff!important;border:2px solid #7996c4!important;opacity:1!important}
 </style></head><body>
 <header><div><h1>✦ Card Studio</h1><small>Offline-ready • create, draw, collect, export</small></div><div class="top-actions"><button class="btn" id="newBtn">＋ New card</button><button class="btn" id="backupBtn">↓ Backup JSON</button><label class="btn" for="importBackup">↑ Import backup<input id="importBackup" type="file" accept="application/json,.json" hidden></label></div></header>
 <button id="menuToggle" type="button" aria-label="Open navigation" aria-expanded="false">☰ <span>Menu</span></button>
@@ -295,4 +299,4 @@ async function uploadArt(){const files=[...el('cloudArtFiles').files];if(!files.
 function init(){el('cloudSignIn').onclick=login;el('cloudSignOut').onclick=()=>{setSession(null);notice('Signed out. Shared collections remain readable.')};el('cloudPublish').onclick=publishCard;el('sharedRefresh').onclick=loadDeck;el('cloudArtUpload').onclick=uploadArt;el('sharedArtRefresh').onclick=loadArt;document.querySelectorAll('#sideNav [data-go="shared"],#sideNav [data-go="gallery"]').forEach(b=>b.addEventListener('click',()=>{if(b.dataset.go==='shared'){listPublishCards();loadDeck()}else loadArt()}));updateAuth();listPublishCards();loadDeck();loadArt();}
 init();
 })();
-</script></body></html>
+</script><script>document.addEventListener('DOMContentLoaded',()=>{document.querySelectorAll('#damageChips,#starsChips').forEach(el=>el.remove());console.info('Card Studio build: 2026-10-15-stat-dropdown-only');});</script></body></html>

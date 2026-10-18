@@ -187,40 +187,44 @@ body:not([data-page="wiki"]) #wikiPage{display:none!important}
 #wikiPage .wiki-content,#wikiPage summary{font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}#wikiPage .wiki-content h4{color:#a5e9f2;margin:19px 0 7px;font-size:1.06rem}#wikiPage .wiki-content p{margin:7px 0 12px}#wikiPage .wiki-content ol{padding-left:24px}#wikiPage .wiki-content li{margin-bottom:9px}#wikiPage .wiki-verify{color:#ff929b!important;background:#53232e;border-left:4px solid #fb6574;padding:10px 12px;font-weight:650;border-radius:3px}#wikiPage .wiki-example,#wikiPage .wiki-die{background:#203454;border:1px solid #6e8fac;border-radius:9px;padding:13px 15px;margin:15px 0}#wikiPage .wiki-cards-guide,#wikiPage .wiki-compare{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:14px 0}#wikiPage .wiki-cards-guide>div,#wikiPage .wiki-compare>div{border:1px solid #789ab2;border-radius:8px;padding:12px 9px;display:flex;flex-direction:column;gap:5px}#wikiPage .wiki-cards-guide small{font-size:.8rem}#wikiPage .wiki-cards-guide .attack{background:#582d42}#wikiPage .wiki-cards-guide .modifier{background:#28503d}#wikiPage .wiki-cards-guide .fate{background:#574b29}#wikiPage .wiki-compare{grid-template-columns:repeat(2,minmax(0,1fr))}#wikiPage .wiki-compare>div{background:#203454}#wikiPage .wiki-steps{display:flex;align-items:center;gap:7px;flex-wrap:wrap;background:#14253c;padding:12px;border-radius:8px;margin:14px 0}#wikiPage .wiki-steps span{border:1px solid #83a9c1;border-radius:4px;font-size:.75rem;padding:5px;color:#d6f1ff}#wikiPage .wiki-die>div{display:grid;grid-template-columns:repeat(6,1fr);gap:5px;margin:10px 0}#wikiPage .wiki-die span{text-align:center;background:#344b67;padding:8px 0;border-radius:4px}#wikiPage .wiki-die small{color:#c1d8ea}#wikiPage .wiki-example table{width:100%;border-collapse:collapse}#wikiPage .wiki-example td,#wikiPage .wiki-example th{border-bottom:1px solid #516d8a;padding:5px;text-align:left}#wikiPage .wiki-easter{text-align:center;font-weight:bold;font-size:1.2rem}@media(max-width:580px){#wikiPage .wiki-cards-guide,#wikiPage .wiki-compare{grid-template-columns:1fr}#wikiPage .wiki-content{padding:0 14px 16px}}
 #wikiPage .wiki-review-warning{color:#ffb5b8;background:#53232e;border-left:4px solid #fb6574;padding:10px 12px;font-weight:650;border-radius:3px}
 
-/* GLEP Home — full-width title-screen layout, original artwork reserved for Billy */
-body[data-page="home"]>header,body[data-page="home"]>#menuToggle,body[data-page="home"]>.layout,body[data-page="home"]>.library,body[data-page="home"]>#scorePage,body[data-page="home"]>#cloudAccount{display:none!important}
+/* GLEP Home — clean title screen; original artwork and other pages unchanged */
+body[data-page="home"]>header,
+body[data-page="home"]>#menuToggle,
+body[data-page="home"]>.layout,
+body[data-page="home"]>.library,
+body[data-page="home"]>#scorePage,
+body[data-page="home"]>#cloudAccount{display:none!important}
 body:not([data-page="home"]) #homePage{display:none!important}
 body[data-page="home"]{background:#17283e!important}
-#homePage{font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#c9daeb;min-height:100svh;min-height:100vh;background:#17283e}
+#homePage{font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#c9daeb;min-height:100vh;min-height:100svh;background:#17283e}
 #homePage *{box-sizing:border-box}
 #homePage .home-shell{max-width:1320px;margin:0 auto;padding:0 clamp(22px,5vw,80px)}
 #homePage button{font:inherit;cursor:pointer}
-#homePage .home-top{background:none;display:flex;align-items:center;justify-content:space-between;gap:24px;padding:27px 0;border-bottom:1px solid #38506e}
-#homePage .home-brand{color:#c6eafa;font-size:clamp(16px,1.85vw,23px);font-weight:850;letter-spacing:.055em;white-space:nowrap}
-#homePage .home-desktop-nav{display:flex;align-items:center;gap:clamp(8px,1.7vw,26px)}
-#homePage .home-desktop-nav button{padding:9px 2px;border:none;background:none;color:#d5e3f3;font-size:clamp(12px,1.1vw,15px);font-weight:600;white-space:nowrap}
-#homePage .home-desktop-nav .home-admin{color:#90d8e7}
-#homePage .home-desktop-nav button:hover{text-decoration:underline;text-underline-offset:7px}
-#homePage #homeMenu{display:none;align-items:center;justify-content:center;flex-direction:column;gap:5px;padding:9px;border:1px solid #54708d;border-radius:9px;background:#253a54;min-width:41px;min-height:41px}
+#homePage header.home-top{background:transparent!important;background-image:none!important;border:0!important;border-bottom:1px solid #39516b!important;box-shadow:none!important;display:flex;align-items:center;justify-content:space-between;flex-wrap:nowrap;gap:25px;padding:26px 0!important;position:relative;isolation:auto}
+#homePage header.home-top::before,#homePage header.home-top::after{content:none!important;display:none!important;background:none!important}
+#homePage .home-brand{color:#c6eafa;font-size:clamp(16px,1.85vw,23px);font-weight:850;letter-spacing:.045em;white-space:nowrap}
+#homePage .home-desktop-nav{display:flex;align-items:center;gap:clamp(18px,2.5vw,34px);margin-left:auto}
+#homePage .home-desktop-nav button{padding:8px 0;border:0;background:transparent;color:#d5e3f3;font-size:clamp(13px,1.1vw,15px);font-weight:600;white-space:nowrap}
+#homePage .home-desktop-nav .home-admin{color:#96dfe9}
+#homePage .home-desktop-nav button:hover{text-decoration:underline;text-underline-offset:6px}
+#homePage #homeMenu{display:none;align-items:center;justify-content:center;flex-direction:column;gap:5px;padding:9px;border:1px solid #54708d;border-radius:9px;background:#253a54;min-width:41px;min-height:41px;margin-left:auto}
 #homePage #homeMenu span{width:21px;height:2px;background:#c9effa;border-radius:2px}
-#homePage .home-main{max-width:1000px;margin:0 auto;padding:clamp(44px,8vh,96px) 0 48px}
+#homePage .home-main{max-width:1000px;margin:0 auto;padding:clamp(52px,8vh,88px) 0 54px}
 #homePage .home-intro{text-align:center;margin:0 auto}
-#homePage .home-intro p{margin:0 0 18px;color:#83d7e8;font-size:clamp(15px,2vw,23px);font-weight:800;letter-spacing:.07em}
-#homePage .home-intro h1{font-size:clamp(38px,5.1vw,70px);font-weight:900;letter-spacing:-.025em;line-height:1.12;color:#fff;margin:0 0 20px}
-#homePage .home-intro div{font-size:clamp(17px,2vw,25px);line-height:1.38;color:#c4d5e8;max-width:800px;margin:0 auto;font-weight:500}
-#homePage .home-primary{display:grid;grid-template-columns:1fr 1fr;gap:22px;max-width:800px;margin:clamp(35px,7vh,66px) auto 0}
-#homePage .home-primary button{min-width:0;border:0;border-radius:13px;padding:22px 23px;display:flex;align-items:center;justify-content:space-between;gap:14px;color:#14243b;font-size:clamp(17px,2.2vw,25px);font-weight:800;min-height:84px;box-shadow:0 5px 0 #101c2b70}
-#homePage .home-primary button>span:first-child{font-size:28px;line-height:1}
-#homePage .home-primary button strong{flex:1}
+#homePage .home-intro p{margin:0 0 17px;color:#83d7e8;font-size:clamp(15px,1.75vw,21px);font-weight:800;letter-spacing:.07em}
+#homePage .home-intro h1{font-size:clamp(37px,5.1vw,68px);font-weight:900;letter-spacing:-.025em;line-height:1.1;color:#fff;margin:0 0 20px}
+#homePage .home-intro div{font-size:clamp(17px,1.9vw,24px);line-height:1.42;color:#c4d5e8;max-width:780px;margin:0 auto;font-weight:500}
+#homePage .home-primary{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;max-width:800px;margin:clamp(37px,6vh,56px) auto 0}
+#homePage .home-primary button{min-width:0;border:0;border-radius:13px;padding:20px 24px;display:flex;align-items:center;justify-content:center;gap:14px;color:#14243b;font-size:clamp(18px,2.2vw,25px);font-weight:800;min-height:82px;box-shadow:0 5px 0 #101c2b70}
+#homePage .home-primary button strong{flex:1;text-align:center}
 #homePage .home-primary .home-arrow{font-size:30px;font-weight:500;line-height:1}
 #homePage .home-play{background:#81dbe7}#homePage .home-create{background:#e3a2c7}
-#homePage .home-shortcuts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;max-width:760px;margin:clamp(32px,6vh,54px) auto 0;border-top:1px solid #415775;padding-top:29px}
-#homePage .home-shortcuts button{border:0;background:transparent;color:#c5ddf0;display:flex;justify-content:center;align-items:center;gap:10px;font-size:clamp(14px,1.6vw,19px);font-weight:600;padding:9px 5px}
-#homePage .home-shortcuts span{font-size:26px;line-height:1.1}
+#homePage .home-shortcuts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;max-width:760px;margin:clamp(32px,5vh,46px) auto 0;border-top:1px solid #415775;padding-top:24px}
+#homePage .home-shortcuts button{border:0;background:transparent;color:#c5ddf0;display:flex;justify-content:center;align-items:center;font-size:clamp(15px,1.6vw,19px);font-weight:600;padding:9px 5px}
 #homePage button:hover{filter:brightness(1.07)}
 #homePage button:focus-visible{outline:3px solid #fff;outline-offset:4px}
-@media(max-width:810px){#homePage .home-desktop-nav{display:none}#homePage #homeMenu{display:flex}#homePage .home-top{padding:18px 0}#homePage .home-shell{padding:0 22px}#homePage .home-main{padding:clamp(48px,11vh,95px) 0 45px}#homePage .home-primary{gap:12px}}
-@media(max-width:530px){#homePage .home-shell{padding:0 17px}#homePage .home-intro h1{font-size:clamp(32px,9vw,48px)}#homePage .home-intro p{font-size:14px}#homePage .home-intro div{font-size:17px}#homePage .home-primary{grid-template-columns:1fr;gap:12px;margin-top:39px}#homePage .home-primary button{min-height:68px;padding:15px 20px;font-size:20px}#homePage .home-shortcuts{gap:2px;margin-top:36px;padding-top:19px}#homePage .home-shortcuts button{display:flex;flex-direction:column;gap:7px;font-size:12px;text-align:center}#homePage .home-shortcuts span{font-size:25px}}
+@media(max-width:810px){#homePage .home-desktop-nav{display:none}#homePage #homeMenu{display:flex}#homePage header.home-top{padding:18px 0!important}#homePage .home-shell{padding:0 22px}#homePage .home-main{padding:clamp(48px,10vh,90px) 0 45px}#homePage .home-primary{gap:12px}}
+@media(max-width:530px){#homePage .home-shell{padding:0 17px}#homePage .home-intro h1{font-size:clamp(32px,9vw,48px)}#homePage .home-intro p{font-size:14px}#homePage .home-intro div{font-size:17px}#homePage .home-primary{grid-template-columns:1fr;gap:12px;margin-top:38px}#homePage .home-primary button{min-height:68px;padding:15px 20px;font-size:20px}#homePage .home-shortcuts{gap:2px;margin-top:34px;padding-top:19px}#homePage .home-shortcuts button{font-size:12px;text-align:center}}
 </style></head><body>
 <header><div><h1>✦ Card Studio</h1><small>Offline-ready • create, draw, collect, export</small></div><div class="top-actions"><button class="btn" id="newBtn">＋ New card</button><button class="btn" id="backupBtn">↓ Backup JSON</button><label class="btn" for="importBackup">↑ Import backup<input id="importBackup" type="file" accept="application/json,.json" hidden></label></div></header>
 <button id="menuToggle" type="button" aria-label="Open navigation" aria-expanded="false">☰ <span>Menu</span></button>
@@ -229,11 +233,8 @@ body[data-page="home"]{background:#17283e!important}
 <div class="home-shell">
 <header class="home-top">
   <strong class="home-brand">BAG OF GLEPS</strong>
-  <nav class="home-desktop-nav" aria-label="Home navigation">
-    <button type="button" data-home-go="cards">Card Studio</button>
-    <button type="button" data-home-go="shared">The Deck</button>
-    <button type="button" data-home-go="wiki" data-wiki-game="1">How to Play</button>
-    <button type="button" data-home-go="score">Scorekeeper</button>
+  <nav class="home-desktop-nav" aria-label="Support and administration">
+    <button type="button" data-home-go="feedback">File a Bug / Request</button>
     <button type="button" data-home-go="master" class="home-admin">Card Master</button>
   </nav>
   <button type="button" id="homeMenu" aria-label="Open navigation menu" aria-expanded="false"><span></span><span></span><span></span></button>
@@ -241,13 +242,13 @@ body[data-page="home"]{background:#17283e!important}
 <main class="home-main">
   <div class="home-intro"><p>WELCOME TO THE GAME</p><h1>YOUR NEXT CARD AWAITS.</h1><div>Create something ridiculous. Play it against your friends. Let Fate decide.</div></div>
   <div class="home-primary">
-    <button type="button" data-home-go="score" class="home-play"><span aria-hidden="true">⚔</span><strong>Play the Game</strong><span aria-hidden="true" class="home-arrow">›</span></button>
-    <button type="button" data-home-go="cards" class="home-create"><span aria-hidden="true">✎</span><strong>Create a Card</strong><span aria-hidden="true" class="home-arrow">›</span></button>
+    <button type="button" data-home-go="score" class="home-play"><strong>Play the Game</strong><span aria-hidden="true" class="home-arrow">›</span></button>
+    <button type="button" data-home-go="cards" class="home-create"><strong>Create a Card</strong><span aria-hidden="true" class="home-arrow">›</span></button>
   </div>
   <div class="home-shortcuts">
-    <button type="button" data-home-go="shared"><span aria-hidden="true">▱</span>Explore Deck</button>
-    <button type="button" data-home-go="wiki" data-wiki-game="1"><span aria-hidden="true">▯</span>How to Play</button>
-    <button type="button" data-home-go="score"><span aria-hidden="true">⚄</span>Scorekeeper</button>
+    <button type="button" data-home-go="shared">Explore Deck</button>
+    <button type="button" data-home-go="wiki" data-wiki-game="1">How to Play</button>
+    <button type="button" data-home-go="score">Scorekeeper</button>
   </div>
 </main></div></section>
 <section id="wikiPage" class="feature-page" aria-label="Wiki"><div class="panel">

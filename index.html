@@ -225,6 +225,30 @@ body[data-page="home"]{background:#17283e!important}
 #homePage button:focus-visible{outline:3px solid #fff;outline-offset:4px}
 @media(max-width:810px){#homePage .home-desktop-nav{display:none}#homePage #homeMenu{display:flex}#homePage header.home-top{padding:18px 0!important}#homePage .home-shell{padding:0 22px}#homePage .home-main{padding:clamp(48px,10vh,90px) 0 45px}#homePage .home-primary{gap:12px}}
 @media(max-width:530px){#homePage .home-shell{padding:0 17px}#homePage .home-intro h1{font-size:clamp(32px,9vw,48px)}#homePage .home-intro p{font-size:14px}#homePage .home-intro div{font-size:17px}#homePage .home-primary{grid-template-columns:1fr;gap:12px;margin-top:38px}#homePage .home-primary button{min-height:68px;padding:15px 20px;font-size:20px}#homePage .home-shortcuts{gap:2px;margin-top:34px;padding-top:19px}#homePage .home-shortcuts button{font-size:12px;text-align:center}}
+
+/* Online game placeholder, only shown after selecting Play the Game. */
+body[data-page="game"]>header,
+body[data-page="game"]>#menuToggle,
+body[data-page="game"]>.layout,
+body[data-page="game"]>.library,
+body[data-page="game"]>#scorePage,
+body[data-page="game"]>#cloudAccount{display:none!important}
+body:not([data-page="game"]) #gamePage{display:none!important}
+body[data-page="game"]{background:#17283e!important}
+#gamePage{min-height:100vh;min-height:100svh;background:#17283e;color:#d1e2f1;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+#gamePage .game-coming-shell{max-width:1200px;margin:0 auto;padding:0 clamp(20px,5vw,72px)}
+#gamePage .game-coming-top{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:27px 0;border-bottom:1px solid #39516b}
+#gamePage .game-coming-top strong{color:#c6eafa;font-size:clamp(16px,1.8vw,23px);font-weight:850;letter-spacing:.045em}
+#gamePage button{font:inherit;cursor:pointer}
+#gamePage .game-coming-top button{color:#c9eaf5;background:transparent;border:0;font-size:15px;font-weight:650;padding:8px}
+#gamePage .game-coming-content{max-width:800px;text-align:center;margin:0 auto;padding:clamp(85px,18vh,190px) 0 70px}
+#gamePage .game-coming-kicker{color:#83d7e8;font-weight:800;letter-spacing:.08em;font-size:clamp(15px,2vw,22px);margin:0 0 16px}
+#gamePage h1{font-size:clamp(38px,6vw,70px);line-height:1.1;color:#fff;letter-spacing:-.025em;margin:0 0 20px}
+#gamePage .game-coming-content>p:not(.game-coming-kicker){font-size:clamp(17px,2vw,24px);line-height:1.5;margin:0 0 40px;color:#c4d5e8}
+#gamePage .game-coming-content>button{border:0;border-radius:12px;background:#81dbe7;color:#14243b;padding:17px 24px;font-size:clamp(15px,1.7vw,19px);font-weight:800}
+#gamePage .game-coming-content>button span{margin-left:10px;font-size:23px}
+#gamePage button:focus-visible{outline:3px solid white;outline-offset:4px}
+@media(max-width:530px){#gamePage .game-coming-top{padding:18px 0}#gamePage .game-coming-top button{font-size:13px}#gamePage .game-coming-content{padding:100px 0 55px}}
 </style></head><body>
 <header><div><h1>✦ Card Studio</h1><small>Offline-ready • create, draw, collect, export</small></div><div class="top-actions"><button class="btn" id="newBtn">＋ New card</button><button class="btn" id="backupBtn">↓ Backup JSON</button><label class="btn" for="importBackup">↑ Import backup<input id="importBackup" type="file" accept="application/json,.json" hidden></label></div></header>
 <button id="menuToggle" type="button" aria-label="Open navigation" aria-expanded="false">☰ <span>Menu</span></button>
@@ -242,7 +266,7 @@ body[data-page="home"]{background:#17283e!important}
 <main class="home-main">
   <div class="home-intro"><p>WELCOME TO THE GAME</p><h1>YOUR NEXT CARD AWAITS.</h1><div>Create something ridiculous. Play it against your friends. Let Fate decide.</div></div>
   <div class="home-primary">
-    <button type="button" data-home-go="score" class="home-play"><strong>Play the Game</strong><span aria-hidden="true" class="home-arrow">›</span></button>
+    <button type="button" data-home-go="game" class="home-play"><strong>Play the Game</strong><span aria-hidden="true" class="home-arrow">›</span></button>
     <button type="button" data-home-go="cards" class="home-create"><strong>Create a Card</strong><span aria-hidden="true" class="home-arrow">›</span></button>
   </div>
   <div class="home-shortcuts">
@@ -251,6 +275,17 @@ body[data-page="home"]{background:#17283e!important}
     <button type="button" data-home-go="score">Scorekeeper</button>
   </div>
 </main></div></section>
+<section id="gamePage" aria-label="The Game under construction">
+  <div class="game-coming-shell">
+    <div class="game-coming-top"><strong>BAG OF GLEPS</strong><button type="button" data-game-go="home">← Back to Home</button></div>
+    <div class="game-coming-content">
+      <p class="game-coming-kicker">THE GAME</p>
+      <h1>UNDER CONSTRUCTION</h1>
+      <p>We're working on the online game. Check back later!</p>
+      <button type="button" data-game-go="score">Use Scorekeeper for in-person games <span aria-hidden="true">›</span></button>
+    </div>
+  </div>
+</section>
 <section id="wikiPage" class="feature-page" aria-label="Wiki"><div class="panel">
 <h2>▸ Wiki</h2><p>Welcome to Card Studio. Learn how to design, save, submit, and publish cards—and how to play. Tap a section arrow to expand its instructions.</p><p class="wiki-review-warning">Warning: Page still under review</p>
 <div class="wiki-group"><h3>THE CARD STUDIO</h3>
@@ -516,11 +551,12 @@ let game=fresh(),settings=false;
 try{const old=JSON.parse(localStorage.getItem(KEY)||'null');if(old&&Array.isArray(old.players)&&old.players.length>=2){game={...fresh(),...old};game.players=old.players.filter(p=>p&&typeof p.id==='string').map(p=>({id:p.id,name:String(p.name||'Player').slice(0,36),gems:Math.max(0,Math.floor(Number(p.gems)||0))})).slice(0,8);if(game.players.length<2)game=fresh();game.history=Array.isArray(old.history)?old.history.slice(-100):[];}}catch(e){}
 function persist(){try{localStorage.setItem(KEY,JSON.stringify(game))}catch(e){$('scoreHistory').textContent='Could not save automatically. Browser storage may be disabled or full.'}}
 function safeTarget(){return Math.max(1,Math.min(9999,Math.floor(Number(game.target)||30)))}
-function showTab(tab){if(!['home','cards','score','gallery','decks','shared','feedback','master','wiki'].includes(tab))tab='home';document.body.dataset.page=tab;document.body.classList.toggle('score-mode',tab==='score');document.querySelectorAll('#sideNav [data-go]').forEach(b=>b.classList.toggle('selected',b.dataset.go===tab));try{sessionStorage.setItem(TAB,tab)}catch(e){}if(tab==='score')render();if(tab==='gallery'){window.dispatchEvent(new Event('glep-gallery-open'))}if(tab==='decks')renderCollections();closeMenu()}
+function showTab(tab){if(!['home','game','cards','score','gallery','decks','shared','feedback','master','wiki'].includes(tab))tab='home';document.body.dataset.page=tab;document.body.classList.toggle('score-mode',tab==='score');document.querySelectorAll('#sideNav [data-go]').forEach(b=>b.classList.toggle('selected',b.dataset.go===tab));try{sessionStorage.setItem(TAB,tab)}catch(e){}if(tab==='score')render();if(tab==='gallery'){window.dispatchEvent(new Event('glep-gallery-open'))}if(tab==='decks')renderCollections();closeMenu()}
 function closeMenu(){document.getElementById('sideNav').classList.remove('open');document.getElementById('sideNav').setAttribute('aria-hidden','true');document.getElementById('menuShade').hidden=true;document.getElementById('menuToggle').setAttribute('aria-expanded','false')}
 function openMenu(){document.getElementById('sideNav').classList.add('open');document.getElementById('sideNav').setAttribute('aria-hidden','false');document.getElementById('menuShade').hidden=false;document.getElementById('menuToggle').setAttribute('aria-expanded','true')}
 document.getElementById('menuToggle').onclick=openMenu;document.getElementById('menuClose').onclick=closeMenu;document.getElementById('menuShade').onclick=closeMenu;document.addEventListener('keydown',e=>{if(e.key==='Escape')closeMenu()});document.querySelectorAll('#sideNav [data-go]').forEach(b=>b.onclick=()=>showTab(b.dataset.go));
 document.getElementById('homeMenu').onclick=openMenu;
+document.querySelectorAll('#gamePage [data-game-go]').forEach(b=>b.onclick=()=>{showTab(b.dataset.gameGo);window.scrollTo({top:0,behavior:'instant'})});
 document.querySelectorAll('#homePage [data-home-go]').forEach(b=>b.onclick=()=>{showTab(b.dataset.homeGo);if(b.dataset.wikiGame){const d=document.querySelector('#wikiPage .wiki-group:nth-of-type(2) details');if(d)d.open=true;}window.scrollTo({top:0,behavior:'instant'})});
 function readSavedCards(){try{const v=JSON.parse(localStorage.getItem('card-studio-v1')||'[]');return Array.isArray(v)?v:[]}catch(e){return []}}
 window.addEventListener('glep-approvals-synced',()=>renderCollections());

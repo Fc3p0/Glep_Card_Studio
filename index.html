@@ -185,19 +185,20 @@ body:not([data-page="wiki"]) #wikiPage{display:none!important}
 #wikiPage .wiki-planned{color:#ffa9ed;font-size:12px;font-weight:bold}
 
 #wikiPage .wiki-content,#wikiPage summary{font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}#wikiPage .wiki-content h4{color:#a5e9f2;margin:19px 0 7px;font-size:1.06rem}#wikiPage .wiki-content p{margin:7px 0 12px}#wikiPage .wiki-content ol{padding-left:24px}#wikiPage .wiki-content li{margin-bottom:9px}#wikiPage .wiki-verify{color:#ff929b!important;background:#53232e;border-left:4px solid #fb6574;padding:10px 12px;font-weight:650;border-radius:3px}#wikiPage .wiki-example,#wikiPage .wiki-die{background:#203454;border:1px solid #6e8fac;border-radius:9px;padding:13px 15px;margin:15px 0}#wikiPage .wiki-cards-guide,#wikiPage .wiki-compare{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:14px 0}#wikiPage .wiki-cards-guide>div,#wikiPage .wiki-compare>div{border:1px solid #789ab2;border-radius:8px;padding:12px 9px;display:flex;flex-direction:column;gap:5px}#wikiPage .wiki-cards-guide small{font-size:.8rem}#wikiPage .wiki-cards-guide .attack{background:#582d42}#wikiPage .wiki-cards-guide .modifier{background:#28503d}#wikiPage .wiki-cards-guide .fate{background:#574b29}#wikiPage .wiki-compare{grid-template-columns:repeat(2,minmax(0,1fr))}#wikiPage .wiki-compare>div{background:#203454}#wikiPage .wiki-steps{display:flex;align-items:center;gap:7px;flex-wrap:wrap;background:#14253c;padding:12px;border-radius:8px;margin:14px 0}#wikiPage .wiki-steps span{border:1px solid #83a9c1;border-radius:4px;font-size:.75rem;padding:5px;color:#d6f1ff}#wikiPage .wiki-die>div{display:grid;grid-template-columns:repeat(6,1fr);gap:5px;margin:10px 0}#wikiPage .wiki-die span{text-align:center;background:#344b67;padding:8px 0;border-radius:4px}#wikiPage .wiki-die small{color:#c1d8ea}#wikiPage .wiki-example table{width:100%;border-collapse:collapse}#wikiPage .wiki-example td,#wikiPage .wiki-example th{border-bottom:1px solid #516d8a;padding:5px;text-align:left}#wikiPage .wiki-easter{text-align:center;font-weight:bold;font-size:1.2rem}@media(max-width:580px){#wikiPage .wiki-cards-guide,#wikiPage .wiki-compare{grid-template-columns:1fr}#wikiPage .wiki-content{padding:0 14px 16px}}
+#wikiPage .wiki-review-warning{color:#ffb5b8;background:#53232e;border-left:4px solid #fb6574;padding:10px 12px;font-weight:650;border-radius:3px}
 </style></head><body>
 <header><div><h1>✦ Card Studio</h1><small>Offline-ready • create, draw, collect, export</small></div><div class="top-actions"><button class="btn" id="newBtn">＋ New card</button><button class="btn" id="backupBtn">↓ Backup JSON</button><label class="btn" for="importBackup">↑ Import backup<input id="importBackup" type="file" accept="application/json,.json" hidden></label></div></header>
 <button id="menuToggle" type="button" aria-label="Open navigation" aria-expanded="false">☰ <span>Menu</span></button>
 <div id="menuShade" hidden></div><nav id="sideNav" aria-label="Card Studio navigation" aria-hidden="true"><div class="side-title">CARD STUDIO <button id="menuClose" aria-label="Close navigation">×</button></div><button data-go="cards" class="selected">✎ Card Editor</button><button data-go="gallery">▧ Art Gallery</button><button data-go="decks">▤ My Cards</button><button data-go="shared" >♧ The Deck</button><button data-go="score">◇ Scorekeeper</button><button data-go="feedback">⚑ Bug & Feature Requests</button><button data-go="wiki">▸ Wiki</button><button data-go="master">⚙ Card Master</button><div class="side-caption">Draft cards and scores remain on this device. My Cards are private to this device. The Deck and shared artwork sync via Supabase. Local drafts and scores remain on this device.</div></nav>
 <section id="wikiPage" class="feature-page" aria-label="Wiki"><div class="panel">
-<h2>▸ Wiki</h2><p>Welcome to Card Studio. Learn how to design, save, submit, and publish cards—and how to play. Tap a section arrow to expand its instructions.</p><p class="wiki-verify">Warning: Page still under review</p>
+<h2>▸ Wiki</h2><p>Welcome to Card Studio. Learn how to design, save, submit, and publish cards—and how to play. Tap a section arrow to expand its instructions.</p><p class="wiki-review-warning">Warning: Page still under review</p>
 <div class="wiki-group"><h3>THE CARD STUDIO</h3>
 <details><summary>How to Make Your Card Design</summary><div class="wiki-content">
 <h4>1. Create a card</h4><p>Open the left menu, select <b>Card Editor</b>, and choose <b>New card</b> if you want to start from scratch. Select <b>Attack</b> (pink), <b>Modifier</b> (green), or <b>Fate</b> (yellow). Your chosen type controls how the card is categorized.</p>
 <div class="wiki-cards-guide"><div class="attack"><b>ATTACK</b><small>Primary round card</small></div><div class="modifier"><b>MODIFIER</b><small>Played with an Attack</small></div><div class="fate"><b>FATE</b><small>Special effects</small></div></div>
 <h4>2. Enter card details</h4><p>Enter a <b>title</b>, <b>damage</b>, <b>stars</b>, up to two <b>elements</b> (Earth, Water, Fire, Air, or None), <b>effect/description</b>, and optional searchable <b>tags</b>. Watch the live preview as you make changes.</p>
 <div class="wiki-example"><b>Example</b><p>A card with <b>6 damage</b> and <b>4 stars</b> displays those values in the existing stat circles. The damage value contributes to the round's attack total; stars contribute toward Fate.</p></div>
-<p class="wiki-verify">BILLY TO CONFIRM: Is the proposed combined 10-point damage/star cap final, and how should negative values work?</p>
+
 <h4>3. Add or draw artwork</h4><p>Use the editor's image-upload controls to choose artwork from your device, draw directly in the <b>Paint-style drawing canvas</b>, or open <b>Art Gallery</b> and choose <b>Use on Card</b> for an existing asset. Keep drawings within the designated canvas. The preview shows how the art will appear on the card.</p>
 <div class="wiki-example"><b>Finding the controls</b><p><b>Card Editor → artwork upload or Paint tools → card preview.</b> The actual editor and Billy's original template are the source of truth; no replacement art is used in this guide.</p></div>
 <h4>4. Review before saving</h4><p>Check the title, layout, readable effect text, damage, stars, elements, and artwork. Fix anything that doesn't look right in the preview.</p>
@@ -205,7 +206,7 @@ body:not([data-page="wiki"]) #wikiPage{display:none!important}
 <h4>6. Submit for approval</h4><p>When ready, choose <b>Submit to The Deck</b> from Card Editor. Enter your private creator code when prompted. Submission places the card in the review queue—it does not immediately publish it.</p>
 <h4>7. Find the published card</h4><p>After approval, the card becomes visible in <b>The Deck</b>. Your local draft remains separate. If your card is missing, it may still be pending review or may have been denied. Use The Deck's search and card-type filter to browse published cards.</p>
 <div class="wiki-steps"><span>DESIGN</span><span>→</span><span>SAVE</span><span>→</span><span>SUBMIT</span><span>→</span><span>REVIEW</span><span>→</span><span>THE DECK</span></div>
-<p class="wiki-verify">BILLY TO CONFIRM: What approval criteria and denial feedback should creators expect?</p>
+
 </div></details>
 <details><summary>Filing</summary><div class="wiki-content">
 <h4>Report a bug</h4><ol><li>Open <b>Bug &amp; Feature Requests</b> in the left menu.</li><li>Choose <b>Bug report</b> from Type.</li><li>Enter your creator code.</li><li>Describe what you did, what you expected, and what happened instead.</li><li>Optionally attach a PNG, JPG, or WebP screenshot under 2 MB.</li><li>Select <b>Submit request</b> and save the tracking ID shown after success.</li></ol>
@@ -213,30 +214,30 @@ body:not([data-page="wiki"]) #wikiPage{display:none!important}
 <h4>Suggest a feature</h4><p>Open the same page and select <b>Feature request</b>. Explain what behavior you want, how it would work, and why it's useful. An optional reference image can help clarify your idea.</p>
 <h4>My Cards vs. The Deck</h4><div class="wiki-compare"><div><b>MY CARDS</b><p>Private saved drafts on your current browser/device. Continue editing your own work here.</p></div><div><b>THE DECK</b><p>Approved shared cards stored online. Browse by name, creator, type, and tags.</p></div></div><p><b>Art Gallery</b> contains artwork assets, not complete cards. Saving, submitting, and publishing are separate actions.</p>
 <h4>Where requests go</h4><p>Bug and feature requests enter a saved review queue. Authorized reviewers can inspect reports and attachments and set statuses: <b>New</b>, <b>Reviewing</b>, or <b>Done</b>. Regular creators can submit requests but cannot open the administrative queue.</p>
-<p class="wiki-verify">BILLY TO CONFIRM: Should a future My Requests page show creators their own ticket history and statuses? Not available now.</p>
+
 </div></details></div>
 <div class="wiki-group"><h3>THE GAME</h3>
 <details><summary>Game Intro</summary><div class="wiki-content">
 <h4>What is the game?</h4><p>Players compete for gems by secretly choosing cards, revealing them together, and comparing damage totals. Stars can unlock Fate, and special effects can change what happens.</p>
 <h4>Card types</h4><div class="wiki-cards-guide"><div class="attack"><b>ATTACK</b><small>Primary card</small></div><div class="modifier"><b>MODIFIER</b><small>Paired with Attack</small></div><div class="fate"><b>FATE</b><small>Special outcomes</small></div></div>
-<h4>Set up</h4><p>Separate and shuffle the three decks. Each player begins with <b>two Attack cards and two Modifier cards</b>. Keep your hand hidden and agree on a gem target before play.</p><p class="wiki-verify">BILLY TO CONFIRM: Does the four-card starting hand apply at every player count? What are the precise refill, discard, and reshuffle rules?</p>
+<h4>Set up</h4><p>Separate and shuffle the three decks. Each player begins with <b>two Attack cards and two Modifier cards</b>. Keep your hand hidden and agree on a gem target before play.</p>
 <h4>Playing a round</h4><ol><li>Choose one Attack and one Modifier in secret.</li><li>Place the pair face down.</li><li>Everyone flips their cards simultaneously on a count of three.</li><li>Add Attack + Modifier damage, then add their stars separately.</li><li>Check Fate triggers and applicable card effects.</li><li>Use a six-sided die result to determine the gem prize pool.</li><li>Resolve the winner, award gems, record the score, and refill hands.</li></ol>
 <h4>Damage</h4><p>Damage is the total from the two cards you played. For example, <b>6 Attack + 2 Modifier = 8 damage</b>. The highest final damage generally wins the prize pool, subject to card effects.</p>
 <h4>Stars and Fate</h4><p>Add your Attack and Modifier stars. At <b>10 or more stars</b>, you may optionally draw a blind Fate card even if you lost the round. Example: <b>4 + 6 = 10 stars</b>. Fate cards can affect damage, gems, or the result. A tie may also cause tied players to draw Fate cards.</p>
-<p class="wiki-verify">BILLY TO CONFIRM: Exact Fate timing, tie-draw rules, and whether multiple Fate effects can resolve during one round.</p>
+
 <h4>Elements</h4><p>Up to two lower card circles show Earth, Water, Fire, or Air; None may represent an unused element. Do not assume elemental bonuses or weaknesses without an explicit rule or card effect.</p>
-<p class="wiki-verify">BILLY TO CONFIRM: Do elements have standard interactions beyond individual card text?</p>
+
 <h4>Winning</h4><p>Keep collecting gems until someone reaches the agreed target, or the deck runs out under the game's end conditions.</p>
-<p class="wiki-verify">BILLY TO CONFIRM: Deck-exhaustion ending, final ties, and any extra win conditions.</p>
+
 </div></details>
 <details><summary>In Person Games</summary><div class="wiki-content">
 <h4>1. Prepare the decks</h4><p>Shuffle separate Attack, Modifier, and Fate decks. Deal each player two Attack and two Modifier cards. Agree on a target number of gems.</p>
 <h4>2. Choose and flip</h4><p>Secretly select one Attack and one Modifier, then set them face down. Count down together and <b>manually flip both cards at the same time</b> as everyone else.</p>
 <h4>3. Calculate the round</h4><p>Add Attack and Modifier damage, and calculate the stars separately. Check card instructions and whether Fate has been activated.</p>
 <h4>4. Roll for gems</h4><p>Use the <b>manual die spinner</b> or a physical six-sided die to generate the round's gem prize pool.</p>
-<div class="wiki-die"><b>Six possible die results</b><div><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span></div><small>Illustrative guide, not the working spinner.</small></div>
+
 <h4>5. Award gems and continue</h4><p>After resolving effects and the winner, award the gems. Record scores in <b>Scorekeeper</b>, refill hands, and begin the next round.</p>
-<p class="wiki-verify">BILLY TO CONFIRM: Exact location and label of the manual die spinner; exact timing of gem allocation relative to special effects.</p>
+
 </div></details>
 <details><summary>Online Games</summary><div class="wiki-content"><p class="wiki-planned">PLANNED — NOT YET LIVE</p>
 <h4>Create or join a room</h4><p>One player will create a private game room and share a code or invite. Other players will enter that code and gather in the lobby.</p>
@@ -245,7 +246,7 @@ body:not([data-page="wiki"]) #wikiPage{display:none!important}
 <h4>Animated gem roll</h4><p>The game will generate the round's prize pool automatically using a visible animated die or spinner shared by all players.</p>
 <h4>Automatic leaderboard</h4><p>After each round, gems will be allocated automatically and a live leaderboard will rank players by cumulative score.</p>
 <div class="wiki-example"><b>Illustrative leaderboard (not live)</b><table><tr><th>Rank</th><th>Player</th><th>Gems</th></tr><tr><td>1</td><td>Player A</td><td>18</td></tr><tr><td>2</td><td>Player B</td><td>14</td></tr><tr><td>3</td><td>Player C</td><td>9</td></tr></table></div>
-<p class="wiki-verify">BILLY TO CONFIRM: Whether private selections use only a player's created cards or an approved pool; maximum players, gem targets, and tie-breaks.</p>
+
 <p><b>Not implemented yet:</b> Online rooms, synchronized private hands, automatic match scoring, and real-time leaderboards.</p></div></details>
 <details><summary>How to Win</summary><div class="wiki-content"><p class="wiki-easter">#fbgm gg made you look 8=D</p></div></details></div>
 </div></section>

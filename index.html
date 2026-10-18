@@ -226,29 +226,17 @@ body[data-page="home"]{background:#17283e!important}
 @media(max-width:810px){#homePage .home-desktop-nav{display:none}#homePage #homeMenu{display:flex}#homePage header.home-top{padding:18px 0!important}#homePage .home-shell{padding:0 22px}#homePage .home-main{padding:clamp(48px,10vh,90px) 0 45px}#homePage .home-primary{gap:12px}}
 @media(max-width:530px){#homePage .home-shell{padding:0 17px}#homePage .home-intro h1{font-size:clamp(32px,9vw,48px)}#homePage .home-intro p{font-size:14px}#homePage .home-intro div{font-size:17px}#homePage .home-primary{grid-template-columns:1fr;gap:12px;margin-top:38px}#homePage .home-primary button{min-height:68px;padding:15px 20px;font-size:20px}#homePage .home-shortcuts{gap:2px;margin-top:34px;padding-top:19px}#homePage .home-shortcuts button{font-size:12px;text-align:center}}
 
-/* Online game placeholder, only shown after selecting Play the Game. */
-body[data-page="game"]>header,
-body[data-page="game"]>#menuToggle,
-body[data-page="game"]>.layout,
-body[data-page="game"]>.library,
-body[data-page="game"]>#scorePage,
-body[data-page="game"]>#cloudAccount{display:none!important}
+/* Under construction page (the rest of the site is unchanged) */
+body[data-page="game"]>header,body[data-page="game"]>#menuToggle,body[data-page="game"]>.layout,body[data-page="game"]>.library,body[data-page="game"]>#scorePage,body[data-page="game"]>#cloudAccount{display:none!important}
 body:not([data-page="game"]) #gamePage{display:none!important}
 body[data-page="game"]{background:#17283e!important}
-#gamePage{min-height:100vh;min-height:100svh;background:#17283e;color:#d1e2f1;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
-#gamePage .game-coming-shell{max-width:1200px;margin:0 auto;padding:0 clamp(20px,5vw,72px)}
-#gamePage .game-coming-top{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:27px 0;border-bottom:1px solid #39516b}
-#gamePage .game-coming-top strong{color:#c6eafa;font-size:clamp(16px,1.8vw,23px);font-weight:850;letter-spacing:.045em}
-#gamePage button{font:inherit;cursor:pointer}
-#gamePage .game-coming-top button{color:#c9eaf5;background:transparent;border:0;font-size:15px;font-weight:650;padding:8px}
-#gamePage .game-coming-content{max-width:800px;text-align:center;margin:0 auto;padding:clamp(85px,18vh,190px) 0 70px}
-#gamePage .game-coming-kicker{color:#83d7e8;font-weight:800;letter-spacing:.08em;font-size:clamp(15px,2vw,22px);margin:0 0 16px}
-#gamePage h1{font-size:clamp(38px,6vw,70px);line-height:1.1;color:#fff;letter-spacing:-.025em;margin:0 0 20px}
-#gamePage .game-coming-content>p:not(.game-coming-kicker){font-size:clamp(17px,2vw,24px);line-height:1.5;margin:0 0 40px;color:#c4d5e8}
-#gamePage .game-coming-content>button{border:0;border-radius:12px;background:#81dbe7;color:#14243b;padding:17px 24px;font-size:clamp(15px,1.7vw,19px);font-weight:800}
-#gamePage .game-coming-content>button span{margin-left:10px;font-size:23px}
-#gamePage button:focus-visible{outline:3px solid white;outline-offset:4px}
-@media(max-width:530px){#gamePage .game-coming-top{padding:18px 0}#gamePage .game-coming-top button{font-size:13px}#gamePage .game-coming-content{padding:100px 0 55px}}
+#gamePage{position:relative;min-height:100vh;min-height:100svh;background:#17283e;color:#fff;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;overflow:hidden}
+#gamePage .game-coming-shell{min-height:100vh;min-height:100svh;display:flex;align-items:center;justify-content:center;padding:40px 20px 220px}
+#gamePage h1{text-align:center;font-size:clamp(40px,6vw,80px);line-height:1.1;letter-spacing:-.02em;font-weight:900;margin:0}
+#gamePage .game-corner{position:absolute;right:clamp(16px,3vw,48px);bottom:clamp(12px,3vh,30px);width:clamp(135px,17vw,240px);text-align:center}
+#gamePage .game-corner img{width:100%;height:auto;display:block;mix-blend-mode:screen;filter:contrast(1.12)}
+#gamePage .game-corner p{font-size:clamp(12px,1.4vw,17px);font-weight:700;margin:2px 0 0;color:#c4d5e8}
+@media(max-width:530px){#gamePage .game-coming-shell{padding-bottom:200px}#gamePage .game-corner{width:150px;right:12px;bottom:16px}}
 </style></head><body>
 <header><div><h1>✦ Card Studio</h1><small>Offline-ready • create, draw, collect, export</small></div><div class="top-actions"><button class="btn" id="newBtn">＋ New card</button><button class="btn" id="backupBtn">↓ Backup JSON</button><label class="btn" for="importBackup">↑ Import backup<input id="importBackup" type="file" accept="application/json,.json" hidden></label></div></header>
 <button id="menuToggle" type="button" aria-label="Open navigation" aria-expanded="false">☰ <span>Menu</span></button>
@@ -275,17 +263,7 @@ body[data-page="game"]{background:#17283e!important}
     <button type="button" data-home-go="score">Scorekeeper</button>
   </div>
 </main></div></section>
-<section id="gamePage" aria-label="The Game under construction">
-  <div class="game-coming-shell">
-    <div class="game-coming-top"><strong>BAG OF GLEPS</strong><button type="button" data-game-go="home">← Back to Home</button></div>
-    <div class="game-coming-content">
-      <p class="game-coming-kicker">THE GAME</p>
-      <h1>UNDER CONSTRUCTION</h1>
-      <p>We're working on the online game. Check back later!</p>
-      <button type="button" data-game-go="score">Use Scorekeeper for in-person games <span aria-hidden="true">›</span></button>
-    </div>
-  </div>
-</section>
+<section id="gamePage" aria-label="The Game under construction"><div class="game-coming-shell"><h1>UNDER CONSTRUCTION</h1><div class="game-corner"><img alt="Original black-and-white cartoon character" src="data:image/png;base64,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"><p>why are you still here</p></div></div></section>
 <section id="wikiPage" class="feature-page" aria-label="Wiki"><div class="panel">
 <h2>▸ Wiki</h2><p>Welcome to Card Studio. Learn how to design, save, submit, and publish cards—and how to play. Tap a section arrow to expand its instructions.</p><p class="wiki-review-warning">Warning: Page still under review</p>
 <div class="wiki-group"><h3>THE CARD STUDIO</h3>

@@ -165,6 +165,12 @@ body[data-page="feedback"] .layout,body[data-page="feedback"] .library,body[data
 body[data-page="wiki"] .layout,body[data-page="wiki"] .library,body[data-page="wiki"] #scorePage{display:none!important}
 body:not([data-page="wiki"]) #wikiPage{display:none!important}
 #wikiPage{max-width:940px}
+/* Reader-friendly Wiki typography; outside pages retain existing fonts. */
+#wikiPage{font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-size:16px;line-height:1.6;font-weight:400}
+#wikiPage summary{font-family:inherit;font-size:16px;line-height:1.45;letter-spacing:normal}
+#wikiPage .wiki-content{font-size:15.5px;line-height:1.75}
+#wikiPage .wiki-group h3{font-family:inherit;letter-spacing:.025em}
+
 #wikiPage .wiki-group{margin-top:26px}
 #wikiPage .wiki-group h3{color:#3edce8;font-size:19px}
 #wikiPage details{background:#15243b;border:1px solid #53678e;border-radius:12px;margin:10px 0;overflow:hidden}
@@ -184,18 +190,18 @@ body:not([data-page="wiki"]) #wikiPage{display:none!important}
 <section id="wikiPage" class="feature-page" aria-label="Wiki"><div class="panel">
 <h2>▸ Wiki</h2><p>Everything you need to create cards and play the game. Tap any arrow to expand a section.</p>
 <div class="wiki-group"><h3>THE CARD STUDIO</h3>
-<details><summary>How to design, save &amp; publish your card</summary><div class="wiki-content">
+<details><summary>How to Make Your Card Design</summary><div class="wiki-content">
 <ol><li><b>Design:</b> Open <b>Card Editor</b>. Choose Attack, Modifier, or Fate; enter your card's name and details; upload, draw, or select artwork; and review the live preview.</li>
 <li><b>Save:</b> Select <b>Save to My Cards</b>. Your saved card belongs to your private, device-local collection. Use <b>Backup JSON</b> to keep a safe copy.</li>
 <li><b>Submit:</b> When ready, select <b>Submit to The Deck</b> and follow the prompts. Submitting sends your card for review, not instant publication.</li>
 <li><b>Publish:</b> After approval, your card appears in <b>The Deck</b> for other players to see. Your saved draft remains separate.</li></ol>
 <p><b>Process:</b> Design → Preview → Save → Submit → Review → Approved and published.</p></div></details>
-<details><summary>Filing · Bugs, feature requests &amp; finding cards</summary><div class="wiki-content">
+<details><summary>Filing</summary><div class="wiki-content">
 <p>Go to <b>Bug &amp; Feature Requests</b> in the menu. Select <b>Bug report</b> to describe a problem, or <b>Feature request</b> to suggest something new. Enter your creator code, explain the issue or idea, optionally attach a screenshot, and submit.</p>
 <p>For bugs, explain what you did, what you expected, and what happened. For features, explain the desired behavior and why it would help.</p>
 <p><b>My Cards</b> contains your own saved cards, private to this device/browser. <b>The Deck</b> contains approved, published cards visible to everyone. A submission may still be pending review. <b>Art Gallery</b> holds artwork assets, not entire cards.</p></div></details></div>
 <div class="wiki-group"><h3>THE GAME</h3>
-<details><summary>Game Intro · Core mechanics, stars, damage &amp; fate</summary><div class="wiki-content">
+<details><summary>Game Intro</summary><div class="wiki-content">
 <p>Each round, players secretly set down <b>one Attack and one Modifier</b> face down, then flip together on a count of three. Each hand starts with two Attack and two Modifier cards and is refilled after rounds.</p>
 <p><b>Damage:</b> Combine the damage of your Attack and Modifier. The highest total wins the round's gem pool, set by rolling a six-sided die.</p>
 <p><b>Stars:</b> Combine the stars on your two cards. At 10 or more stars, you may optionally draw one blind Fate card, even if you lost the round.</p>
@@ -204,7 +210,7 @@ body:not([data-page="wiki"]) #wikiPage{display:none!important}
 <details><summary>In Person Games</summary><div class="wiki-content">
 <p>Pick your Attack and Modifier in secret, place them face down, and <b>manually flip the cards</b> at the same moment as everyone else. Add damage, consider stars and any Fate cards, and resolve the round.</p>
 <p>Use the <b>manual die spinner</b> to generate the six-sided roll that determines the round's gem prize pool. Award the gems to the winner, record points using <b>Scorekeeper</b>, then refill hands for the next round.</p></div></details>
-<details><summary>Online Games · Future design</summary><div class="wiki-content">
+<details><summary>Online Games</summary><div class="wiki-content">
 <p class="wiki-planned">PLANNED — NOT YET LIVE</p>
 <p><b>Joining:</b> Players will join a hosted game through a game code or invitation and gather in a lobby.</p>
 <p><b>Private selection:</b> Each player will select from their own cards through a private interface. Other players will not see their selection before the reveal.</p>

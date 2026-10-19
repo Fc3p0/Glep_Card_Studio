@@ -252,6 +252,10 @@ body[data-page="game"]{background:#17283e!important}
 #gamePage #gameLoginStatus{color:#ffb2b9;min-height:22px;font-size:14px}
 #gamePage #gameGate[hidden],#gamePage #gameWorkspace[hidden]{display:none!important}
 #gamePage #gameCreatorGreeting{font-size:18px;color:#a7e6ed;font-weight:750}
+
+/* Five Card Master sections: accessible compact tab grid on desktop. */
+.master-tabs{grid-template-columns:repeat(3,minmax(0,1fr))}
+@media(max-width:530px){.master-tabs{grid-template-columns:1fr}}
 </style></head><body>
 <header><div><h1>✦ Card Studio</h1><small>Offline-ready • create, draw, collect, export</small></div><div class="top-actions"><button class="btn" id="newBtn">＋ New card</button><button class="btn" id="backupBtn">↓ Backup JSON</button><label class="btn" for="importBackup">↑ Import backup<input id="importBackup" type="file" accept="application/json,.json" hidden></label></div></header>
 <button id="menuToggle" type="button" aria-label="Open navigation" aria-expanded="false">☰ <span>Menu</span></button>
@@ -345,15 +349,19 @@ body[data-page="game"]{background:#17283e!important}
 <div id="masterControls" hidden>
 <div class="master-tabs" role="tablist" aria-label="Card Master sections">
 <button type="button" class="btn primary" data-master-tab="review" role="tab" aria-selected="true">Card Review</button>
+<button type="button" class="btn" data-master-tab="deck" role="tab" aria-selected="false">Manage Deck</button>
 <button type="button" class="btn" data-master-tab="gallery" role="tab" aria-selected="false">Gallery Management</button>
 <button type="button" class="btn" data-master-tab="users" role="tab" aria-selected="false">User Management</button>
 <button type="button" class="btn" data-master-tab="templates" role="tab" aria-selected="false">Template Designer · Beta</button>
 </div>
 <div class="master-global-controls"><button class="btn" id="masterRefresh">Refresh</button><button class="btn" id="masterLock">Lock</button></div>
 <p class="muted" id="masterStatus" role="status"></p>
+<div data-master-panel="deck" role="tabpanel" hidden>
+<h3>Manage Published Deck</h3><p class="muted">Remove an approved card from the public Deck without deleting its record or original artwork. Removed cards return to pending review and can be approved again.</p><div id="masterPublishedCards" class="master-grid"></div>
+</div>
 <div data-master-panel="review" role="tabpanel">
 <h3>Card submissions</h3>
-<div class="feature-actions"><button class="btn primary" id="masterDeckExport">Export Approved Deck (print)</button></div><h3>Manage Published Deck</h3><p class="muted">Remove an approved card from the public Deck without deleting its record or original artwork. Removed cards return to pending review and can be approved again.</p><div id="masterPublishedCards" class="master-grid"></div><h3>Card Submissions &amp; Review</h3>
+<div class="feature-actions"><button class="btn primary" id="masterDeckExport">Export Approved Deck (print)</button></div><h3>Card Submissions &amp; Review</h3>
 <div class="feature-actions"><label for="masterShowReviewed" class="muted"><input type="checkbox" id="masterShowReviewed"> Show approved and denied cards</label></div><div id="masterCards" class="master-grid"></div>
 </div>
 <div data-master-panel="gallery" role="tabpanel" hidden>

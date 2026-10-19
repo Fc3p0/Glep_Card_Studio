@@ -256,6 +256,14 @@ body[data-page="game"]{background:#17283e!important}
 /* Five Card Master sections: accessible compact tab grid on desktop. */
 .master-tabs{grid-template-columns:repeat(3,minmax(0,1fr))}
 @media(max-width:530px){.master-tabs{grid-template-columns:1fr}}
+
+/* Manage Deck is a dedicated workshop subpage, not an inline tab. */
+#masterPage.master-deck-view>.panel>h2,
+#masterPage.master-deck-view>.panel>p.muted,
+#masterPage.master-deck-view .master-tabs,
+#masterPage.master-deck-view .master-global-controls{display:none!important}
+#masterPage.master-deck-view [data-master-panel="deck"]{display:block!important}
+#masterPage #masterBackFromDeck{margin-bottom:18px}
 </style></head><body>
 <header><div><h1>✦ Card Studio</h1><small>Offline-ready • create, draw, collect, export</small></div><div class="top-actions"><button class="btn" id="newBtn">＋ New card</button><button class="btn" id="backupBtn">↓ Backup JSON</button><label class="btn" for="importBackup">↑ Import backup<input id="importBackup" type="file" accept="application/json,.json" hidden></label></div></header>
 <button id="menuToggle" type="button" aria-label="Open navigation" aria-expanded="false">☰ <span>Menu</span></button>
@@ -356,8 +364,9 @@ body[data-page="game"]{background:#17283e!important}
 </div>
 <div class="master-global-controls"><button class="btn" id="masterRefresh">Refresh</button><button class="btn" id="masterLock">Lock</button></div>
 <p class="muted" id="masterStatus" role="status"></p>
-<div data-master-panel="deck" role="tabpanel" hidden>
-<h3>Manage Published Deck</h3><p class="muted">Remove an approved card from the public Deck without deleting its record or original artwork. Removed cards return to pending review and can be approved again.</p><div id="masterPublishedCards" class="master-grid"></div>
+<div data-master-panel="deck" role="region" aria-label="Manage Deck" hidden>
+<button type="button" class="btn" id="masterBackFromDeck">← Back to Card Master</button>
+<h2>Manage Published Deck</h2><p class="muted">Remove an approved card from the public Deck without deleting its record or original artwork. Removed cards return to pending review and can be approved again.</p><div id="masterPublishedCards" class="master-grid"></div>
 </div>
 <div data-master-panel="review" role="tabpanel">
 <h3>Card submissions</h3>
@@ -681,7 +690,15 @@ for(const c of data.codes){
 }
 msg(data.cards.length+' total submissions · '+data.cards.filter(c=>c.review_status==='pending').length+' pending approval.');return true}catch(e){msg(e.message);return false}}
 $('masterUnlock').onclick=()=>{pass=$('masterPass').value;refresh().then(ok=>{if(ok){$('masterGate').hidden=true;$('masterControls').hidden=false}})};
-document.querySelectorAll('[data-master-tab]').forEach(b=>b.addEventListener('click',()=>{const chosen=b.dataset.masterTab;document.querySelectorAll('[data-master-tab]').forEach(x=>{const active=x.dataset.masterTab===chosen;x.classList.toggle('primary',active);x.setAttribute('aria-selected',String(active))});document.querySelectorAll('[data-master-panel]').forEach(p=>p.hidden=p.dataset.masterPanel!==chosen)}));
+function masterOpenSection(chosen){
+const dedicated=chosen==='deck';
+$('masterPage').classList.toggle('master-deck-view',dedicated);
+document.querySelectorAll('[data-master-tab]').forEach(x=>{const active=x.dataset.masterTab===chosen;x.classList.toggle('primary',active);x.setAttribute('aria-selected',String(active))});
+document.querySelectorAll('[data-master-panel]').forEach(p=>p.hidden=p.dataset.masterPanel!==chosen);
+if(dedicated){window.scrollTo({top:0,behavior:'instant'})}
+}
+document.querySelectorAll('[data-master-tab]').forEach(b=>b.addEventListener('click',()=>masterOpenSection(b.dataset.masterTab)));
+$('masterBackFromDeck').onclick=()=>masterOpenSection('review');
 $('masterShowReviewed').addEventListener('change',refresh);$('masterRefresh').onclick=refresh;
 $('masterDeckExport').onclick=async()=>{try{const approved=currentCards.filter(c=>c.review_status==='approved');if(!approved.length)return msg('There are no approved cards to export yet.');msg('Preparing '+approved.length+' approved cards for printing…');const w=window.open('','_blank');if(!w){msg('Allow pop-ups to export the approved deck.');return}w.document.open();w.document.write('<!doctype html><html><head><title>Approved Card Deck</title><style>@page{size:letter;margin:.25in}body{margin:0;font-family:sans-serif}.sheet{width:7.5in;margin:auto;display:grid;grid-template-columns:repeat(3,2.5in);grid-auto-rows:3.5in;page-break-after:always}.sheet img{width:2.5in;height:3.5in;object-fit:fill}@media screen{body{padding:20px}.sheet{margin:12px auto;box-shadow:0 0 8px #999}}</style></head><body>');for(let i=0;i<approved.length;i+=9){w.document.write('<div class="sheet">');for(const c of approved.slice(i,i+9)){const img=window.glepRenderCard?await window.glepRenderCard({...c.card_data,name:c.name,type:c.card_type,image:c.artwork_url||'',strokes:[]}):c.artwork_url||'';w.document.write('<img alt="card" src="'+img+'">')}w.document.write('</div>')}w.document.write('</body></html>');w.document.close();msg('Approved deck opened in a new tab. Use Print / Save as PDF at actual size.')}catch(e){msg('Export failed: '+e.message)}};
 

@@ -54,7 +54,7 @@ async function act(action,data,errorId){
   if(action==="leave"){stop();clearRoom();show("entry");}
   else{if(response.room)render(response);else show("lobby");if(Object.prototype.hasOwnProperty.call(response,"game"))renderGame(response);}
  }catch(e){if(current===generation)notice(errorId,e.message);}
- finally{busy=false;controls();if(token&&current===generation&&action!=="leave"){if(currentGame)renderGame({game:currentGame,canStart:canStartGame},true);startPoll();}}
+ finally{busy=false;controls();if(token&&current===generation&&action!=="leave"){renderGame({game:currentGame,canStart:canStartGame},true);startPoll();}}
 }
 window.addEventListener("message",e=>{
  if(e.origin!==location.origin||e.source!==parent)return;

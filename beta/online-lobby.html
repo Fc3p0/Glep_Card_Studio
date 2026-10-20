@@ -107,7 +107,7 @@ function renderGame(data,force=false){
   const start=button("Start Game",()=>gameAction("game_start",{target:Number($("gemTarget").value)}),"primary");
   start.disabled=busy||!data.canStart||document.querySelectorAll("#lobby .player strong").length!==2||!roomReady;
   board.append(start);
-  if(!data.canStart)textLine(board,"The host starts the match once both players have joined.","sub");
+  if(!data.canStart)textLine(board,"Both players must be connected before starting.","sub");
   else if(!roomReady)textLine(board,"Waiting for the second player.","sub");
   return;
  }
@@ -165,7 +165,7 @@ function renderGame(data,force=false){
    }else{
     textLine(board,(g.winner?g.winner+" wins the match!":"The match ends in a draw.")+" "+(g.reason||""),"round-message");
     if(data.canStart)board.append(button("Play Again",()=>gameAction("game_start",{target:g.target}),"primary"));
-    else textLine(board,"The host can start another match.","sub");
+    else textLine(board,"Either player can start another match once both are connected.","sub");
    }
   }
  }else if(g.phase==="abandoned"){

@@ -2,21 +2,21 @@
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>GLEP · Online Game Beta</title>
 <style>
 :root{color-scheme:dark;font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;background:#101c30;color:#f1f7ff}*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(circle at top,#263a5a 0,#101c30 70%)}main{max-width:560px;margin:0 auto;padding:24px 18px 64px}header{display:flex;justify-content:space-between;align-items:center;padding:6px 0 42px}h1{font-size:clamp(2rem,7vw,3rem);margin:8px 0}h2{margin:8px 0 15px}p{color:#c1d2e6;line-height:1.55}.eyebrow{color:#9adddf;letter-spacing:.15em;font-size:.78rem;font-weight:800}.panel{border:1px solid #526e91;background:#182a45;border-radius:18px;padding:24px;box-shadow:0 18px 48px #050e1b55}.actions{display:grid;gap:12px;margin-top:24px}button,input{font:inherit}button{border:1px solid #7491ae;border-radius:10px;padding:13px 18px;cursor:pointer;background:#283f60;color:#fff;font-weight:750}button.primary{background:#9ce6ed;color:#132239;border-color:#9ce6ed}button.secondary{background:#dba7d6;color:#182039;border-color:#dba7d6}button:focus-visible,input:focus-visible{outline:3px solid #f0d36b;outline-offset:2px}input{background:#102139;border:1px solid #7090ae;color:#fff;border-radius:9px;padding:13px;width:100%;margin:8px 0 16px}label{font-size:.85rem;font-weight:700}.sub{font-size:.85rem}.chip{background:#263f5c;border-radius:7px;padding:5px 9px;font-size:.8rem;color:#d9eaff}.player{display:flex;align-items:center;gap:11px;padding:14px 0;border-bottom:1px solid #3d5672}.dot{width:10px;height:10px;border-radius:50%;background:#8fe3ad}.waiting{background:#788ba6}.status{min-height:22px;margin-top:18px;font-size:.88rem;color:#eac987}.hidden{display:none}.code{font-size:1.9rem;letter-spacing:.2em;font-weight:900;text-align:center;padding:15px;background:#101f36;border:1px dashed #7290af;border-radius:12px;user-select:all}.notice{border-left:3px solid #e9c472;padding:8px 13px;background:#2c3544;color:#e9d9a9;font-size:.85rem;margin:24px 0 0}.back{border:0;background:none;padding:8px 0;color:#b6dbe7}footer{text-align:center;color:#9bafc5;font-size:.8rem;margin-top:28px}button:disabled{opacity:.45;cursor:not-allowed}
-</style></head><body><main><header><strong>✦ GLEP</strong><span class="chip">ONLINE GAME · BETA 0.1</span></header>
-<section id="entry" class="panel"><div class="eyebrow">WELCOME TO THE TABLE</div><h1>Play Together.</h1><p>A private room for you and a friend. We're prototyping the lobby before adding card selection and synchronized rounds.</p><div class="actions"><button id="create" class="primary">Create a Room</button><button id="joinStart" class="secondary">Join a Room</button></div><p class="status" id="entryStatus" role="status"></p></section>
+.hand-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:12px 0 20px}.game-card{display:flex;flex-direction:column;gap:8px;min-width:0;background:#102139;border:2px solid #526e91;border-radius:12px;padding:10px;text-align:left;color:#f1f7ff}.game-card.selected{border-color:#f0d36b;box-shadow:0 0 0 2px #f0d36b}.game-card img{width:100%;aspect-ratio:5/6;object-fit:contain;border-radius:6px}.game-card img.rendered{aspect-ratio:5/7}.game-card p{font-size:.8rem;white-space:pre-wrap;margin:0}.game-card small{font-size:.75rem;color:#a7d7dd}.scoreboard{display:grid;gap:8px;padding:16px;background:#102139;border-radius:10px}.round-message{background:#30435b;padding:14px;border-left:3px solid #9ce6ed}.revealed-player{margin:22px 0;border-top:1px solid #526e91;padding-top:12px}.adjustments{margin:20px 0}#gameBoard{border-top:1px solid #526e91;margin-top:24px;padding-top:24px}#gameBoard button.primary{width:100%;margin-top:14px}@media(max-width:360px){.hand-grid{grid-template-columns:1fr}} </style></head><body><main><header><strong>✦ GLEP</strong><span class="chip">ONLINE GAME · BETA 0.2</span></header>
+<section id="entry" class="panel"><div class="eyebrow">WELCOME TO THE TABLE</div><h1>Play Together.</h1><p>A private room for you and a friend. Choose your cards, reveal together, and compete for gems.</p><div class="actions"><button id="create" class="primary">Create a Room</button><button id="joinStart" class="secondary">Join a Room</button></div><p class="status" id="entryStatus" role="status"></p></section>
 <section id="join" class="panel hidden"><button class="back" data-back="entry">← Back</button><h2>Join a room</h2><p>Enter your friend's six-character room code.</p><label for="joinCode">Room code</label><input id="joinCode" maxlength="6" autocapitalize="characters" autocomplete="off" spellcheck="false" placeholder="GLEP42"><button id="joinDemo" class="primary">Join Room</button><p class="status" id="joinStatus" role="status"></p></section>
-<section id="lobby" class="panel hidden"><button class="back" id="leave">← Leave room</button><div class="eyebrow">PRIVATE GAME LOBBY</div><h2>Waiting at the table</h2><p>Share this code with the other player to join your room.</p><div class="code" id="roomCode">GLEP42</div><div class="player"><span class="dot"></span><strong id="playerName">Player 1</strong><span class="chip">You</span></div><div class="player"><span class="dot waiting"></span><span>Waiting for another player…</span></div><div class="actions"><button id="copy" class="secondary">Copy Room Code</button><button disabled>Start Game · Coming Next</button></div><p class="status" id="copyStatus" role="status"></p></section>
-<p class="notice"><b>Beta test:</b> Private rooms are connected. Card selection and gameplay are coming next. Access is limited to Billy and Francesca.</p><footer>Online lobby beta · Gameplay coming next</footer></main>
+<section id="lobby" class="panel hidden"><button class="back" id="leave">← Leave room</button><div class="eyebrow">PRIVATE GAME LOBBY</div><h2>Waiting at the table</h2><p>Share this code with the other player to join your room.</p><div class="code" id="roomCode">GLEP42</div><div class="player"><span class="dot"></span><strong id="playerName">Player 1</strong><span class="chip">You</span></div><div class="player"><span class="dot waiting"></span><span>Waiting for another player…</span></div><div class="actions"><button id="copy" class="secondary">Copy Room Code</button></div><p class="status" id="copyStatus" role="status"></p><div id="gameBoard"></div><p class="status" id="gameStatus" role="status"></p></section>
+<p class="notice"><b>Beta test:</b> Private hands, shared reveals, and gem scoring are live. Apply printed card effects together before confirming each round.</p><footer>GLEP · Private multiplayer beta</footer></main>
 <script>
 const $=id=>document.getElementById(id);
 const API="https://chfzvfyigycpkcsxbscu.supabase.co/functions/v1/glep-beta-rooms";
 const pages=["entry","join","lobby"];
-let token="",code="",timer=null,generation=0,refreshing=false,busy=false;
+let canStartGame=false;let roomReady=false;let token="",code="",timer=null,generation=0,refreshing=false,busy=false;
 const show=id=>pages.forEach(p=>$(p).classList.toggle("hidden",p!==id));
 const notice=(id,message)=>{$(id).textContent=message;};
 function stop(){if(timer)clearInterval(timer);timer=null;}
-function controls(){["create","joinStart","joinDemo","leave"].forEach(id=>$(id).disabled=busy||!token);}
-function clearRoom(){code="";$("roomCode").textContent="";document.querySelectorAll("#lobby .player").forEach(p=>p.replaceChildren());}
+function controls(){["create","joinStart","joinDemo","leave"].forEach(id=>$(id).disabled=busy||!token);document.querySelectorAll("#gameBoard button").forEach(b=>{if(busy)b.disabled=true;});}
+function clearRoom(){roomReady=false;currentGame=null;gameFingerprint="";$("gameBoard").replaceChildren();code="";$("roomCode").textContent="";document.querySelectorAll("#lobby .player").forEach(p=>p.replaceChildren());}
 async function call(action,data={}){
  if(!token)throw Error("Sign in through the Under Development page first.");
  const current=generation;
@@ -29,7 +29,7 @@ async function call(action,data={}){
 }
 function render(data){
  if(!data.room){stop();clearRoom();show("entry");return;}
- code=data.room.code;$("roomCode").textContent=code;
+ roomReady=data.room.status==="ready";code=data.room.code;$("roomCode").textContent=code;
  const players=data.players||[];
  document.querySelectorAll("#lobby .player").forEach((row,i)=>{
   const dot=document.createElement("span");dot.className="dot"+(players[i]?"":" waiting");
@@ -37,7 +37,7 @@ function render(data){
   row.replaceChildren(dot,name);
  });
  $("lobby").querySelector("h2").textContent=players.length===2?"Both players are at the table":"Waiting at the table";
- show("lobby");
+ show("lobby");renderGame(data);
 }
 async function refresh(){
  if(refreshing||busy||!token)return;
@@ -52,9 +52,9 @@ async function act(action,data,errorId){
  busy=true;controls();const current=generation;notice(errorId,"");
  try{const response=await call(action,data);if(current!==generation)return;
   if(action==="leave"){stop();clearRoom();show("entry");}
-  else{if(response.room)render(response);else show("lobby");}
+  else{if(response.room)render(response);else show("lobby");if(Object.prototype.hasOwnProperty.call(response,"game"))renderGame(response);}
  }catch(e){if(current===generation)notice(errorId,e.message);}
- finally{busy=false;controls();if(token&&current===generation&&action!=="leave")startPoll();}
+ finally{busy=false;controls();if(token&&current===generation&&action!=="leave"){if(currentGame)renderGame({game:currentGame,canStart:canStartGame},true);startPoll();}}
 }
 window.addEventListener("message",e=>{
  if(e.origin!==location.origin||e.source!==parent)return;
@@ -72,5 +72,108 @@ $("joinDemo").onclick=()=>{const entered=$("joinCode").value.trim().toUpperCase(
 $("joinCode").addEventListener("keydown",e=>{if(e.key==="Enter")$("joinDemo").click();});
 $("leave").onclick=()=>act("leave",{},"copyStatus");
 $("copy").onclick=async()=>{try{await navigator.clipboard.writeText(code);notice("copyStatus","Code copied.");}catch{notice("copyStatus","Select the room code above to copy manually.");}};
+
+let currentGame=null,gameFingerprint="",selection={attack:null,modifier:null},selectionRound=0;
+const node=(tag,text,cls)=>{const el=document.createElement(tag);if(text!==undefined)el.textContent=text;if(cls)el.className=cls;return el;};
+function button(text,fn,cls){const el=node("button",text,cls||"");el.type="button";el.disabled=busy;el.onclick=fn;return el;}
+function textLine(host,text,cls){const el=node("p",text,cls);host.append(el);return el;}
+function drawCard(card,selectable,selected,onSelect){
+ const el=node(selectable?"button":"article",undefined,"game-card"+(selected?" selected":""));
+ if(selectable){el.type="button";el.disabled=busy;el.setAttribute("aria-pressed",String(selected));el.onclick=onSelect;}
+ const img=node("img");img.alt=card.name;img.loading="lazy";if(card.art)img.src=card.art;else img.hidden=true;
+ el.append(img,node("strong",card.name),node("small",card.type.toUpperCase()+" · Damage "+card.damage+(card.type==="fate"?"":" · Stars "+card.stars)),node("p",card.effect||""));
+ const elements=[card.element1,card.element2].filter(x=>x&&x!=="None");
+ if(elements.length)el.append(node("small",elements.join(" · ")));
+ try{if(typeof parent.glepRenderCard==="function"){parent.glepRenderCard({...card,image:card.art||"",strokes:[]}).then(src=>{if(src&&el.isConnected){img.src=src;img.hidden=false;img.classList.add("rendered");}}).catch(()=>{});}}catch{}
+ return el;
+}
+async function gameAction(action,data={}){
+ const round=currentGame?.round,revision=currentGame?.revision;
+ await act(action,{round,revision,...data},"gameStatus");
+}
+function renderGame(data,force=false){
+ if(!Object.prototype.hasOwnProperty.call(data,"game"))return;
+ currentGame=data.game;canStartGame=!!data.canStart;
+ const fingerprint=JSON.stringify([data.game,data.canStart,busy]);
+ if(!force&&fingerprint===gameFingerprint)return;
+ gameFingerprint=fingerprint;
+ const board=$("gameBoard");board.replaceChildren();
+ if(!currentGame){
+  board.append(node("h2","Ready to play?"));
+  textLine(board,"Two players share the approved deck. Each round, choose one attack and one modifier privately. Both selections reveal together.");
+  const label=node("label","Gem target");label.htmlFor="gemTarget";board.append(label);
+  const input=node("input");input.type="number";input.id="gemTarget";input.min="1";input.max="100";input.value="10";board.append(input);
+  textLine(board,"The match ends at your gem target or when a player runs out of attacks or modifiers. Printed effects are applied together after reveal. If damage stays tied, the prize carries into the next round.","sub");
+  const start=button("Start Game",()=>gameAction("game_start",{target:Number($("gemTarget").value)}),"primary");
+  start.disabled=busy||!data.canStart||document.querySelectorAll("#lobby .player strong").length!==2||!roomReady;
+  board.append(start);
+  if(!data.canStart)textLine(board,"The host starts the match once both players have joined.","sub");
+  else if(!roomReady)textLine(board,"Waiting for the second player.","sub");
+  return;
+ }
+ const g=currentGame;
+ const own=g.players.find(p=>p.you),opponent=g.players.find(p=>!p.you);
+ board.append(node("h2","Round "+g.round+" · "+g.pool+" gems"));
+ const score=node("div",undefined,"scoreboard");
+ g.players.forEach(p=>score.append(node("div",p.name+(p.you?" (you)":"")+" · "+p.gems+" / "+g.target+" gems")));
+ board.append(score);
+ if(selectionRound!==g.round){selection={attack:null,modifier:null};selectionRound=g.round;}
+ if(g.phase==="select"){
+  if(own.locked){textLine(board,"Your cards are locked face down. Waiting for "+opponent.name+"…","round-message");}
+  else{
+   textLine(board,"Choose one attack and one modifier. Your opponent sees only whether you have locked in.");
+   for(const type of ["attack","modifier"]){
+    board.append(node("h3",type==="attack"?"Your attacks":"Your modifiers"));
+    const grid=node("div",undefined,"hand-grid");
+    for(const card of g.hand[type]||[])grid.append(drawCard(card,true,selection[type]===card.id,()=>{selection[type]=card.id;renderGame({game:g,canStart:data.canStart},true);}));
+    board.append(grid);
+   }
+   const lock=button("Lock In Both Cards",()=>gameAction("game_play",{attack:selection.attack,modifier:selection.modifier}),"primary");
+   lock.disabled=busy||!selection.attack||!selection.modifier;board.append(lock);
+  }
+  textLine(board,opponent.locked?opponent.name+" is ready.":opponent.name+" is choosing cards.","sub");
+ }else if(["reveal","result","finished"].includes(g.phase)){
+  for(const p of g.players){
+   const play=p.play;if(!play)continue;
+   const section=node("div",undefined,"revealed-player");
+   section.append(node("h3",p.name+(p.you?" (you)":"")+" · "+(play.damage+play.damageAdjustment)+" damage · "+play.stars+" stars"));
+   const cards=node("div",undefined,"hand-grid");cards.append(drawCard(play.attack),drawCard(play.modifier));section.append(cards);
+   if(play.fate){section.append(node("h4","Fate"),drawCard(play.fate));}
+   textLine(section,"Effect adjustments: "+(play.damageAdjustment>=0?"+":"")+play.damageAdjustment+" damage · "+(play.gemAdjustment>=0?"+":"")+play.gemAdjustment+" gems"+(play.confirmed?" · Confirmed":""),"sub");
+   board.append(section);
+  }
+  if(g.phase==="reveal"){
+   textLine(board,"Read the revealed effects together. Apply any damage or gem changes below, then both confirm the result. Changing an adjustment clears both confirmations. Draw Fate before confirming.","round-message");
+   const play=own.play,otherPlay=opponent.play;
+   if(play.stars>=10&&!play.fateChosen){
+    const fate=button(g.remaining.fate?"Draw One Blind Fate Card":"Fate deck empty",()=>gameAction("game_fate"),"secondary");
+    fate.disabled=busy||!g.remaining.fate||play.confirmed||otherPlay.confirmed;board.append(fate);
+   }
+   const adjustments=node("div",undefined,"adjustments");
+   for(const [id,label,value] of [["damageAdjust","Your damage adjustment",play.damageAdjustment],["gemAdjust","Your gem adjustment",play.gemAdjustment]]){
+    const l=node("label",label);l.htmlFor=id;const inp=node("input");inp.type="number";inp.min="-100";inp.max="100";inp.step="1";inp.id=id;inp.value=String(value);adjustments.append(l,inp);
+   }
+   adjustments.append(button("Apply Effect Adjustments",()=>gameAction("game_adjust",{damage:Number($("damageAdjust").value),gems:Number($("gemAdjust").value)})));
+   board.append(adjustments);
+   board.append(button(play.confirmed?"Undo My Confirmation":"Confirm Round Result",()=>gameAction("game_confirm",{confirmed:!play.confirmed}),"primary"));
+   textLine(board,otherPlay.confirmed?opponent.name+" confirmed.":opponent.name+" is reviewing the effects.","sub");
+  }else{
+   const result=g.history[g.history.length-1];
+   textLine(board,result?.winner?result.winner+" won "+result.pool+" gems.":"Damage tied. "+g.pool+" gems carry forward.","round-message");
+   if(g.phase==="result"){
+    const next=button(own.next?"Waiting for the other player…":"Ready for Next Round",()=>gameAction("game_next"),"primary");next.disabled=busy||own.next;board.append(next);
+   }else{
+    textLine(board,(g.winner?g.winner+" wins the match!":"The match ends in a draw.")+" "+(g.reason||""),"round-message");
+    if(data.canStart)board.append(button("Play Again",()=>gameAction("game_start",{target:g.target}),"primary"));
+    else textLine(board,"The host can start another match.","sub");
+   }
+  }
+ }else if(g.phase==="abandoned"){
+  textLine(board,"A player left this match. Join the room together to start another game.");
+  if(data.canStart&&roomReady)board.append(button("Start New Match",()=>gameAction("game_start",{target:g.target}),"primary"));
+ }
+ textLine(board,"Draw piles: "+g.remaining.attack+" attacks · "+g.remaining.modifier+" modifiers · "+g.remaining.fate+" Fate","sub");
+}
+
 controls();parent.postMessage({kind:"glep-beta-ready"},location.origin);
 </script></body></html>

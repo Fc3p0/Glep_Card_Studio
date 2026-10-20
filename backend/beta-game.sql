@@ -32,7 +32,6 @@ BEGIN
 
  IF p_action='game_start' THEN
   IF coalesce(array_length(ids,1),0)<>2 THEN RETURN jsonb_build_object('error','Two players must be in the room.'); END IF;
-  IF p_session<>host THEN RETURN jsonb_build_object('error','Only the room host can start a match.'); END IF;
   IF st IS NOT NULL AND st->>'phase' NOT IN ('finished','abandoned') THEN RETURN jsonb_build_object('error','A match is already in progress.'); END IF;
   IF coalesce(p_payload->>'target','')!~'^[0-9]{1,3}$' THEN RETURN jsonb_build_object('error','Choose a gem target from 1 to 100.'); END IF;
   target:=(p_payload->>'target')::integer;
@@ -66,7 +65,7 @@ BEGIN
   ON CONFLICT(room_id) DO UPDATE SET state=excluded.state,updated_at=now();
  END IF;
 
- IF st IS NULL THEN RETURN jsonb_build_object('game',NULL,'canStart',p_session=host); END IF;
+ IF st IS NULL THEN RETURN jsonb_build_object('game',NULL,'canStart',p_session=ANY(ids)); END IF;
  ps:=st->'players'; me:=NULL;
  FOR i IN 0..1 LOOP
   IF ps->i->>'session'=p_session::text THEN me:=i; END IF;
@@ -77,7 +76,7 @@ BEGIN
    st:=jsonb_set(st,'{phase}','"abandoned"'::jsonb);
    UPDATE public.glep_beta_matches SET state=st,updated_at=now() WHERE room_id=room.id;
   END IF;
-  RETURN jsonb_build_object('game',NULL,'canStart',p_session=host);
+  RETURN jsonb_build_object('game',NULL,'canStart',p_session=ANY(ids));
  END IF;
  other:=1-me;
  IF st->>'phase' NOT IN ('finished','abandoned') AND
@@ -199,7 +198,7 @@ BEGIN
    'you',i=me,'locked',pl->'play'<>'null'::jsonb,'next',(pl->>'next')::boolean,
    'play',CASE WHEN st->>'phase' IN ('select','abandoned') THEN 'null'::jsonb ELSE pl->'play' END));
  END LOOP;
- RETURN jsonb_build_object('canStart',p_session=host,'game',jsonb_build_object(
+ RETURN jsonb_build_object('canStart',p_session=ANY(ids),'game',jsonb_build_object(
   'revision',(st->>'revision')::integer,'phase',st->>'phase','round',(st->>'round')::integer,'pool',(st->>'pool')::integer,'target',(st->>'target')::integer,
   'players',results,'hand',CASE WHEN st->>'phase'='select' THEN ps->me->'hand' ELSE 'null'::jsonb END,
   'remaining',jsonb_build_object('attack',jsonb_array_length(st->'attackDeck'),'modifier',jsonb_array_length(st->'modifierDeck'),'fate',jsonb_array_length(st->'fateDeck')),

@@ -746,15 +746,20 @@ render();
 })();
 </script><script>(()=>{
 const gate=document.getElementById("gameGate"),space=document.getElementById("gameWorkspace"),form=document.getElementById("gameLoginForm"),code=document.getElementById("gameLoginCode"),notice=document.getElementById("gameLoginStatus"),button=document.getElementById("gameLoginButton");
-function reset(){gate.hidden=false;space.hidden=true;code.value="";notice.textContent="";button.disabled=false;button.textContent="Unlock"}
+const betaFrame=document.getElementById("gameBetaFrame");let betaToken="";
+function notifyBeta(){if(betaFrame?.contentWindow)betaFrame.contentWindow.postMessage(betaToken?{kind:"glep-beta-login",token:betaToken}:{kind:"glep-beta-lock"},location.origin)}
+betaFrame?.addEventListener("load",notifyBeta);
+window.addEventListener("message",event=>{if(event.origin===location.origin&&event.source===betaFrame?.contentWindow&&event.data?.kind==="glep-beta-ready")notifyBeta()});
+
+function reset(){betaToken="";notifyBeta();gate.hidden=false;space.hidden=true;code.value="";notice.textContent="";button.disabled=false;button.textContent="Unlock"}
 document.getElementById("gameLock").onclick=reset;
 form.onsubmit=async event=>{
  event.preventDefault();notice.textContent="Verifying...";button.disabled=true;
  try{
- const res=await fetch("https://chfzvfyigycpkcsxbscu.supabase.co/functions/v1/glep-game-access",{method:"POST",cache:"no-store",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"unlock",code:code.value})});
+ const res=await fetch("https://tlctsthlndxzwopfpycl.supabase.co/functions/v1/glep-beta-rooms",{method:"POST",cache:"no-store",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"login",code:code.value})});
  const data=await res.json();if(!res.ok||!data.ok||!["Billy","Francesca"].includes(data.creator))throw Error("Invalid access code.");
  document.getElementById("gameCreatorGreeting").textContent="Welcome, "+data.creator+".";
- code.value="";gate.hidden=true;space.hidden=false;
+ betaToken=data.token;code.value="";gate.hidden=true;space.hidden=false;notifyBeta();
  }catch(err){notice.textContent=err.message||"Unable to verify access."}
  finally{button.disabled=false;button.textContent="Unlock"}
 };

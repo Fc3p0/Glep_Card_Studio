@@ -8,8 +8,12 @@ BEGIN
  r:=public.glep_beta_create_room(a,'PLAYA2');
  ASSERT r->'room'->>'code'='PLAYA2';
  ASSERT public.glep_beta_join_room(b,'PLAYA2')='OK';
- ASSERT public.glep_beta_game(b,'game_start','{"target":100}')->>'error'='Only the room host can start a match.';
- v:=public.glep_beta_game(a,'game_start','{"target":100}');
+ ASSERT public.glep_beta_game(a,'game_status')->>'canStart'='true';
+ ASSERT public.glep_beta_game(b,'game_status')->>'canStart'='true';
+ v:=public.glep_beta_game(b,'game_start','{"target":100}');
+ ASSERT v->'game'->>'phase'='select','Second player cannot start';
+ ASSERT public.glep_beta_game(a,'game_start','{"target":100}') ? 'error','Concurrent restart accepted';
+ v:=public.glep_beta_game(a,'game_status');
  ASSERT v->'game'->>'phase'='select';
  ASSERT jsonb_array_length(v->'game'->'hand'->'attack')=2;
  ASSERT jsonb_array_length(v->'game'->'hand'->'modifier')=2;

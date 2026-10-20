@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>GLEP · Online Game Beta</title>
+<style>
+:root{color-scheme:dark;font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;background:#101c30;color:#f1f7ff}*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(circle at top,#263a5a 0,#101c30 70%)}main{max-width:560px;margin:0 auto;padding:24px 18px 64px}header{display:flex;justify-content:space-between;align-items:center;padding:6px 0 42px}h1{font-size:clamp(2rem,7vw,3rem);margin:8px 0}h2{margin:8px 0 15px}p{color:#c1d2e6;line-height:1.55}.eyebrow{color:#9adddf;letter-spacing:.15em;font-size:.78rem;font-weight:800}.panel{border:1px solid #526e91;background:#182a45;border-radius:18px;padding:24px;box-shadow:0 18px 48px #050e1b55}.actions{display:grid;gap:12px;margin-top:24px}button,input{font:inherit}button{border:1px solid #7491ae;border-radius:10px;padding:13px 18px;cursor:pointer;background:#283f60;color:#fff;font-weight:750}button.primary{background:#9ce6ed;color:#132239;border-color:#9ce6ed}button.secondary{background:#dba7d6;color:#182039;border-color:#dba7d6}button:focus-visible,input:focus-visible{outline:3px solid #f0d36b;outline-offset:2px}input{background:#102139;border:1px solid #7090ae;color:#fff;border-radius:9px;padding:13px;width:100%;margin:8px 0 16px}label{font-size:.85rem;font-weight:700}.sub{font-size:.85rem}.chip{background:#263f5c;border-radius:7px;padding:5px 9px;font-size:.8rem;color:#d9eaff}.player{display:flex;align-items:center;gap:11px;padding:14px 0;border-bottom:1px solid #3d5672}.dot{width:10px;height:10px;border-radius:50%;background:#8fe3ad}.waiting{background:#788ba6}.status{min-height:22px;margin-top:18px;font-size:.88rem;color:#eac987}.hidden{display:none}.code{font-size:1.9rem;letter-spacing:.2em;font-weight:900;text-align:center;padding:15px;background:#101f36;border:1px dashed #7290af;border-radius:12px;user-select:all}.notice{border-left:3px solid #e9c472;padding:8px 13px;background:#2c3544;color:#e9d9a9;font-size:.85rem;margin:24px 0 0}.back{border:0;background:none;padding:8px 0;color:#b6dbe7}footer{text-align:center;color:#9bafc5;font-size:.8rem;margin-top:28px}button:disabled{opacity:.45;cursor:not-allowed}
+</style></head><body><main><header><strong>✦ GLEP</strong><span class="chip">ONLINE GAME · BETA 0.1</span></header>
+<section id="entry" class="panel"><div class="eyebrow">WELCOME TO THE TABLE</div><h1>Play Together.</h1><p>A private room for you and a friend. We're prototyping the lobby before adding card selection and synchronized rounds.</p><div class="actions"><button id="create" class="primary">Create a Room</button><button id="joinStart" class="secondary">Join a Room</button></div></section>
+<section id="join" class="panel hidden"><button class="back" data-back="entry">← Back</button><h2>Join a room</h2><p>Enter your friend's six-character room code.</p><label for="joinCode">Room code</label><input id="joinCode" maxlength="6" autocapitalize="characters" autocomplete="off" spellcheck="false" placeholder="GLEP42"><label for="joinName">Your display name</label><input id="joinName" maxlength="22" placeholder="Player 2"><button id="joinDemo" class="primary">Join Room</button><p class="status" id="joinStatus" role="status"></p></section>
+<section id="lobby" class="panel hidden"><button class="back" id="leave">← Leave preview</button><div class="eyebrow">PRIVATE GAME LOBBY</div><h2>Waiting at the table</h2><p>Share this code when realtime rooms are connected.</p><div class="code" id="roomCode">GLEP42</div><div class="player"><span class="dot"></span><strong id="playerName">Player 1</strong><span class="chip">You</span></div><div class="player"><span class="dot waiting"></span><span>Waiting for another player…</span></div><div class="actions"><button id="copy" class="secondary">Copy Room Code</button><button disabled>Start Game · Coming Next</button></div><p class="status" id="copyStatus" role="status"></p></section>
+<p class="notice"><b>Beta test:</b> Rooms now sync through a separate development server. This does not touch published cards or production Supabase. Only Billy and Francesca may enter.</p><footer>Created for early interaction review · Not production gameplay</footer></main>
+<script>
+const $=id=>document.getElementById(id);
+const API="https://chfzvfyigycpkcsxbscu.supabase.co/functions/v1/glep-beta-rooms";
+const pages=["entry","join","lobby"];
+let token="",code="",timer=null;
+const show=id=>{pages.forEach(p=>$(p).classList.toggle("hidden",p!==id));};
+const notice=(id,message)=>{$(id).textContent=message;};
+async function call(action,data={}){
+ if(!token)throw Error("Sign in through the Under Development page first.");
+ const res=await fetch(API,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+token},body:JSON.stringify({action,...data}),cache:"no-store"});
+ const body=await res.json();
+ if(!res.ok||!body.ok)throw Error(body.error||"Request failed");
+ return body;
+}
+function stop(){if(timer){clearInterval(timer);timer=null}}
+async function refresh(){
+ try{
+  const data=await call("status");
+  if(!data.room){stop();show("entry");return;}
+  code=data.room.code;
+  $("roomCode").textContent=code;
+  const players=data.players||[];
+  const playerEls=document.querySelectorAll("#lobby .player");
+  playerEls[0].innerHTML="<span class='dot'></span><strong></strong><span class='chip'>Connected</span>";
+  playerEls[0].querySelector("strong").textContent=players[0]||"Waiting for player";
+  playerEls[1].innerHTML="<span class='dot waiting'></span><span></span>";
+  playerEls[1].querySelector("span:last-child").textContent=players.length>1?players[1]:"Waiting for another player…";
+  if(players.length>1)playerEls[1].querySelector(".dot").classList.remove("waiting");
+ }catch(e){notice("copyStatus",e.message);if(/expired/i.test(e.message))stop()}
+}
+function startPoll(){stop();refresh();timer=setInterval(()=>{if(!document.hidden)refresh()},3000)}
+window.addEventListener("message",e=>{
+ if(e.origin!==location.origin||e.source!==parent)return;
+ if(e.data?.kind==="glep-beta-login"&&typeof e.data.token==="string"){token=e.data.token;notice("copyStatus","");show("entry");}
+ if(e.data?.kind==="glep-beta-lock"){token="";stop();show("entry");}
+});
+parent.postMessage({kind:"glep-beta-ready"},location.origin);
+$("create").onclick=async()=>{try{notice("copyStatus","");const data=await call("create");code=data.room.code;show("lobby");startPoll()}catch(e){alert(e.message)}};
+$("joinStart").onclick=()=>show("join");
+document.querySelectorAll("[data-back]").forEach(b=>b.onclick=()=>show(b.dataset.back));
+$("joinDemo").textContent="Join Room";
+$("joinDemo").onclick=async()=>{
+ try{const entered=$("joinCode").value.trim().toUpperCase();await call("join",{code:entered});notice("joinStatus","");show("lobby");startPoll()}
+ catch(e){notice("joinStatus",e.message)}
+};
+$("leave").onclick=async()=>{try{await call("leave");stop();show("entry")}catch(e){notice("copyStatus",e.message)}};
+$("copy").onclick=async()=>{try{await navigator.clipboard.writeText(code);notice("copyStatus","Code copied.")}catch{notice("copyStatus","Select the room code above to copy manually.")}};
+</script></body></html>

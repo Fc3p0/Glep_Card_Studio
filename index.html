@@ -1010,10 +1010,12 @@ if(frame&&gamePage){window.addEventListener('message',e=>{if(e.source===frame.co
 const ROOT='https://chfzvfyigycpkcsxbscu.supabase.co/rest/v1',KEY='sb_publishable_0zmkCJDMk_qAex_bnopfsA_CQP21oxN';
 const host=document.getElementById('gxDeck');if(!host)return;
 const el=(tag,cls,text)=>{const n=document.createElement(tag);if(cls)n.className=cls;if(text!==undefined)n.textContent=text;return n};
-fetch(ROOT+'/glep_cards?select=id,name,card_type,card_data,artwork_url,creator_name,created_at&review_status=eq.approved&order=created_at.desc&limit=10',{headers:{apikey:KEY}})
- .then(r=>{if(!r.ok)throw Error('HTTP '+r.status);return r.json()})
+/* Newest = most recently approved by Billy; falls back to creation date if approval time can't be read. */
+const cardQuery=order=>fetch(ROOT+'/glep_cards?select=id,name,card_type,card_data,artwork_url,creator_name,created_at&review_status=eq.approved&order='+order+'&limit=10',{headers:{apikey:KEY,Prefer:'count=exact'}}).then(r=>{if(!r.ok)throw Error('HTTP '+r.status);total=+((r.headers.get('content-range')||'').split('/')[1])||0;return r.json()});
+let total=0;
+cardQuery('reviewed_at.desc.nullslast,created_at.desc').catch(()=>cardQuery('created_at.desc'))
  .then(rows=>{
-  host.replaceChildren();document.getElementById('gxDeckCount').textContent='/ '+String(rows.length).padStart(2,'0');
+  host.replaceChildren();document.getElementById('gxDeckCount').textContent='/ '+String(Math.max(total,rows.length)).padStart(2,'0');
   if(!rows.length){host.append(el('div','gx-empty','Nothing approved yet. Billy is being picky.'));return}
   const fresh=Date.now()-7*864e5;
   rows.slice(0,5).forEach((row,i)=>{
@@ -1021,7 +1023,7 @@ fetch(ROOT+'/glep_cards?select=id,name,card_type,card_data,artwork_url,creator_n
    const card=el('button','gx-card t-'+type);card.type='button';card.setAttribute('aria-label','Open '+row.name+' in The Deck');
    if(new Date(row.created_at).getTime()>fresh)card.append(el('span','tag','NEW'));
    const art=el('div','art');if(row.artwork_url){const img=el('img');img.src=row.artwork_url;img.alt='';img.loading='lazy';art.append(img)}card.append(art);
-   const body=el('div','body'),meta=el('div','gx-type gx-mono');meta.append(el('b',null,type),el('span',null,'#'+String(rows.length-i).padStart(3,'0')));
+   const body=el('div','body'),meta=el('div','gx-type gx-mono');meta.append(el('b',null,type),el('span',null,'#'+String(Math.max(total,rows.length)-i).padStart(3,'0')));
    const stats=el('div','stats'),dmg=el('span');dmg.append(el('em',null,'DMG'),String(c.damage??0));stats.append(dmg);
    if(type!=='fate'){const st=el('span');st.append(el('em',null,'★'),String(c.stars??0));stats.append(st)}
    body.append(meta,el('h3',null,row.name),el('p','by','by '+(row.creator_name||'someone')),stats);card.append(body);

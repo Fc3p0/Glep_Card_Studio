@@ -26,6 +26,9 @@ Deno.serve(async(req)=>{
  if(action==="login"){
   if(typeof input.code!=="string"||input.code.length<6||input.code.length>100)return respond({error:"Invalid credentials"},403);
   const digest=await hash("glep-v1:"+input.code.trim().toLowerCase());
+  const {data:admitted,error:limitError}=await db.rpc("glep_beta_admit_login",{p_key:digest});
+  if(limitError)return respond({error:"Login temporarily unavailable"},503);
+  if(!admitted)return respond({error:"Too many attempts; try again later."},429);
   const {data:creators,error}=await db.from("glep_creator_codes").select("creator_name").eq("code_hash",digest).eq("active",true).limit(1);
   if(error)return respond({error:"Could not verify access"},503);
   const name=creators?.[0]?.creator_name;

@@ -176,6 +176,7 @@ dialog#cardInspector{background:var(--ground-2);color:var(--paper);border:2px so
 @media(max-width:680px){#entry .tape{left:-8px;right:-8px}#entry .padlock h1{font-size:32px}}
 /* the site's big headline already names the table on the entry screens */
 body:has(#entry:not(.hidden)) header,body:has(#join:not(.hidden)) header{display:none}
+.rule-note{font:500 13px/1.45 var(--mono);color:var(--acid);border-left:3px solid var(--acid);padding:2px 0 2px 10px;margin:8px 0}
 </style></head><body><main><header><strong>The Table</strong><span class="chip">ONLINE GAME · BETA</span></header>
 <section id="entry" class="panel"><div class="tape"><span>Pull up a chair</span></div><div class="padlock"><svg width="46" height="60" viewBox="0 0 46 60" aria-hidden="true"><path d="M11 28V16a12 12 0 0 1 24 0" fill="none" stroke="#e8e5dc" stroke-width="5" transform="translate(-9 -4) rotate(-14 23 16)"/><rect x="3" y="28" width="40" height="30" fill="#b8f03a" stroke="#000" stroke-width="3"/><rect x="20" y="36" width="6" height="12" fill="#000"/></svg><div><h1>Join a game</h1><div class="eyebrow">Two players · private room</div></div></div><div id="entryAccess"><label for="entryCreatorCode">Your creator code</label><input id="entryCreatorCode" type="password" minlength="6" maxlength="100" autocomplete="off"></div><p id="accessIdentity" class="sub" hidden></p><div class="actions"><button id="create" class="primary">Create a Room</button><button id="joinStart" class="secondary">Join a Room</button></div><p class="status" id="entryStatus" role="status"></p></section>
 <section id="join" class="panel hidden"><button class="back" data-back="entry">← Back</button><h2>Join a room</h2><p>Enter your friend's six-character room code.</p><div id="joinAccess"><label for="joinCreatorCode">Your creator code</label><input id="joinCreatorCode" type="password" minlength="6" maxlength="100" autocomplete="off"></div><label for="joinCode">Room code</label><input id="joinCode" maxlength="6" autocapitalize="characters" autocomplete="off" spellcheck="false" placeholder="GLEP42"><button id="joinDemo" class="primary">Join Room</button><p class="status" id="joinStatus" role="status"></p></section>
@@ -314,6 +315,45 @@ function decks(g){
 function sidebar(g,label){
  const aside=node("aside",undefined,"round-sidebar"),heading=node("div",undefined,"sidebar-heading");heading.append(node("strong","Round "+g.round),node("span",label,"sidebar-phase"));aside.append(heading);return aside;
 }
+/* Card rules: printed damage counts as-is; a card's optional rules (card_data.rules, set in Card Master) adjust totals automatically at reveal. */
+const CARDS_REST="https://chfzvfyigycpkcsxbscu.supabase.co/rest/v1/glep_cards",PUBLIC_KEY="sb_publishable_0zmkCJDMk_qAex_bnopfsA_CQP21oxN";
+const cardInfo={};let autoKey="";
+function loadCardInfo(ids){
+ const need=[...new Set(ids)].filter(id=>/^[a-f0-9-]{36}$/i.test(id||"")&&!(id in cardInfo));if(!need.length)return;
+ need.forEach(id=>cardInfo[id]=null);
+ fetch(CARDS_REST+"?select=id,card_data&id=in.("+need.join(",")+")",{headers:{apikey:PUBLIC_KEY}}).then(r=>{if(!r.ok)throw Error();return r.json()}).then(rows=>{
+  need.forEach(id=>cardInfo[id]={rules:[],tags:[]});
+  for(const row of rows){const d=row.card_data||{};cardInfo[row.id]={rules:Array.isArray(d.rules)?d.rules:[],tags:String(d.tags||"").toLowerCase().split(",").map(t=>t.trim()).filter(Boolean)};}
+  if(currentGame)renderGame({game:currentGame,canStart:canStartGame},true);
+ }).catch(()=>need.forEach(id=>delete cardInfo[id]));
+}
+function playCards(play,withFate){return [play?.attack,play?.modifier,withFate?play?.fate:null].filter(Boolean);}
+function cardHas(cards,check,value){
+ const v=String(value||"").trim().toLowerCase();if(!v)return false;
+ return cards.some(c=>check==="element"?[c.element1,c.element2].some(e=>String(e||"").toLowerCase()===v):check==="tag"?(cardInfo[c.id]?.tags||[]).includes(v):false);
+}
+function describeRule(r){
+ const what=r.check==="element"?"is "+r.value:"has the tag “"+r.value+"”";
+ const who={opponent:"the opponent’s card ",me:"my card ",anyone:"a player’s card "}[r.when];
+ const act=r.do==="lose"?"loses the round":(Number(r.amount)>=0?"+":"")+Number(r.amount)+" "+(r.do==="gems"?"gems":"damage");
+ const target={me:"me",opponent:"the opponent",them:"that player"}[r.to]||"me";
+ return (r.when==="always"?"Always: ":"If "+who+what+": ")+(r.do==="lose"?(target==="me"?"I lose the round":target+" loses the round"):act+" to "+target);
+}
+// Returns per-player {damage,gems,notes}; players[i].play must be revealed. Same result on both screens.
+function scoreRules(players){
+ const out=players.map(()=>({damage:0,gems:0,notes:[]}));
+ const apply=(i,r,card)=>{if(r.do==="lose"){out[i].damage-=100;out[i].lost=true;}else if(r.do==="gems")out[i].gems+=Number(r.amount)||0;else out[i].damage+=Number(r.amount)||0;out[i].notes.push(card.name+": "+describeRule(r));};
+ players.forEach((p,i)=>{
+  const o=1-i,fate=p.play?.fate;
+  if(fate&&Number(fate.damage))out[i].damage+=Number(fate.damage),out[i].notes.push("Fate "+fate.name+": "+(fate.damage>0?"+":"")+fate.damage+" damage");
+  for(const card of playCards(p.play,true))for(const r of cardInfo[card.id]?.rules||[]){
+   if(r.when==="always"){apply(r.to==="opponent"?o:i,r,card);continue;}
+   const subjects=r.when==="me"?[i]:r.when==="opponent"?[o]:r.when==="anyone"?[i,o]:[];
+   for(const s of subjects)if(cardHas(playCards(players[s].play,true),r.check,r.value))apply(r.to==="them"?s:r.to==="opponent"?o:i,r,card);
+  }
+ });
+ return out;
+}
 function renderGame(data,force=false){
  if(!Object.prototype.hasOwnProperty.call(data,"game"))return;
  currentGame=data.game;canStartGame=!!data.canStart;document.body.classList.toggle("match-active",!!currentGame);
@@ -374,23 +414,30 @@ function renderGame(data,force=false){
   }
   main.append(table);
   if(g.phase==="reveal"){
-   aside.append(node("h3","Resolve the effects"));
-   textLine(aside,"Read both combinations. Apply the printed effects, then both confirm. Changes reset both confirmations.");
    const play=own.play,otherPlay=opponent.play;
-   if(play.stars>=10&&!play.fateChosen){
-    const fate=button(g.remaining.fate?"Draw One Blind Fate Card":"Fate deck empty",()=>gameAction("game_fate"),"secondary");fate.disabled=busy||!g.remaining.fate||play.confirmed||otherPlay.confirmed;aside.append(fate);
+   const ids=[...playCards(play,true),...playCards(otherPlay,true)].map(c=>c.id);loadCardInfo(ids);
+   const ready=ids.every(id=>cardInfo[id]!==null);
+   const [mine]=scoreRules([own,opponent]);
+   const wantDamage=Math.max(-100,Math.min(100,mine.damage)),wantGems=Math.max(-100,Math.min(100,mine.gems));
+   const fatePending=play.stars>=10&&!play.fateChosen&&g.remaining.fate>0;
+   const theirFatePending=otherPlay.stars>=10&&!otherPlay.fateChosen&&!otherPlay.confirmed&&g.remaining.fate>0;
+   aside.append(node("h3","Scoring the round"));
+   if(mine.notes.length)for(const n of mine.notes)textLine(aside,n,"rule-note");else textLine(aside,ready?"No card rules apply to you this round. Printed damage counts.":"Checking card rules…");
+   if(fatePending){
+    textLine(aside,"You have 10+ stars. Draw a blind Fate card, or skip it.");
+    const fate=button("Draw One Blind Fate Card",()=>gameAction("game_fate"),"secondary");fate.disabled=busy||play.confirmed||otherPlay.confirmed;aside.append(fate);
+    aside.append(button(play.confirmed?"Undo Skip":"Skip Fate",()=>gameAction("game_confirm",{confirmed:!play.confirmed}),"primary"));
    }
-   const adjustments=node("div");
-   for(const [id,label,value] of [["damageAdjust","Your damage adjustment",play.damageAdjustment],["gemAdjust","Your gem adjustment",play.gemAdjustment]]){
-    const l=node("label",label);l.htmlFor=id;const inp=node("input");inp.type="number";inp.min="-100";inp.max="100";inp.step="1";inp.id=id;inp.value=String(value);adjustments.append(l,inp);
-   }
-   adjustments.append(button("Apply Effect Adjustments",()=>gameAction("game_adjust",{damage:Number($("damageAdjust").value),gems:Number($("gemAdjust").value)})));
-   aside.append(adjustments);
    const total=node("div",undefined,"combination");total.append(node("h3","Your final totals"));
-   textLine(total,(play.damage+play.damageAdjustment)+" damage · "+play.stars+" stars");
-   textLine(total,"Gem adjustment: "+(play.gemAdjustment>=0?"+":"")+play.gemAdjustment);aside.append(total);
-   aside.append(button(play.confirmed?"Undo My Confirmation":"Confirm Round Result",()=>gameAction("game_confirm",{confirmed:!play.confirmed}),"primary"));
-   textLine(aside,otherPlay.confirmed?opponent.name+" confirmed.":opponent.name+" is reviewing.");
+   textLine(total,(play.damage+wantDamage)+" damage · "+play.stars+" stars");
+   if(wantGems)textLine(total,"Gems: "+(wantGems>0?"+":"")+wantGems);aside.append(total);
+   textLine(aside,otherPlay.confirmed?opponent.name+" is done.":theirFatePending?"Waiting for "+opponent.name+" to draw or skip Fate.":opponent.name+" is still scoring.");
+   // Hands-free: set my adjustment to what the rules say, then confirm (unless I still have a Fate choice to make).
+   const key=[g.round,g.revision,wantDamage,wantGems,play.confirmed].join(":");
+   if(ready&&!busy&&key!==autoKey){
+    if(play.damageAdjustment!==wantDamage||play.gemAdjustment!==wantGems){autoKey=key;setTimeout(()=>gameAction("game_adjust",{damage:wantDamage,gems:wantGems}),0);}
+    else if(!play.confirmed&&!fatePending&&!theirFatePending){autoKey=key;setTimeout(()=>gameAction("game_confirm",{confirmed:true}),0);}
+   }
   }else{
    const result=g.history[g.history.length-1];aside.append(node("h3",g.phase==="finished"?"Match complete":"Round complete"));
    textLine(aside,result?.winner?result.winner+" won "+result.pool+" gems.":"Damage tied. The unclaimed prize carries forward.");

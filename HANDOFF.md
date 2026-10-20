@@ -13,6 +13,11 @@ The user confirmed that they can start and play a match after the Start Game fix
 - Development Supabase: tlctsthlndxzwopfpycl.
 - Azure DevOps project: https://dev.azure.com/fc3p0/Card%20Studio. A GitHub/Boards connection was previously reported; a separate ADO source mirror is NOT verified. This backup was committed to GitHub.
 
+## v3 site redesign (branch claude/v3-redesign) — 2026-10-20
+Full-site restyle: near-black grainy ground, acid green, blackletter "Bag of Gleps" logo, Anton headings, IBM Plex body, sticky top bar. Visual only: every existing script and element ID is unchanged; one script is appended to index.html (top bar navigation, home deck strip, and collapsing the game headline once players are in a room). The direct Create/Join flow is kept; the lobby's entry panel is styled as the "Join a game" box under the "The table is ~~locked~~ open." headline. Billy's art for the home page is in assets/billy/.
+Restore point before this redesign: branch snapshot/pre-v3-redesign-2026-10-20 (commit 2eb5cc9). To roll back after merging, revert the merge commit on main (or restore index.html and beta/online-lobby.html from that branch).
+Design source and build script (rebuilds the restyle from the repo's HTML): Claude project files, card-studio-v3/source/.
+
 ## Where the implementation lives
 - index.html: Card Studio, Deck, Card Master, feedback, the direct Game entry, and iframe resize messaging.
 - beta/online-lobby.html: inline creator-code access, room controls, and responsive game UI. Wide desktop felt table, opponent at top, own hand at bottom, controls on right; phone layout stacks. Card inspection uses a dialog.

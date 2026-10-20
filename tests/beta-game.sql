@@ -38,7 +38,7 @@ BEGIN
   v:=public.glep_beta_game(a,'game_confirm',jsonb_build_object('round',rr,'revision',v->'game'->>'revision','confirmed',true));
   v2:=public.glep_beta_game(b,'game_confirm',jsonb_build_object('round',rr,'revision',v->'game'->>'revision','confirmed',true));
   ASSERT v2->'game'->>'phase' IN ('result','finished');
-  ASSERT (v2->'game'->'players'->0->>'gems')::integer>0;
+  ASSERT EXISTS (SELECT 1 FROM jsonb_array_elements(v2->'game'->'players') p WHERE p->>'name'='Billy' AND (p->>'gems')::integer>0),'Winning player did not receive gems';
   EXIT WHEN v2->'game'->>'phase'='finished';
   v:=public.glep_beta_game(a,'game_next',jsonb_build_object('round',rr));
   ASSERT v->'game'->>'phase'='result';

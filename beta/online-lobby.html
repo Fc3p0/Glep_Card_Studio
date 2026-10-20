@@ -94,7 +94,7 @@ async function gameAction(action,data={}){
 function renderGame(data,force=false){
  if(!Object.prototype.hasOwnProperty.call(data,"game"))return;
  currentGame=data.game;canStartGame=!!data.canStart;
- const fingerprint=JSON.stringify([data.game,data.canStart,busy]);
+ const fingerprint=JSON.stringify([data.game,data.canStart,roomReady,busy]);
  if(!force&&fingerprint===gameFingerprint)return;
  gameFingerprint=fingerprint;
  const board=$("gameBoard");board.replaceChildren();

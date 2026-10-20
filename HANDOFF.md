@@ -3,7 +3,7 @@ Updated: 2026-10-19, America/Los_Angeles.
 
 ## Current state
 The game is playable in production. Older October handoffs saying “lobby only” or “feature branch only” are obsolete.
-The user confirmed that they can start and play a match after the Start Game fixes. The subsequent desktop tabletop layout is deployed; full visual/two-device testing of that latest layout has not been recorded.
+The user confirmed that they can start and play a match after the Start Game fixes. The subsequent desktop tabletop layout is deployed. The direct Create/Join entry was verified in Safari. Full latest two-device match validation has not been recorded.
 
 - Live: https://fc3p0.github.io/Glep_Card_Studio/
 - Repository: https://github.com/Fc3p0/Glep_Card_Studio
@@ -46,11 +46,24 @@ Reloading does not currently restore the previous in-memory beta token automatic
 - Match ends at selected gem target or when a player lacks an attack/modifier; scores determine winner or draw.
 - Fate text and nonnumeric effects still require agreement/manual resolution; complex swaps/discards are not yet fully encoded.
 
-## Most recent requested direction — DISCUSSION ONLY
+## Exact handoff point — 2026-10-19, 20:05 America/Los_Angeles
+The user intends to upload a FULL-SITE UI redesign handoff next. Wait for and read that upload before implementing a redesign. The scope is the whole site, not only the Card Editor or game.
+Card Editor changes were explicitly discussion-only before this forthcoming handoff. Do not treat earlier proposed editor features or a hybrid editor direction as approved implementation requirements.
+
+Latest completed change: Play the Game opens directly into Create/Join. The separate lock page and Lock button have been removed. Creator-code entry is inline within Create/Join; production API authentication remains unchanged. This was verified in desktop Safari from Home -> Play the Game, showing the inline code field and both room buttons. Code and tests of the new flow passed.
+
+A full-site pre-redesign snapshot was saved:
+- Frozen branch: snapshot/pre-ui-redesign-2026-10-19
+- Frozen commit: 63b386c2243bf31535a2eff982f0a10749ba1258
+- Downloadable archive provided to the user: Card-Studio-Full-Site-Before-Redesign-2026-10-19.zip, containing complete source at that commit, 13 desktop screenshots and rollback notes.
+- The visual archive is saved separately from GitHub; Claude needs the user to attach it if it cannot access the user's files. The frozen branch itself contains the full source baseline.
+- That baseline predates the latest removal of the separate Game lock page. Current main includes the direct Create/Join flow. Preserve this latest explicitly requested flow during a redesign unless the user changes it.
+- Screenshots cover major public pages and login gates, not authenticated administration, authenticated gameplay, all responsive sizes or every UI state.
+- Site-specific backend state (current cards, artwork, feedback, credentials, sessions and matches) still lives in production Supabase; source backup is not a full data/storage backup.
+
+Other design discussion, NOT implemented:
 User asked about backend rules for individual cards, e.g. “automatically lose unless condition X.”
-We discussed adding structured conditions/actions/timing and explicit exception semantics, with a Game Rules editor under Card Master -> Manage Deck -> Edit Card.
-User explicitly said to discuss, not implement. No card rule engine/editor has been built.
-Next conversation should continue from that design discussion unless user gives a new task.
+We discussed structured conditions/actions/timing and explicit exception semantics, with a Game Rules editor under Card Master -> Manage Deck -> Edit Card. User said discuss only. No rule engine or rules editor has been built.
 
 ## Verification
 - Live API tests passed for concurrent room creation/join capacity, synchronized status, leave/rejoin and logout.

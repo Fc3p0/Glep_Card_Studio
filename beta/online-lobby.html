@@ -2,10 +2,104 @@
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>GLEP · Online Game Beta</title>
 <style>
 :root{color-scheme:dark;font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;background:#101c30;color:#f1f7ff}*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(circle at top,#263a5a 0,#101c30 70%)}main{max-width:560px;margin:0 auto;padding:24px 18px 64px}header{display:flex;justify-content:space-between;align-items:center;padding:6px 0 42px}h1{font-size:clamp(2rem,7vw,3rem);margin:8px 0}h2{margin:8px 0 15px}p{color:#c1d2e6;line-height:1.55}.eyebrow{color:#9adddf;letter-spacing:.15em;font-size:.78rem;font-weight:800}.panel{border:1px solid #526e91;background:#182a45;border-radius:18px;padding:24px;box-shadow:0 18px 48px #050e1b55}.actions{display:grid;gap:12px;margin-top:24px}button,input{font:inherit}button{border:1px solid #7491ae;border-radius:10px;padding:13px 18px;cursor:pointer;background:#283f60;color:#fff;font-weight:750}button.primary{background:#9ce6ed;color:#132239;border-color:#9ce6ed}button.secondary{background:#dba7d6;color:#182039;border-color:#dba7d6}button:focus-visible,input:focus-visible{outline:3px solid #f0d36b;outline-offset:2px}input{background:#102139;border:1px solid #7090ae;color:#fff;border-radius:9px;padding:13px;width:100%;margin:8px 0 16px}label{font-size:.85rem;font-weight:700}.sub{font-size:.85rem}.chip{background:#263f5c;border-radius:7px;padding:5px 9px;font-size:.8rem;color:#d9eaff}.player{display:flex;align-items:center;gap:11px;padding:14px 0;border-bottom:1px solid #3d5672}.dot{width:10px;height:10px;border-radius:50%;background:#8fe3ad}.waiting{background:#788ba6}.status{min-height:22px;margin-top:18px;font-size:.88rem;color:#eac987}.hidden{display:none}.code{font-size:1.9rem;letter-spacing:.2em;font-weight:900;text-align:center;padding:15px;background:#101f36;border:1px dashed #7290af;border-radius:12px;user-select:all}.notice{border-left:3px solid #e9c472;padding:8px 13px;background:#2c3544;color:#e9d9a9;font-size:.85rem;margin:24px 0 0}.back{border:0;background:none;padding:8px 0;color:#b6dbe7}footer{text-align:center;color:#9bafc5;font-size:.8rem;margin-top:28px}button:disabled{opacity:.45;cursor:not-allowed}
-.hand-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:12px 0 20px}.game-card{display:flex;flex-direction:column;gap:8px;min-width:0;background:#102139;border:2px solid #526e91;border-radius:12px;padding:10px;text-align:left;color:#f1f7ff}.game-card.selected{border-color:#f0d36b;box-shadow:0 0 0 2px #f0d36b}.game-card img{width:100%;aspect-ratio:5/6;object-fit:contain;border-radius:6px}.game-card img.rendered{aspect-ratio:5/7}.game-card p{font-size:.8rem;white-space:pre-wrap;margin:0}.game-card small{font-size:.75rem;color:#a7d7dd}.scoreboard{display:grid;gap:8px;padding:16px;background:#102139;border-radius:10px}.round-message{background:#30435b;padding:14px;border-left:3px solid #9ce6ed}.revealed-player{margin:22px 0;border-top:1px solid #526e91;padding-top:12px}.adjustments{margin:20px 0}#gameBoard{border-top:1px solid #526e91;margin-top:24px;padding-top:24px}#gameBoard button.primary{width:100%;margin-top:14px}@media(max-width:360px){.hand-grid{grid-template-columns:1fr}} </style></head><body><main><header><strong>✦ GLEP</strong><span class="chip">ONLINE GAME · BETA 0.2</span></header>
+.hand-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:12px 0 20px}.game-card{display:flex;flex-direction:column;gap:8px;min-width:0;background:#102139;border:2px solid #526e91;border-radius:12px;padding:10px;text-align:left;color:#f1f7ff}.game-card.selected{border-color:#f0d36b;box-shadow:0 0 0 2px #f0d36b}.game-card img{width:100%;aspect-ratio:5/6;object-fit:contain;border-radius:6px}.game-card img.rendered{aspect-ratio:5/7}.game-card p{font-size:.8rem;white-space:pre-wrap;margin:0}.game-card small{font-size:.75rem;color:#a7d7dd}.scoreboard{display:grid;gap:8px;padding:16px;background:#102139;border-radius:10px}.round-message{background:#30435b;padding:14px;border-left:3px solid #9ce6ed}.revealed-player{margin:22px 0;border-top:1px solid #526e91;padding-top:12px}.adjustments{margin:20px 0}#gameBoard{border-top:1px solid #526e91;margin-top:24px;padding-top:24px}#gameBoard button.primary{width:100%;margin-top:14px}@media(max-width:360px){.hand-grid{grid-template-columns:1fr}} 
+/* Desktop tabletop */
+body{background:#101a2a;color:#edf4ff;min-height:0}
+main{max-width:1400px;padding:18px 22px 28px}
+header{padding:4px 2px 18px;gap:12px}
+header>strong{letter-spacing:2px;font-size:22px}
+header>strong::after{content:" / THE TABLE";font-size:12px;letter-spacing:1px;color:#a9bcd0;font-weight:500}
+#entry,#join{max-width:500px;margin:55px auto}
+#lobby{background:transparent;border:0;box-shadow:none;padding:0}
+.room-toolbar{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:18px}
+.room-toolbar .room-actions{display:flex;align-items:center;gap:8px}
+.room-toolbar .code{font-size:14px;letter-spacing:.12em;padding:8px 13px;border:1px solid #374d65;border-radius:8px}
+.room-toolbar button{padding:9px 12px;font-size:12px}
+.room-toolbar .back{padding:9px 0}
+.lobby-players{display:flex;gap:24px;flex-wrap:wrap}
+.lobby-players .player{border:0;padding:8px 0}
+.lobby-intro{margin-bottom:10px}
+.match-active .lobby-intro,.match-active .lobby-players{display:none}
+#gameBoard{border:0;padding:0;margin:12px 0 0}
+.table-layout{display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:20px;align-items:start}
+.table-main{min-width:0}
+.felt{background:radial-gradient(ellipse at center,#24434a,#182f35 80%);border:1px solid #3e5c65;border-radius:26px;padding:22px 26px;min-height:420px;display:flex;flex-direction:column;gap:18px;justify-content:space-between;box-shadow:inset 0 0 70px #09151a66}
+.player-strip{display:flex;align-items:center;justify-content:space-between;gap:14px}
+.player-identity{display:flex;gap:10px;align-items:center}
+.avatar{display:grid;place-items:center;width:36px;height:36px;border:1px solid #49616d;background:#18283b;border-radius:50%;font-weight:700}
+.player-strip small{display:block;color:#b8cdd8;font-size:12px}
+.player-gems{white-space:nowrap;color:#edf4ff}
+.player-state{color:#a4e1e6}
+.table-center{display:flex;align-items:center;justify-content:center;gap:32px}
+.face-down-pair{display:flex;gap:12px}
+.card-back{width:85px;aspect-ratio:5/7;border:2px solid #698592;border-radius:9px;display:grid;place-items:center;letter-spacing:2px;font-size:13px;color:#c5dce2;background:repeating-linear-gradient(45deg,transparent,transparent 8px,#9cdbe715 8px,#9cdbe715 10px),#192d40;box-shadow:0 5px 12px #07171c44}
+.gem-prize{color:#e6cb88;text-align:center;min-width:110px}
+.gem-prize strong{display:block;font-size:38px;line-height:1.15;font-weight:650;margin:4px 0}
+.gem-prize small{color:#c0d3d8;font-size:12px}
+.play-slots{display:flex;justify-content:center;gap:16px}
+.play-slot{width:140px;min-height:145px;border:1px dashed #66818b;border-radius:10px;padding:18px 12px;color:#c0d3d8;text-align:center;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px}
+.play-slot strong{font-size:14px;color:#edf4ff}.play-slot small{font-size:12px}
+.play-slot.has-card{border-style:solid;background:#14283a}
+.hand-heading{display:flex;justify-content:space-between;gap:12px;align-items:center;margin:22px 0 14px}
+.hand-heading h3{font-size:16px;margin:0}
+.hand-heading small{color:#a9bcd0;font-size:12px}
+.hand-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+.game-card{background:#1a293e;border:1px solid #42546d;border-radius:10px;overflow:hidden;padding:0;display:flex;flex-direction:column;min-width:0;gap:0;text-align:left;transition:transform .15s,box-shadow .15s}
+.game-card.selected{transform:translateY(-6px);border-color:#a4e1e6;box-shadow:0 0 0 2px #a4e1e6}
+.card-type{font-size:11px;letter-spacing:.1em;color:#c2d4e4;padding:7px 10px;border-bottom:1px solid #42546d}
+.card-pick{display:block;background:transparent;color:inherit;padding:0;border:0;border-radius:0;text-align:left;font-weight:500;min-width:0;width:100%}
+.card-pick img{width:100%;height:160px;object-fit:contain;background:#f4f4f1;display:block;border-radius:0}
+.card-pick img.rendered{height:auto;aspect-ratio:5/7}
+.card-title{display:block;padding:10px 10px 2px;font-size:13px;min-height:45px;overflow-wrap:anywhere}
+.card-stats{display:flex;justify-content:space-between;gap:6px;padding:7px 10px 10px;font-size:11px;color:#c2d4e4}
+.card-details{border:0;border-top:1px solid #42546d;border-radius:0;background:transparent;color:#a9d8e3;padding:7px;font-size:11px;margin-top:auto;font-weight:500}
+.game-card button:disabled{opacity:.7;cursor:default}
+.round-sidebar{background:#1a293e;border:1px solid #374d65;border-radius:13px;padding:20px;display:flex;flex-direction:column;gap:20px;position:sticky;top:16px;min-width:0}
+.round-sidebar h3{margin:0 0 8px;font-size:15px}
+.round-sidebar p{margin:0;font-size:12px;color:#b2c4d6;line-height:1.65}
+.sidebar-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-bottom:16px;border-bottom:1px solid #374d65}
+.sidebar-phase{color:#a4e1e6;font-size:11px;text-transform:uppercase;letter-spacing:.08em}
+.combination{padding:16px 0;border-top:1px solid #374d65;border-bottom:1px solid #374d65}
+.total-line{display:flex;align-items:center;justify-content:space-between;margin-top:10px;font-size:12px}
+.total-line span{color:#b2c4d6}
+.deck-counts{display:flex;justify-content:space-between;gap:10px;border-top:1px solid #374d65;padding-top:15px;font-size:12px;color:#b2c4d6}
+.deck-counts strong{display:block;color:#edf4ff;margin-top:4px}
+#gameBoard .round-sidebar button.primary{margin:0;padding:13px;width:100%}
+.round-sidebar button{font-size:13px;padding:11px 12px}
+.round-sidebar input{margin:6px 0 13px;padding:10px}
+.round-sidebar label{font-size:12px}
+.revealed-cards{display:flex;justify-content:center;gap:14px;flex-wrap:wrap}
+.revealed-cards .game-card{width:clamp(110px,16vw,170px)}
+.revealed-cards .card-pick img{height:130px}
+.revealed-cards .card-pick img.rendered{height:auto}
+.revealed-cards .card-title{font-size:12px}
+.fate-wrap{position:relative}.fate-wrap .card-type{color:#e6cb88}
+.duel-divider{display:flex;align-items:center;justify-content:center;gap:18px;color:#b8cdd8;text-align:center;font-size:12px}
+.duel-divider .gem-prize strong{font-size:28px}
+.round-result{color:#e6cb88;font-size:18px;text-align:center;margin:0}
+.pregame{display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:20px;align-items:stretch}
+.pregame .felt{min-height:360px;align-items:center;justify-content:center;text-align:center}
+.pregame .felt p{max-width:430px;color:#b8cdd8;font-size:14px}
+.notice{margin-top:24px;font-size:12px;max-width:none}
+footer{margin-top:16px}
+dialog#cardInspector{background:#16243a;color:#edf4ff;border:1px solid #617b94;border-radius:16px;max-width:430px;width:calc(100% - 28px);max-height:90vh;padding:20px}
+#cardInspector::backdrop{background:#06121bd9}
+#cardInspector img{width:100%;max-height:52vh;object-fit:contain}
+#cardInspector p{font-size:14px;white-space:pre-wrap}
+#cardInspector .inspector-close{float:right;margin-bottom:14px;padding:8px 12px}
+@media(min-width:1200px){.felt{min-height:440px}.card-pick img{height:190px}}
+@media(max-width:850px){.table-layout,.pregame{grid-template-columns:minmax(0,1fr) 220px;gap:14px}.round-sidebar{padding:15px}.felt{padding:18px}.hand-row{gap:9px}.card-pick img{height:120px}.card-stats{flex-wrap:wrap}.revealed-cards .game-card{width:130px}}
+@media(max-width:680px){main{padding:14px 12px 22px}header>strong{font-size:18px}header .chip{font-size:10px}.table-layout,.pregame{grid-template-columns:1fr}.round-sidebar{position:static}.hand-row{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card-pick img{height:150px}.card-stats{flex-wrap:nowrap}.felt{padding:18px 14px;min-height:370px;gap:20px}.card-back{width:65px}.table-center{gap:22px}.play-slot{width:120px;min-height:125px}.gem-prize strong{font-size:32px}.player-strip{font-size:13px}.hand-heading{align-items:start;flex-direction:column;gap:4px}.room-toolbar{gap:8px}.room-toolbar .room-actions{flex-wrap:wrap}.revealed-cards .game-card{width:calc(50% - 8px);max-width:170px}.revealed-cards .card-pick img{height:130px}.pregame .felt{min-height:260px}#entry,#join{margin:25px auto}}
+@media(prefers-reduced-motion:reduce){.game-card{transition:none}}
+</style></head><body><main><header><strong>✦ GLEP</strong><span class="chip">ONLINE GAME · BETA</span></header>
 <section id="entry" class="panel"><div class="eyebrow">WELCOME TO THE TABLE</div><h1>Play Together.</h1><p>A private room for you and a friend. Choose your cards, reveal together, and compete for gems.</p><div class="actions"><button id="create" class="primary">Create a Room</button><button id="joinStart" class="secondary">Join a Room</button></div><p class="status" id="entryStatus" role="status"></p></section>
 <section id="join" class="panel hidden"><button class="back" data-back="entry">← Back</button><h2>Join a room</h2><p>Enter your friend's six-character room code.</p><label for="joinCode">Room code</label><input id="joinCode" maxlength="6" autocapitalize="characters" autocomplete="off" spellcheck="false" placeholder="GLEP42"><button id="joinDemo" class="primary">Join Room</button><p class="status" id="joinStatus" role="status"></p></section>
-<section id="lobby" class="panel hidden"><button class="back" id="leave">← Leave room</button><div class="eyebrow">PRIVATE GAME LOBBY</div><h2>Waiting at the table</h2><p>Share this code with the other player to join your room.</p><div class="code" id="roomCode">GLEP42</div><div class="player"><span class="dot"></span><strong id="playerName">Player 1</strong><span class="chip">You</span></div><div class="player"><span class="dot waiting"></span><span>Waiting for another player…</span></div><div class="actions"><button id="copy" class="secondary">Copy Room Code</button></div><p class="status" id="copyStatus" role="status"></p><div id="gameBoard"></div><p class="status" id="gameStatus" role="status"></p></section>
+<section id="lobby" class="panel hidden">
+<div class="room-toolbar"><button class="back" id="leave">← Leave table</button><div class="room-actions"><span class="sub">PRIVATE ROOM</span><div class="code" id="roomCode"></div><button id="copy">Copy code</button></div></div>
+<div class="lobby-intro"><h2>Waiting at the table</h2></div>
+<div class="lobby-players"><div class="player"><span class="dot"></span><strong id="playerName"></strong></div><div class="player"><span class="dot waiting"></span><strong></strong></div></div>
+<p class="status" id="copyStatus" role="status"></p><div id="gameBoard"></div><p class="status" id="gameStatus" role="status"></p></section>
+<dialog id="cardInspector" aria-label="Card details"></dialog>
 <p class="notice"><b>Beta test:</b> Private hands, shared reveals, and gem scoring are live. Apply printed card effects together before confirming each round.</p><footer>GLEP · Private multiplayer beta</footer></main>
 <script>
 const $=id=>document.getElementById(id);
@@ -73,107 +167,158 @@ $("joinCode").addEventListener("keydown",e=>{if(e.key==="Enter")$("joinDemo").cl
 $("leave").onclick=()=>act("leave",{},"copyStatus");
 $("copy").onclick=async()=>{try{await navigator.clipboard.writeText(code);notice("copyStatus","Code copied.");}catch{notice("copyStatus","Select the room code above to copy manually.");}};
 
+
 let currentGame=null,gameFingerprint="",selection={attack:null,modifier:null},selectionRound=0;
+const cardRenderCache=new Map();
 const node=(tag,text,cls)=>{const el=document.createElement(tag);if(text!==undefined)el.textContent=text;if(cls)el.className=cls;return el;};
 function button(text,fn,cls){const el=node("button",text,cls||"");el.type="button";el.disabled=busy;el.onclick=fn;return el;}
 function textLine(host,text,cls){const el=node("p",text,cls);host.append(el);return el;}
-function drawCard(card,selectable,selected,onSelect){
- const el=node(selectable?"button":"article",undefined,"game-card"+(selected?" selected":""));
- if(selectable){el.type="button";el.disabled=busy;el.setAttribute("aria-pressed",String(selected));el.onclick=onSelect;}
- const img=node("img");img.alt=card.name;img.loading="lazy";if(card.art)img.src=card.art;else img.hidden=true;
- el.append(img,node("strong",card.name),node("small",card.type.toUpperCase()+" · Damage "+card.damage+(card.type==="fate"?"":" · Stars "+card.stars)),node("p",card.effect||""));
- const elements=[card.element1,card.element2].filter(x=>x&&x!=="None");
- if(elements.length)el.append(node("small",elements.join(" · ")));
- try{if(typeof parent.glepRenderCard==="function"){parent.glepRenderCard({...card,image:card.art||"",strokes:[]}).then(src=>{if(src&&el.isConnected){img.src=src;img.hidden=false;img.classList.add("rendered");}}).catch(()=>{});}}catch{}
+function cardImage(card,img){
+ img.alt=card.name;img.loading="lazy";if(card.art)img.src=card.art;else img.hidden=true;
+ try{if(typeof parent.glepRenderCard==="function"){
+  const key=JSON.stringify(card);
+  if(!cardRenderCache.has(key))cardRenderCache.set(key,Promise.resolve(parent.glepRenderCard({...card,image:card.art||"",strokes:[]})));
+  cardRenderCache.get(key).then(src=>{if(src&&img.isConnected){img.src=src;img.hidden=false;img.classList.add("rendered");}}).catch(()=>{});
+ }}catch{}
+}
+function inspectCard(card){
+ const dialog=$("cardInspector");dialog.replaceChildren();
+ const close=button("Close",()=>dialog.close(),"inspector-close");dialog.append(close,node("h2",card.name));
+ const img=node("img");cardImage(card,img);dialog.append(img);
+ textLine(dialog,card.type.toUpperCase()+" · "+card.damage+" damage"+(card.type==="fate"?"":" · "+card.stars+" stars"));
+ textLine(dialog,card.effect||"");
+ const elements=[card.element1,card.element2].filter(e=>e&&e!=="None");if(elements.length)textLine(dialog,elements.join(" · "));
+ if(!dialog.open)dialog.showModal();
+}
+function drawCard(card,selectable=false,selected=false,onSelect,locked=false){
+ const el=node("article",undefined,"game-card"+(selected?" selected":"")+(card.type==="fate"?" fate-wrap":""));
+ const type=node("div",card.type.toUpperCase(),"card-type");el.append(type);
+ const pick=button("",selectable?onSelect:()=>inspectCard(card),"card-pick");
+ pick.disabled=busy||locked;pick.setAttribute("aria-label",(selectable?"Select ":"Inspect ")+card.name);
+ if(selectable)pick.setAttribute("aria-pressed",String(selected));
+ const img=node("img");cardImage(card,img);pick.append(img,node("strong",card.name,"card-title"));el.append(pick);
+ const stats=node("div",undefined,"card-stats");stats.append(node("span",card.damage+" damage"));if(card.type!=="fate")stats.append(node("span",card.stars+" stars"));el.append(stats);
+ const details=button("View card",()=>inspectCard(card),"card-details");details.disabled=false;el.append(details);
  return el;
 }
 async function gameAction(action,data={}){
  const round=currentGame?.round,revision=currentGame?.revision;
  await act(action,{round,revision,...data},"gameStatus");
 }
+function prize(pool){const p=node("div",undefined,"gem-prize");p.append(node("span","ROUND PRIZE","small"),node("strong",String(pool)),node("small","gems"));return p;}
+function strip(player,state){
+ const el=node("div",undefined,"player-strip"),identity=node("div",undefined,"player-identity");
+ identity.append(node("span",player.name.slice(0,1).toUpperCase(),"avatar"));
+ const label=node("div");label.append(node("strong",player.name+(player.you?" · You":"")),node("small",state,"player-state"));identity.append(label);
+ el.append(identity,node("strong",player.gems+" / "+currentGame.target+" gems","player-gems"));return el;
+}
+function decks(g){
+ const el=node("div",undefined,"deck-counts");for(const type of ["attack","modifier","fate"]){const d=node("div",type==="fate"?"Fate":type==="attack"?"Attack":"Modifier");d.append(node("strong",g.remaining[type]+" left"));el.append(d);}return el;
+}
+function sidebar(g,label){
+ const aside=node("aside",undefined,"round-sidebar"),heading=node("div",undefined,"sidebar-heading");heading.append(node("strong","Round "+g.round),node("span",label,"sidebar-phase"));aside.append(heading);return aside;
+}
 function renderGame(data,force=false){
  if(!Object.prototype.hasOwnProperty.call(data,"game"))return;
- currentGame=data.game;canStartGame=!!data.canStart;
+ currentGame=data.game;canStartGame=!!data.canStart;document.body.classList.toggle("match-active",!!currentGame);
  const fingerprint=JSON.stringify([data.game,data.canStart,roomReady,busy]);
  if(!force&&fingerprint===gameFingerprint)return;
  gameFingerprint=fingerprint;
  const board=$("gameBoard");board.replaceChildren();
  if(!currentGame){
-  board.append(node("h2","Ready to play?"));
-  textLine(board,"Two players share the approved deck. Each round, choose one attack and one modifier privately. Both selections reveal together.");
-  const label=node("label","Gem target");label.htmlFor="gemTarget";board.append(label);
-  const input=node("input");input.type="number";input.id="gemTarget";input.min="1";input.max="100";input.value="10";board.append(input);
-  textLine(board,"The match ends at your gem target or when a player runs out of attacks or modifiers. Printed effects are applied together after reveal. If damage stays tied, the prize carries into the next round.","sub");
+  const layout=node("div",undefined,"pregame"),table=node("div",undefined,"felt"),backs=node("div",undefined,"face-down-pair");
+  backs.append(node("div","GLEP","card-back"),node("div","GLEP","card-back"));
+  table.append(backs,node("h2",roomReady?"The table is ready":"Waiting at the table"));
+  textLine(table,"Choose an attack and a modifier in secret. Reveal together. Win the round’s gems.");
+  const aside=node("aside",undefined,"round-sidebar");aside.append(node("h3","Set up your match"));
+  const label=node("label","Gem target");label.htmlFor="gemTarget";const input=node("input");input.type="number";input.id="gemTarget";input.min="1";input.max="100";input.value=String(matchTarget);input.addEventListener("input",()=>{matchTarget=input.value;});aside.append(label,input);
   const start=button("Start Game",()=>gameAction("game_start",{target:Number($("gemTarget").value)}),"primary");
-  start.disabled=busy||!data.canStart||document.querySelectorAll("#lobby .player strong").length!==2||!roomReady;
-  board.append(start);
-  if(!data.canStart)textLine(board,"Both players must be connected before starting.","sub");
-  else if(!roomReady)textLine(board,"Waiting for the second player.","sub");
-  return;
+  start.disabled=busy||!data.canStart||!roomReady;aside.append(start);
+  textLine(aside,roomReady?"Both players are connected. Either player can start.":"Waiting for the second player to join.");
+  textLine(aside,"The match ends at the target or when a player runs out of cards. Remaining ties carry the prize forward.");
+  textLine(aside,"Printed effects are applied together after reveal.");
+  layout.append(table,aside);board.append(layout);return;
  }
- const g=currentGame;
- const own=g.players.find(p=>p.you),opponent=g.players.find(p=>!p.you);
- board.append(node("h2","Round "+g.round+" · "+g.pool+" gems"));
- const score=node("div",undefined,"scoreboard");
- g.players.forEach(p=>score.append(node("div",p.name+(p.you?" (you)":"")+" · "+p.gems+" / "+g.target+" gems")));
- board.append(score);
+ const g=currentGame,own=g.players.find(p=>p.you),opponent=g.players.find(p=>!p.you);
+ if(!own||!opponent){textLine(board,"Reconnecting to the match…");return;}
  if(selectionRound!==g.round){selection={attack:null,modifier:null};selectionRound=g.round;}
+ const layout=node("div",undefined,"table-layout"),main=node("div",undefined,"table-main"),table=node("div",undefined,"felt");
+ let aside=sidebar(g,g.phase==="select"?"Select cards":g.phase==="reveal"?"Reveal":g.phase==="result"?"Round result":g.phase==="finished"?"Match complete":"Player left");
  if(g.phase==="select"){
-  if(own.locked){textLine(board,"Your cards are locked face down. Waiting for "+opponent.name+"…","round-message");}
-  else{
-   textLine(board,"Choose one attack and one modifier. Your opponent sees only whether you have locked in.");
-   for(const type of ["attack","modifier"]){
-    board.append(node("h3",type==="attack"?"Your attacks":"Your modifiers"));
-    const grid=node("div",undefined,"hand-grid");
-    for(const card of g.hand[type]||[])grid.append(drawCard(card,true,selection[type]===card.id,()=>{selection[type]=card.id;renderGame({game:g,canStart:data.canStart},true);}));
-    board.append(grid);
-   }
-   const lock=button("Lock In Both Cards",()=>gameAction("game_play",{attack:selection.attack,modifier:selection.modifier}),"primary");
-   lock.disabled=busy||!selection.attack||!selection.modifier;board.append(lock);
+  table.append(strip(opponent,opponent.locked?"Cards locked in":"Choosing cards"));
+  const center=node("div",undefined,"table-center"),backs=node("div",undefined,"face-down-pair");
+  backs.append(node("div","GLEP","card-back"),node("div","GLEP","card-back"));center.append(backs,prize(g.pool));table.append(center);
+  const slots=node("div",undefined,"play-slots");
+  for(const type of ["attack","modifier"]){
+   const card=(g.hand?.[type]||[]).find(c=>c.id===selection[type]),slot=node("div",undefined,"play-slot"+(card||own.locked?" has-card":""));
+   slot.append(node("small",type.toUpperCase()),node("strong",own.locked?"Locked face down":card?card.name:"Choose a card"));
+   if(card&&!own.locked)slot.append(node("small",card.damage+" damage · "+card.stars+" stars"));slots.append(slot);
   }
-  textLine(board,opponent.locked?opponent.name+" is ready.":opponent.name+" is choosing cards.","sub");
+  table.append(slots,strip(own,own.locked?"Cards locked in":"Your move"));main.append(table);
+  const heading=node("div",undefined,"hand-heading");heading.append(node("h3",own.locked?"Remaining hand":"Your hand"),node("small",own.locked?"Your selected cards stay hidden until the shared reveal":"Choose an attack + a modifier"));main.append(heading);
+  const hand=node("div",undefined,"hand-row");
+  for(const type of ["attack","modifier"])for(const card of g.hand?.[type]||[])hand.append(drawCard(card,true,selection[type]===card.id,()=>{selection[type]=card.id;renderGame({game:g,canStart:canStartGame},true);},own.locked));
+  main.append(hand);
+  aside.append(node("h3",own.locked?"Waiting for reveal":"Your move"));
+  textLine(aside,own.locked?"Your cards are locked in. The reveal happens once the other player submits.":"Choose your two cards. Your opponent cannot see your selection.");
+  const combo=node("div",undefined,"combination");combo.append(node("h3","Your combination"));
+  const picks=["attack","modifier"].map(t=>(g.hand?.[t]||[]).find(c=>c.id===selection[t])).filter(Boolean);
+  textLine(combo,own.locked?"Two cards locked face down":picks.map(c=>c.name).join(" + ")||"No cards selected");
+  if(!own.locked)for(const [label,key] of [["Damage","damage"],["Stars","stars"]]){const line=node("div",undefined,"total-line");line.append(node("span",label),node("strong",picks.length?String(picks.reduce((s,c)=>s+c[key],0)):"—"));combo.append(line);}
+  aside.append(combo);
+  const lock=button(own.locked?"Cards locked in":"Lock In Both Cards",()=>gameAction("game_play",{attack:selection.attack,modifier:selection.modifier}),"primary");lock.disabled=busy||own.locked||picks.length!==2;aside.append(lock);
+  textLine(aside,opponent.locked?opponent.name+" is ready.":opponent.name+" is choosing cards.");
  }else if(["reveal","result","finished"].includes(g.phase)){
-  for(const p of g.players){
-   const play=p.play;if(!play)continue;
-   const section=node("div",undefined,"revealed-player");
-   section.append(node("h3",p.name+(p.you?" (you)":"")+" · "+(play.damage+play.damageAdjustment)+" damage · "+play.stars+" stars"));
-   const cards=node("div",undefined,"hand-grid");cards.append(drawCard(play.attack),drawCard(play.modifier));section.append(cards);
-   if(play.fate){section.append(node("h4","Fate"),drawCard(play.fate));}
-   textLine(section,"Effect adjustments: "+(play.damageAdjustment>=0?"+":"")+play.damageAdjustment+" damage · "+(play.gemAdjustment>=0?"+":"")+play.gemAdjustment+" gems"+(play.confirmed?" · Confirmed":""),"sub");
-   board.append(section);
+  const groups=[opponent,own];
+  for(let index=0;index<groups.length;index++){
+   const p=groups[index],play=p.play;
+   table.append(strip(p,play?(play.damage+play.damageAdjustment)+" damage · "+play.stars+" stars"+(play.confirmed?" · Confirmed":""):""));
+   if(play){const cards=node("div",undefined,"revealed-cards");cards.append(drawCard(play.attack),drawCard(play.modifier));if(play.fate)cards.append(drawCard(play.fate));table.append(cards);}
+   if(index===0){const divider=node("div",undefined,"duel-divider");divider.append(prize(g.pool));table.append(divider);}
   }
+  main.append(table);
   if(g.phase==="reveal"){
-   textLine(board,"Read the revealed effects together. Apply any damage or gem changes below, then both confirm the result. Changing an adjustment clears both confirmations. Draw Fate before confirming.","round-message");
+   aside.append(node("h3","Resolve the effects"));
+   textLine(aside,"Read both combinations. Apply the printed effects, then both confirm. Changes reset both confirmations.");
    const play=own.play,otherPlay=opponent.play;
    if(play.stars>=10&&!play.fateChosen){
-    const fate=button(g.remaining.fate?"Draw One Blind Fate Card":"Fate deck empty",()=>gameAction("game_fate"),"secondary");
-    fate.disabled=busy||!g.remaining.fate||play.confirmed||otherPlay.confirmed;board.append(fate);
+    const fate=button(g.remaining.fate?"Draw One Blind Fate Card":"Fate deck empty",()=>gameAction("game_fate"),"secondary");fate.disabled=busy||!g.remaining.fate||play.confirmed||otherPlay.confirmed;aside.append(fate);
    }
-   const adjustments=node("div",undefined,"adjustments");
+   const adjustments=node("div");
    for(const [id,label,value] of [["damageAdjust","Your damage adjustment",play.damageAdjustment],["gemAdjust","Your gem adjustment",play.gemAdjustment]]){
     const l=node("label",label);l.htmlFor=id;const inp=node("input");inp.type="number";inp.min="-100";inp.max="100";inp.step="1";inp.id=id;inp.value=String(value);adjustments.append(l,inp);
    }
    adjustments.append(button("Apply Effect Adjustments",()=>gameAction("game_adjust",{damage:Number($("damageAdjust").value),gems:Number($("gemAdjust").value)})));
-   board.append(adjustments);
-   board.append(button(play.confirmed?"Undo My Confirmation":"Confirm Round Result",()=>gameAction("game_confirm",{confirmed:!play.confirmed}),"primary"));
-   textLine(board,otherPlay.confirmed?opponent.name+" confirmed.":opponent.name+" is reviewing the effects.","sub");
+   aside.append(adjustments);
+   const total=node("div",undefined,"combination");total.append(node("h3","Your final totals"));
+   textLine(total,(play.damage+play.damageAdjustment)+" damage · "+play.stars+" stars");
+   textLine(total,"Gem adjustment: "+(play.gemAdjustment>=0?"+":"")+play.gemAdjustment);aside.append(total);
+   aside.append(button(play.confirmed?"Undo My Confirmation":"Confirm Round Result",()=>gameAction("game_confirm",{confirmed:!play.confirmed}),"primary"));
+   textLine(aside,otherPlay.confirmed?opponent.name+" confirmed.":opponent.name+" is reviewing.");
   }else{
-   const result=g.history[g.history.length-1];
-   textLine(board,result?.winner?result.winner+" won "+result.pool+" gems.":"Damage tied. "+g.pool+" gems carry forward.","round-message");
+   const result=g.history[g.history.length-1];aside.append(node("h3",g.phase==="finished"?"Match complete":"Round complete"));
+   textLine(aside,result?.winner?result.winner+" won "+result.pool+" gems.":"Damage tied. The unclaimed prize carries forward.");
    if(g.phase==="result"){
-    const next=button(own.next?"Waiting for the other player…":"Ready for Next Round",()=>gameAction("game_next"),"primary");next.disabled=busy||own.next;board.append(next);
+    const next=button(own.next?"Waiting for the other player…":"Ready for Next Round",()=>gameAction("game_next"),"primary");next.disabled=busy||own.next;aside.append(next);
    }else{
-    textLine(board,(g.winner?g.winner+" wins the match!":"The match ends in a draw.")+" "+(g.reason||""),"round-message");
-    if(data.canStart)board.append(button("Play Again",()=>gameAction("game_start",{target:g.target}),"primary"));
-    else textLine(board,"Either player can start another match once both are connected.","sub");
+    textLine(aside,g.winner?g.winner+" wins!":"The match ends in a draw.");textLine(aside,g.reason||"");
+    if(data.canStart)aside.append(button("Play Again",()=>gameAction("game_start",{target:g.target}),"primary"));
    }
   }
- }else if(g.phase==="abandoned"){
-  textLine(board,"A player left this match. Join the room together to start another game.");
-  if(data.canStart&&roomReady)board.append(button("Start New Match",()=>gameAction("game_start",{target:g.target}),"primary"));
+ }else{
+  table.append(node("h2","A player left the match"));textLine(table,"Join the room together to start another game.");main.append(table);
+  if(data.canStart&&roomReady)aside.append(button("Start New Match",()=>gameAction("game_start",{target:g.target}),"primary"));
  }
- textLine(board,"Draw piles: "+g.remaining.attack+" attacks · "+g.remaining.modifier+" modifiers · "+g.remaining.fate+" Fate","sub");
+ if(g.history?.length&&g.phase==="select"){const last=g.history[g.history.length-1],section=node("div");section.append(node("h3","Last round"));textLine(section,last.winner?last.winner+" won "+last.pool+" gems.":"The prize carried forward.");aside.append(section);}
+ aside.append(decks(g));layout.append(main,aside);board.append(layout);
 }
+let matchTarget=10;
+$("cardInspector").addEventListener("click",e=>{if(e.target===$("cardInspector"))$("cardInspector").close();});
+let resizeTimer=null;
+function reportHeight(){clearTimeout(resizeTimer);resizeTimer=setTimeout(()=>{const height=Math.ceil(document.body.getBoundingClientRect().height);parent.postMessage({kind:"glep-beta-size",height},location.origin);},40);}
+if(typeof ResizeObserver!=="undefined")new ResizeObserver(reportHeight).observe(document.body);
+window.addEventListener("resize",reportHeight);
+reportHeight();
 
 controls();parent.postMessage({kind:"glep-beta-ready"},location.origin);
 </script></body></html>

@@ -1,6 +1,15 @@
 -- Beta-only migration. Apply ONLY to an isolated development Supabase project.
 -- All browser access denied. The Edge Function uses its service role after validating session tokens.
 create extension if not exists pgcrypto;
+create table if not exists public.glep_creator_codes (
+ id uuid primary key default gen_random_uuid(),
+ creator_name text not null unique check (creator_name in ('Billy','Francesca')),
+ code_hash text not null unique,
+ active boolean not null default true,
+ created_at timestamptz not null default now()
+);
+alter table public.glep_creator_codes enable row level security;
+revoke all on public.glep_creator_codes from anon,authenticated;
 create table if not exists public.glep_beta_rooms (
  id uuid primary key default gen_random_uuid(),
  code text not null unique check (code ~ '^[A-Z2-9]{6}$'),

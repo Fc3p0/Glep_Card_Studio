@@ -710,25 +710,27 @@ function wrapText(c,text,maxWidth,maxLines=Infinity){
   }
   return lines;
 }
-function paint(c,m,img,overlay){c.clearRect(0,0,W,H);c.fillStyle='#fff';c.fillRect(0,0,W,H);const type=TYPES[m.type]||TYPES.attack;
-// original frame silhouette: double black borders, softened geometric corners
-c.lineJoin='round';drawRound(c,18,18,714,1014,84,'#fff','#0a0a0a',13);drawRound(c,35,35,680,980,69,null,type.color,19);drawRound(c,49,49,652,952,54,null,'#0a0a0a',9);
-// inner vertical walls stop at corner circles
-c.strokeStyle='#0a0a0a';c.lineWidth=8;c.beginPath();c.moveTo(74,203);c.lineTo(74,845);c.moveTo(676,203);c.lineTo(676,845);c.stroke();
-for(let i=0;i<4;i++){let x=i%2?618:132,y=i<2?133:916;c.beginPath();c.arc(x,y,96,0,Math.PI*2);c.fillStyle='#fff';c.fill();c.strokeStyle='#0a0a0a';c.lineWidth=12;c.stroke()}
-// color band stays precisely inside the title gap
-const title=(m.name||'UNTITLED CARD').toUpperCase();drawRound(c,238,59,274,103,13,'#fff',null);drawRound(c,245,61,260,9,4,type.color,null);c.textAlign='center';c.fillStyle='#151515';let fs=33;c.font=`800 ${fs}px system-ui,sans-serif`;while(c.measureText(title).width>269&&fs>15){fs-=1;c.font=`800 ${fs}px system-ui,sans-serif`}c.fillText(title,375,110);c.font='700 14px system-ui,sans-serif';c.fillStyle='#555';c.fillText(type.label,375,137);
-// damage + stars top corner medallions
-c.textAlign='center';c.fillStyle='#151515';c.font='800 65px system-ui,sans-serif';c.fillText(String(safeNum(m.damage)),132,153);c.font='800 16px system-ui,sans-serif';c.fillText('DMG',132,193);
-if(m.type!=='fate'){c.font='800 65px system-ui,sans-serif';c.fillText(String(safeNum(m.stars)),618,153);c.font='800 16px system-ui,sans-serif';c.fillText('STARS',618,193)}else{c.font='700 22px system-ui,sans-serif';c.fillStyle='#777';c.fillText('FATE',618,140)}
-// artwork area and descriptions
-const ax=107,ay=244,aw=536,ah=377;c.fillStyle='#fff';c.fillRect(ax,ay,aw,ah);if(img){let ratio=Math.min(aw/img.width,ah/img.height),dw=img.width*ratio,dh=img.height*ratio;c.drawImage(img,ax+(aw-dw)/2,ay+(ah-dh)/2,dw,dh)}if(overlay)c.drawImage(overlay,ax,ay,aw,ah);
-c.strokeStyle='#e2e2e2';c.lineWidth=2;c.beginPath();c.moveTo(112,638);c.lineTo(638,638);c.stroke();
+// Billy's printed frames (750x1050, same size as the card canvas). Slot positions below are measured from them:
+// title bar 206-544 x 30-97, corner circles r=68 at (98,98) (652,98) (98,952) (652,952), paper 43-707 x 111-939.
+const FRAMES={attack:'assets/frames/damage.png',modifier:'assets/frames/modifier.png',fate:'assets/frames/fate.png'},frameImgs={};
+let framesReady=null;
+function loadFrames(){return framesReady||(framesReady=Promise.all(Object.entries(FRAMES).map(([k,url])=>loadImage(url).then(i=>{frameImgs[k]=i}))))}
+function paint(c,m,img,overlay){c.clearRect(0,0,W,H);const type=TYPES[m.type]||TYPES.attack,frame=frameImgs[m.type]||frameImgs.attack;
+if(frame)c.drawImage(frame,0,0,W,H);else{c.fillStyle=type.color;c.fillRect(0,0,W,H);c.fillStyle='#d8c6b9';c.fillRect(43,111,664,828)}
+const ink='#1c1512';
+// title bar
+const title=(m.name||'UNTITLED CARD').toUpperCase();c.textAlign='center';c.textBaseline='alphabetic';c.fillStyle=ink;let fs=30;c.font=`800 ${fs}px system-ui,sans-serif`;while(c.measureText(title).width>310&&fs>14){fs-=1;c.font=`800 ${fs}px system-ui,sans-serif`}c.fillText(title,375,72);c.font='700 12px system-ui,sans-serif';c.fillStyle='#6b5a50';c.fillText(type.label,375,90);
+// damage + stars in the top corner circles
+c.fillStyle=ink;c.font='800 56px system-ui,sans-serif';c.fillText(String(safeNum(m.damage)),98,113);c.font='800 13px system-ui,sans-serif';c.fillText('DMG',98,138);
+if(m.type!=='fate'){c.font='800 56px system-ui,sans-serif';c.fillText(String(safeNum(m.stars)),652,113);c.font='800 13px system-ui,sans-serif';c.fillText('STARS',652,138)}else{c.font='700 20px system-ui,sans-serif';c.fillStyle='#7a6a5e';c.fillText('FATE',652,105)}
+// artwork window keeps the drawing pad's 538:378 ratio so strokes aren't stretched
+const ax=85,ay=196,aw=580,ah=408;c.fillStyle='#fff';c.fillRect(ax,ay,aw,ah);if(img){let ratio=Math.min(aw/img.width,ah/img.height),dw=img.width*ratio,dh=img.height*ratio;c.drawImage(img,ax+(aw-dw)/2,ay+(ah-dh)/2,dw,dh)}if(overlay)c.drawImage(overlay,ax,ay,aw,ah);
+c.strokeStyle=ink;c.lineWidth=3;c.strokeRect(ax-1.5,ay-1.5,aw+3,ah+3);
 const effect=(m.effect||'').trim();
-// The entire text block is bounded above the lower element circles (top at y=820).
+// The text block sits on the paper between the art and the lower corner circles (rings start near y=865).
 // Select the largest size that fits both vertically and horizontally; truncate only
 // when there isn't enough room even at the minimum legible font size.
-const textTop=666,textBottom=807,textWidth=495,minSize=12,maxSize=28;
+const textTop=626,textBottom=858,textWidth=560,minSize=12,maxSize=28;
 let chosenSize=minSize,lines=[],lineHeight=0;
 for(let fontSize=maxSize;fontSize>=minSize;fontSize--){
   c.font=`500 ${fontSize}px system-ui,sans-serif`;
@@ -741,16 +743,16 @@ if(effect && !lines.length){
   lineHeight=minSize*1.26;chosenSize=minSize;
   lines=wrapText(c,effect,textWidth,Math.floor((textBottom-textTop)/lineHeight));
 }
-c.fillStyle='#1e1e1e';c.textAlign='center';c.textBaseline='alphabetic';
+c.fillStyle=ink;c.textAlign='center';c.textBaseline='alphabetic';
 c.font=`500 ${chosenSize}px system-ui,sans-serif`;
 let ypos=textTop+chosenSize;
 for(const line of lines){c.fillText(line,375,ypos,textWidth);ypos+=lineHeight}
-elementIcon(c,m.element1,132,918,76);elementIcon(c,m.element2,618,918,76);
+elementIcon(c,m.element1,98,954,62);elementIcon(c,m.element2,652,954,62);
 }
 function loadImage(url){if(!url)return Promise.resolve(null);if(artCache.has(url))return artCache.get(url);let p=new Promise(resolve=>{let i=new Image();i.onload=()=>resolve(i);i.onerror=()=>resolve(null);if(/^https?:/.test(url))i.crossOrigin='anonymous';i.src=url});artCache.set(url,p);return p}
 function drawStroke(c,s){if(!s.points?.length)return;c.save();c.lineCap='round';c.lineJoin='round';c.globalCompositeOperation=s.erase?'destination-out':'source-over';c.strokeStyle=s.color;c.lineWidth=s.size*(s.erase?4:1);c.beginPath();c.moveTo(s.points[0][0],s.points[0][1]);if(s.points.length===1)c.lineTo(s.points[0][0]+.01,s.points[0][1]+.01);else s.points.slice(1).forEach(p=>c.lineTo(p[0],p[1]));c.stroke();c.restore()}
 function renderPad(){pctx.clearRect(0,0,AW,AH);for(const s of strokes)drawStroke(pctx,s);if(activeStroke)drawStroke(pctx,activeStroke)}
-async function drawPreview(){const n=++revision,img=await loadImage(artImage);if(n!==revision)return;renderPad();paint(ctx,model,img,pad)}
+async function drawPreview(){const n=++revision,img=await loadImage(artImage);await loadFrames();if(n!==revision)return;renderPad();paint(ctx,model,img,pad)}
 function fillControls(){document.querySelectorAll('[data-type]').forEach(b=>{b.classList.toggle('active',b.dataset.type===model.type);b.setAttribute('aria-pressed',b.dataset.type===model.type)});$('cardName').value=model.name;$('cardTags').value=model.tags||'';model.damage=safeNum(model.damage);$('damage').value=model.damage;model.stars=safeNum(model.stars);$('stars').value=model.stars;$('element1').value=model.element1;$('element2').value=model.element2;$('effect').value=model.effect;$('starsField').classList.toggle('hidden',model.type==='fate');$('effectHint').textContent=model.type==='attack'?'Attack description text is flavor only — it does not change damage.':model.type==='fate'?'Fate cards have no stars; effects can change damage, gems or round results.':'Modifier text describes the effect of the modifier.'}
 for(const id of ['element1','element2'])for(const e of ELEMENTS){let o=document.createElement('option');o.value=e;o.textContent=e;$(id).append(o)}
 // Damage and stars use dropdowns only; no quick-select button rows.
@@ -779,7 +781,7 @@ function openCard(id){if(dirty&&!confirm('Discard unsaved edits?'))return;let c=
 function makeCardCanvas(){let c=document.createElement('canvas');c.width=W;c.height=H;return c}
 window.glepRenderCard=async c=>(await cardToCanvas(c)).toDataURL('image/png');
 window.glepArtworkComposite=async c=>{const out=document.createElement('canvas');out.width=AW;out.height=AH;const x=out.getContext('2d');const img=await loadImage(c.image||'');if(img){const scale=Math.min(AW/img.width,AH/img.height);x.drawImage(img,(AW-img.width*scale)/2,(AH-img.height*scale)/2,img.width*scale,img.height*scale)}const over=document.createElement('canvas');over.width=AW;over.height=AH;const oc=over.getContext('2d');for(const st of c.strokes||[])drawStroke(oc,st);x.drawImage(over,0,0);return out.toDataURL('image/png')};
-async function cardToCanvas(c){let out=makeCardCanvas();const img=await loadImage(c.image||'');let ov=document.createElement('canvas');ov.width=AW;ov.height=AH;let oc=ov.getContext('2d');for(const s of c.strokes||[])drawStroke(oc,s);paint(out.getContext('2d'),c,img,ov);return out}
+async function cardToCanvas(c){let out=makeCardCanvas();const img=await loadImage(c.image||'');await loadFrames();let ov=document.createElement('canvas');ov.width=AW;ov.height=AH;let oc=ov.getContext('2d');for(const s of c.strokes||[])drawStroke(oc,s);paint(out.getContext('2d'),c,img,ov);return out}
 function download(blob,name){let a=document.createElement('a'),url=URL.createObjectURL(blob);a.href=url;a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),60000)}
 function slug(x){return String(x||'untitled-card').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,55)||'card'}
 function canvasBlob(c,format='image/png',quality){return new Promise((resolve,reject)=>c.toBlob(x=>x?resolve(x):reject(new Error('Image conversion failed')),format,quality))}

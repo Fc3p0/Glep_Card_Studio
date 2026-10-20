@@ -2,7 +2,7 @@
 // This API issues opaque short-lived session tokens and never trusts frontend-only unlock state.
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
-const ALLOWED_ORIGIN=Deno.env.get("GLEP_BETA_ALLOWED_ORIGIN")??"";
+const ALLOWED_ORIGIN=Deno.env.get("GLEP_BETA_ALLOWED_ORIGIN")??"https://fc3p0.github.io";
 const headers={"Content-Type":"application/json","Cache-Control":"no-store","Access-Control-Allow-Origin":ALLOWED_ORIGIN,"Access-Control-Allow-Headers":"content-type,authorization,apikey","Access-Control-Allow-Methods":"POST,OPTIONS"};
 const respond=(body:unknown,status=200)=>new Response(JSON.stringify(body),{status,headers});
 const db=createClient(Deno.env.get("SUPABASE_URL")!,Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,{auth:{persistSession:false}});
@@ -52,14 +52,10 @@ Deno.serve(async(req)=>{
   if(actor.room_id)return respond({error:"Leave your current room first."},409);
   const code=String(input.code??"").trim().toUpperCase();
   if(!/^[A-Z2-9]{6}$/.test(code))return respond({error:"Enter a valid six-character room code"},400);
-  const {data:room}=await db.from("glep_beta_rooms").select("id,code,status").eq("code",code).eq("status","waiting").gt("expires_at",new Date().toISOString()).maybeSingle();
-  if(!room)return respond({error:"Room not found or no longer accepting players"},404);
-  const {count}=await db.from("glep_beta_sessions").select("id",{count:"exact",head:true}).eq("room_id",room.id).gt("expires_at",new Date().toISOString());
-  if((count??0)>=2)return respond({error:"Room is full"},409);
-  const {error}=await db.from("glep_beta_sessions").update({room_id:room.id}).eq("id",actor.id).is("room_id",null);
+  const {data:result,error}=await db.rpc("glep_beta_join_room",{p_session:actor.id,p_code:code});
   if(error)return respond({error:"Unable to join room"},503);
-  await db.from("glep_beta_rooms").update({status:"ready"}).eq("id",room.id).eq("status","waiting");
-  return respond({ok:true,room:{code:room.code,status:"ready"}});
+  if(result!=="OK")return respond({error:result==="ROOM_FULL"?"Room is full":result==="ALREADY_IN_ROOM"?"Leave your current room first.":"Room not found or not accepting players"},409);
+  return respond({ok:true});
  }
  if(action==="status"){
   if(!actor.room_id)return respond({ok:true,room:null,players:[]});
@@ -69,13 +65,9 @@ Deno.serve(async(req)=>{
   return respond({ok:true,room:{code:room.code,status:room.status},players:(players??[]).map(p=>p.creator_name)});
  }
  if(action==="leave"){
-  const roomId=actor.room_id;
-  await db.from("glep_beta_sessions").update({room_id:null}).eq("id",actor.id);
-  if(roomId){
-   const {count}=await db.from("glep_beta_sessions").select("id",{count:"exact",head:true}).eq("room_id",roomId).gt("expires_at",new Date().toISOString());
-   await db.from("glep_beta_rooms").update({status:(count??0)>0?"waiting":"closed"}).eq("id",roomId);
-  }
-  return respond({ok:true});
+  const {data:result,error}=await db.rpc("glep_beta_leave_room",{p_session:actor.id});
+  if(error)return respond({error:"Unable to leave room"},503);
+  return respond({ok:true,result});
  }
  return respond({error:"Unknown action"},400);
 });

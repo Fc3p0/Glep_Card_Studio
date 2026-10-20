@@ -14,8 +14,8 @@ The user confirmed that they can start and play a match after the Start Game fix
 - Azure DevOps project: https://dev.azure.com/fc3p0/Card%20Studio. A GitHub/Boards connection was previously reported; a separate ADO source mirror is NOT verified. This backup was committed to GitHub.
 
 ## Where the implementation lives
-- index.html: Card Studio, Deck, Card Master, feedback, the creator-code Game gate, and iframe session/resize messaging.
-- beta/online-lobby.html: room controls and responsive game UI. Wide desktop felt table, opponent at top, own hand at bottom, controls on right; phone layout stacks. Card inspection uses a dialog.
+- index.html: Card Studio, Deck, Card Master, feedback, the direct Game entry, and iframe resize messaging.
+- beta/online-lobby.html: inline creator-code access, room controls, and responsive game UI. Wide desktop felt table, opponent at top, own hand at bottom, controls on right; phone layout stacks. Card inspection uses a dialog.
 - backend/glep-beta-rooms/index.ts: deployed room/game API, production Edge Function v3.
 - backend/beta-schema.sql: clean-project beta table/constraint/index/access-control snapshot.
 - backend/beta-room-functions.sql: deployed create/join/leave/status/logout/login-rate-limit RPCs.
@@ -24,7 +24,7 @@ The user confirmed that they can start and play a match after the Start Game fix
 - backend/glep-publish/index.ts, backend/glep-card-master/index.ts, backend/glep-feedback/index.ts, backend/glep-game-access/index.ts: other production Edge Function source snapshots.
 
 ## Authentication and room behavior
-Keep the existing creator-code gate. Only Billy and Francesca are admitted to Game login.
+Play the Game now opens the Create/Join flow directly. The separate Game lock page has been removed. Creator-code entry and login are inside the room flow; the backend still admits only Billy and Francesca. Do not reintroduce the separate lock screen.
 Each API action validates an opaque bearer session; a hidden page or Origin check is not authentication.
 Existing creator-code hashes stay server-side. Do not request or commit plaintext codes, session tokens, credential hashes, or service-role keys.
 The room/game API has verify_jwt=false because it implements its own opaque-session authentication.

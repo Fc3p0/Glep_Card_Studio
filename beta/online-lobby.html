@@ -92,8 +92,8 @@ dialog#cardInspector{background:#16243a;color:#edf4ff;border:1px solid #617b94;b
 @media(max-width:680px){main{padding:14px 12px 22px}header>strong{font-size:18px}header .chip{font-size:10px}.table-layout,.pregame{grid-template-columns:1fr}.round-sidebar{position:static}.hand-row{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card-pick img{height:150px}.card-stats{flex-wrap:nowrap}.felt{padding:18px 14px;min-height:370px;gap:20px}.card-back{width:65px}.table-center{gap:22px}.play-slot{width:120px;min-height:125px}.gem-prize strong{font-size:32px}.player-strip{font-size:13px}.hand-heading{align-items:start;flex-direction:column;gap:4px}.room-toolbar{gap:8px}.room-toolbar .room-actions{flex-wrap:wrap}.revealed-cards .game-card{width:calc(50% - 8px);max-width:170px}.revealed-cards .card-pick img{height:130px}.pregame .felt{min-height:260px}#entry,#join{margin:25px auto}}
 @media(prefers-reduced-motion:reduce){.game-card{transition:none}}
 </style></head><body><main><header><strong>✦ GLEP</strong><span class="chip">ONLINE GAME · BETA</span></header>
-<section id="entry" class="panel"><div class="eyebrow">WELCOME TO THE TABLE</div><h1>Play Together.</h1><p>A private room for you and a friend. Choose your cards, reveal together, and compete for gems.</p><div class="actions"><button id="create" class="primary">Create a Room</button><button id="joinStart" class="secondary">Join a Room</button></div><p class="status" id="entryStatus" role="status"></p></section>
-<section id="join" class="panel hidden"><button class="back" data-back="entry">← Back</button><h2>Join a room</h2><p>Enter your friend's six-character room code.</p><label for="joinCode">Room code</label><input id="joinCode" maxlength="6" autocapitalize="characters" autocomplete="off" spellcheck="false" placeholder="GLEP42"><button id="joinDemo" class="primary">Join Room</button><p class="status" id="joinStatus" role="status"></p></section>
+<section id="entry" class="panel"><div class="eyebrow">WELCOME TO THE TABLE</div><h1>Play Together.</h1><p>A private room for you and a friend. Choose your cards, reveal together, and compete for gems.</p><div id="entryAccess"><label for="entryCreatorCode">Your creator code</label><input id="entryCreatorCode" type="password" minlength="6" maxlength="100" autocomplete="off"></div><p id="accessIdentity" class="sub" hidden></p><div class="actions"><button id="create" class="primary">Create a Room</button><button id="joinStart" class="secondary">Join a Room</button></div><p class="status" id="entryStatus" role="status"></p></section>
+<section id="join" class="panel hidden"><button class="back" data-back="entry">← Back</button><h2>Join a room</h2><p>Enter your friend's six-character room code.</p><div id="joinAccess"><label for="joinCreatorCode">Your creator code</label><input id="joinCreatorCode" type="password" minlength="6" maxlength="100" autocomplete="off"></div><label for="joinCode">Room code</label><input id="joinCode" maxlength="6" autocapitalize="characters" autocomplete="off" spellcheck="false" placeholder="GLEP42"><button id="joinDemo" class="primary">Join Room</button><p class="status" id="joinStatus" role="status"></p></section>
 <section id="lobby" class="panel hidden">
 <div class="room-toolbar"><button class="back" id="leave">← Leave table</button><div class="room-actions"><span class="sub">PRIVATE ROOM</span><div class="code" id="roomCode"></div><button id="copy">Copy code</button></div></div>
 <div class="lobby-intro"><h2>Waiting at the table</h2></div>
@@ -109,15 +109,15 @@ let canStartGame=false;let roomReady=false;let token="",code="",timer=null,gener
 const show=id=>pages.forEach(p=>$(p).classList.toggle("hidden",p!==id));
 const notice=(id,message)=>{$(id).textContent=message;};
 function stop(){if(timer)clearInterval(timer);timer=null;}
-function controls(){["create","joinStart","joinDemo","leave"].forEach(id=>$(id).disabled=busy||!token);document.querySelectorAll("#gameBoard button").forEach(b=>{if(busy)b.disabled=true;});}
+function controls(){["create","joinStart","joinDemo"].forEach(id=>$(id).disabled=busy);$("leave").disabled=busy||!token;document.querySelectorAll("#gameBoard button").forEach(b=>{if(busy)b.disabled=true;});}
 function clearRoom(){roomReady=false;currentGame=null;gameFingerprint="";$("gameBoard").replaceChildren();code="";$("roomCode").textContent="";document.querySelectorAll("#lobby .player").forEach(p=>p.replaceChildren());}
 async function call(action,data={}){
- if(!token)throw Error("Sign in through the Under Development page first.");
+ if(!token)throw Error("Enter your creator code to continue.");
  const current=generation;
  const res=await fetch(API,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+token},body:JSON.stringify({action,...data}),cache:"no-store"});
  const body=await res.json();
  if(current!==generation)throw Error("Session changed.");
- if(res.status===401){token="";generation++;stop();clearRoom();show("entry");controls();parent.postMessage({kind:"glep-beta-expired"},location.origin);}
+ if(res.status===401){token="";generation++;stop();clearRoom();show("entry");updateAccess();controls();notice("entryStatus","Session expired. Enter your creator code to continue.");}
  if(!res.ok||!body.ok)throw Error(body.error||"Request failed");
  return body;
 }
@@ -141,26 +141,37 @@ async function refresh(){
  finally{refreshing=false;}
 }
 function startPoll(){stop();timer=setInterval(()=>{if(!document.hidden)refresh()},3000);refresh();}
+
+let creatorName="";
+function updateAccess(){
+ $("entryAccess").hidden=!!token;$("joinAccess").hidden=!!token;
+ $("accessIdentity").hidden=!token;$("accessIdentity").textContent=token?"Playing as "+creatorName:"";
+}
+async function ensureAccess(action){
+ if(token)return;
+ if(action!=="create"&&action!=="join")throw Error("Enter your creator code to continue.");
+ const field=action==="join"?$("joinCreatorCode"):$("entryCreatorCode");
+ const creatorCode=field.value.trim();
+ if(creatorCode.length<6||creatorCode.length>100){field.focus();throw Error("Enter your creator code to "+(action==="join"?"join":"create")+" a room.");}
+ const res=await fetch(API,{method:"POST",cache:"no-store",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"login",code:creatorCode})});
+ const data=await res.json();
+ if(!res.ok||!data.ok||!["Billy","Francesca"].includes(data.creator)||!/^[a-f0-9]{64}$/.test(data.token||""))throw Error(data.error||"Unable to verify your creator code.");
+ token=data.token;creatorName=data.creator;
+ $("entryCreatorCode").value="";$("joinCreatorCode").value="";updateAccess();
+}
+
 async function act(action,data,errorId){
- if(busy||!token)return;
+ if(busy)return;
  busy=true;controls();const current=generation;notice(errorId,"");
- try{const response=await call(action,data);if(current!==generation)return;
+ try{await ensureAccess(action);const response=await call(action,data);if(current!==generation)return;
   if(action==="leave"){stop();clearRoom();show("entry");}
   else{if(response.room)render(response);else show("lobby");if(Object.prototype.hasOwnProperty.call(response,"game"))renderGame(response);}
  }catch(e){if(current===generation)notice(errorId,e.message);}
  finally{busy=false;controls();if(token&&current===generation&&action!=="leave"){renderGame({game:currentGame,canStart:canStartGame},true);startPoll();}}
 }
-window.addEventListener("message",e=>{
- if(e.origin!==location.origin||e.source!==parent)return;
- if(e.data?.kind==="glep-beta-login"&&typeof e.data.token==="string"&&e.data.token){
-  if(token===e.data.token)return;
-  token=e.data.token;generation++;stop();busy=false;controls();notice("entryStatus","");notice("copyStatus","");show("entry");startPoll();
- }
- if(e.data?.kind==="glep-beta-lock"){token="";generation++;stop();busy=false;clearRoom();show("entry");controls();}
-});
 document.addEventListener("visibilitychange",()=>{if(!document.hidden)refresh();});
 $("create").onclick=()=>act("create",{},"entryStatus");
-$("joinStart").onclick=()=>{notice("joinStatus","");show("join");$("joinCode").focus();};
+$("joinStart").onclick=()=>{$("joinCreatorCode").value=$("entryCreatorCode").value;notice("joinStatus","");show("join");$("joinCode").focus();};
 document.querySelectorAll("[data-back]").forEach(b=>b.onclick=()=>show(b.dataset.back));
 $("joinDemo").onclick=()=>{const entered=$("joinCode").value.trim().toUpperCase();if(!/^[A-Z2-9]{6}$/.test(entered))return notice("joinStatus","Enter a six-character room code.");act("join",{code:entered},"joinStatus");};
 $("joinCode").addEventListener("keydown",e=>{if(e.key==="Enter")$("joinDemo").click();});
@@ -320,5 +331,5 @@ if(typeof ResizeObserver!=="undefined")new ResizeObserver(reportHeight).observe(
 window.addEventListener("resize",reportHeight);
 reportHeight();
 
-controls();parent.postMessage({kind:"glep-beta-ready"},location.origin);
+updateAccess();controls();
 </script></body></html>

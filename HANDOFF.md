@@ -13,10 +13,16 @@ The user confirmed that they can start and play a match after the Start Game fix
 - Development Supabase: tlctsthlndxzwopfpycl.
 - Azure DevOps project: https://dev.azure.com/fc3p0/Card%20Studio. A GitHub/Boards connection was previously reported; a separate ADO source mirror is NOT verified. This backup was committed to GitHub.
 
-## v3 site redesign (branch claude/v3-redesign) — 2026-10-20
-Full-site restyle: near-black grainy ground, acid green, blackletter "Bag of Gleps" logo, Anton headings, IBM Plex body, sticky top bar. Visual only: every existing script and element ID is unchanged; one script is appended to index.html (top bar navigation, home deck strip, and collapsing the game headline once players are in a room). The direct Create/Join flow is kept; the lobby's entry panel is styled as the "Join a game" box under the "The table is ~~locked~~ open." headline. Billy's art for the home page is in assets/billy/.
-Restore point before this redesign: branch snapshot/pre-v3-redesign-2026-10-20 (commit 2eb5cc9). To roll back after merging, revert the merge commit on main (or restore index.html and beta/online-lobby.html from that branch).
-Design source and build script (rebuilds the restyle from the repo's HTML): Claude project files, card-studio-v3/source/.
+## v3 site redesign — live since 2026-10-20
+Full-site restyle shipped in PR #3 (merge 66f1d93). Visual only: existing scripts and element IDs unchanged; one script appended to index.html (top bar, home Deck strip, collapsing the game headline once players are in a room). The direct Create/Join flow is kept; the lobby entry panel is the "Join a game" box under "The table is ~~locked~~ open." Billy's home-page art is in assets/billy/. Design tokens and rules: design/README.md.
+Follow-ups, also live: PR #4 (home Deck strip orders by approval time `reviewed_at`, falling back to `created_at`, and shows the real approved total; the "why are you still here" corner was removed from the game page) and PR #5 (Card Master review: edit fields folded behind an "Edit card" toggle).
+Restore point before the redesign: branch snapshot/pre-v3-redesign-2026-10-20 (2eb5cc9). To roll back, revert the merge commits on main, newest first (#5, #4, #3), or restore index.html and beta/online-lobby.html from that branch. Do not delete the snapshot branches.
+
+## How changes ship
+- Work on a branch, open a PR into main. GitHub Pages publishes main, so merging = deploying.
+- The "Check pages" workflow (tools/check-pages.mjs) syntax-checks every inline script on each PR and push to main; don't merge while it is red.
+- Merge with a merge commit (not squash) so one `git revert -m 1 <merge>` undoes a release.
+- Delete a branch once its PR is merged; snapshot/* branches are permanent restore points.
 
 ## Where the implementation lives
 - index.html: Card Studio, Deck, Card Master, feedback, the direct Game entry, and iframe resize messaging.
@@ -79,6 +85,7 @@ We discussed structured conditions/actions/timing and explicit exception semanti
 - Existing unrelated Supabase security advisor notices remain outside this change scope.
 
 ## Backups and recovery boundaries
+Automatic: the "Back up the deck" workflow (tools/backup-deck.mjs) runs every Monday and on demand (Actions tab → Back up the deck → Run workflow). It copies approved cards, the shared gallery list and all their images into the `deck-backup` branch, one commit per change. It uses only the public key, so it covers what the live site shows: pending/denied cards, creator codes, feedback and matches are NOT included; those need Supabase's own backups or a database dump with the service key, stored outside git.
 This repository preserves source, tests and beta schema definitions. It is NOT a complete current database/storage backup.
 The older backups/approved-cards-pre-stat-images-2026-10-17.json is historical and must not replace current approved cards.
 Approved card records, creator credentials, uploaded artwork, feedback, live sessions and saved matches remain in Supabase; they are not exported by this code backup.

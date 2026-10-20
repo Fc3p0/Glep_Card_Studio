@@ -1,0 +1,35 @@
+name: Back up the deck
+on:
+  schedule:
+    - cron: '17 9 * * 1' # Mondays, 09:17 UTC
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency: deck-backup
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Check out the backup branch
+        run: |
+          git fetch origin deck-backup || true
+          if git rev-parse --verify -q origin/deck-backup >/dev/null; then
+            git worktree add deck-backup origin/deck-backup
+          else
+            git worktree add --detach deck-backup && (cd deck-backup && git checkout --orphan deck-backup && git rm -rfq . )
+          fi
+      - name: Copy approved cards and gallery out of Supabase
+        run: node tools/backup-deck.mjs deck-backup
+      - name: Commit if anything changed
+        working-directory: deck-backup
+        run: |
+          git config user.name "deck-backup bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then echo "No changes"; exit 0; fi
+          git commit -m "Deck backup $(date -u +%F)"
+          git push origin HEAD:refs/heads/deck-backup

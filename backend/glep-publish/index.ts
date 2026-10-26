@@ -29,9 +29,6 @@ Deno.serve(async(request:Request)=>{
 
   const type=data.kind==="art"?"glep_artworks":data.kind==="card"?"glep_cards":null;
   if(!type)return respond({error:"Invalid submission type"},400);
-  const limit=await fetch(api+"/rest/v1/"+type+"?creator_name=eq."+encodeURIComponent(creator)+"&created_at=gte."+encodeURIComponent(new Date(Date.now()-86400000).toISOString())+"&select=id",{headers:{...headers,Prefer:"count=exact"},method:"HEAD"});
-  const count=Number((limit.headers.get("content-range")||"0/0").split("/").pop()||0);
-  if(count>=20)return respond({error:"Creator limit: 20 submissions per 24 hours"},429);
   const name=String(data.name||"Untitled").trim().slice(0,100)||"Untitled";
   let imagePath=null,imageUrl=null;
   if(data.image){

@@ -1,0 +1,30 @@
+name: RLS probe (read-only)
+on:
+  push:
+    branches: [claude/rls-probe]
+permissions:
+  contents: read
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Try reads with the public key (prints only status codes and row counts)
+        run: |
+          R=https://chfzvfyigycpkcsxbscu.supabase.co
+          K=sb_publishable_0zmkCJDMk_qAex_bnopfsA_CQP21oxN
+          probe() {
+            body=$(curl -s -w '\n%{http_code}' -H "apikey: $K" -H "Prefer: count=exact" "$R/rest/v1/$2")
+            code=$(echo "$body" | tail -1); rows=$(echo "$body" | head -n -1 | python3 -c 'import sys,json
+          try:
+            d=json.load(sys.stdin); print(len(d) if isinstance(d,list) else "not a list")
+          except Exception: print("?")')
+            echo "$1 -> HTTP $code, rows: $rows"
+          }
+          probe "creator codes          " "glep_creator_codes?select=id&limit=1000"
+          probe "feedback inbox         " "glep_feedback?select=id&limit=1000"
+          probe "cards, any status      " "glep_cards?select=id&limit=1000"
+          probe "cards, pending         " "glep_cards?select=id&review_status=eq.pending&limit=1000"
+          probe "cards, not approved    " "glep_cards?select=id&review_status=neq.approved&limit=1000"
+          probe "gallery records        " "glep_artworks?select=id&limit=1000"
+          probe "beta rooms             " "beta_rooms?select=id&limit=1000"
+          echo "storage bucket list -> HTTP $(curl -s -o /dev/null -w '%{http_code}' -X POST -H "apikey: $K" -H "Authorization: Bearer $K" -H 'Content-Type: application/json' -d '{"prefix":"","limit":5}' $R/storage/v1/object/list/glep-artwork)"

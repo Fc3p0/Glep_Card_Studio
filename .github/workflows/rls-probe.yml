@@ -20,4 +20,4 @@ jobs:
           except Exception: print("?")')
             echo "::notice::$1 -> HTTP $code, rows: $rows"
           }
-          echo "::notice::storage bucket list -> HTTP $(curl -s -o /dev/null -w '%{http_code}' -X POST -H "apikey: $K" -H "Authorization: Bearer $K" -H 'Content-Type: application/json' -d '{"prefix":"","limit":5}' $R/storage/v1/object/list/glep-artwork)"
+          echo "::notice::storage bucket list -> items: $(curl -s -X POST -H "apikey: $K" -H "Authorization: Bearer $K" -H 'Content-Type: application/json' -d '{"prefix":"","limit":5}' $R/storage/v1/object/list/glep-artwork | python3 -c 'import sys,json;d=json.load(sys.stdin);print(len(d) if isinstance(d,list) else d)')"

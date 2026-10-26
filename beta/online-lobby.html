@@ -225,7 +225,10 @@ async function refresh(){
  catch(e){if(current===generation){const id=$("lobby").classList.contains("hidden")?"entryStatus":"copyStatus";notice(id,e.message);}}
  finally{refreshing=false;}
 }
-function startPoll(){stop();timer=setInterval(()=>{if(!document.hidden)refresh()},3000);refresh();}
+// The main site says when its Game page is shown or hidden, so the lobby stops calling the server while you're on other pages.
+let pageShown=true;
+window.addEventListener("message",e=>{if(e.source!==parent||e.origin!==location.origin||e.data?.kind!=="glep-game-page")return;const was=pageShown;pageShown=!!e.data.shown;if(pageShown&&!was)refresh();});
+function startPoll(){stop();timer=setInterval(()=>{if(!document.hidden&&pageShown)refresh()},3000);refresh();}
 
 let creatorName="";
 // The game session is kept for this browser tab only, so a refresh rejoins the same seat instead of leaving a "ghost" player in the room.

@@ -33,6 +33,10 @@ Deno.serve(async(req)=>{
   if(error)return respond({error:"Could not verify access"},503);
   const name=creators?.[0]?.creator_name;
   if(name!=="Billy"&&name!=="Francesca")return respond({error:"Invalid credentials"},403);
+  // One session per player: signing in again (new tab, new device, after closing a tab) ends that player's older sessions
+  // and frees their seat, so a closed tab can't leave a "ghost" holding the room.
+  const {data:old}=await db.from("glep_beta_sessions").select("id").eq("creator_name",name).gt("expires_at",new Date().toISOString());
+  for(const s of old??[])await db.rpc("glep_beta_logout",{p_session:s.id});
   const token=hex(bytes(32)),token_hash=await hash(token);
   const {error:saveError}=await db.from("glep_beta_sessions").insert({token_hash,creator_name:name});
   if(saveError)return respond({error:"Unable to start session"},503);

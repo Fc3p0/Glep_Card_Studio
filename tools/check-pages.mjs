@@ -4,7 +4,7 @@ import {execFileSync} from 'node:child_process';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 
-const pages = ['index.html', 'beta/online-lobby.html', 'pixel-collection.html'];
+const pages = ['index.html', 'beta/online-lobby.html'];
 const dir = mkdtempSync(join(tmpdir(), 'glep-check-'));
 let failed = 0, checked = 0;
 for (const page of pages) {

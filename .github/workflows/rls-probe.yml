@@ -18,7 +18,7 @@ jobs:
           try:
             d=json.load(sys.stdin); print(len(d) if isinstance(d,list) else "not a list")
           except Exception: print("?")')
-            echo "$1 -> HTTP $code, rows: $rows"
+            echo "::notice::$1 -> HTTP $code, rows: $rows"
           }
           probe "creator codes          " "glep_creator_codes?select=id&limit=1000"
           probe "feedback inbox         " "glep_feedback?select=id&limit=1000"
@@ -30,4 +30,4 @@ jobs:
           probe "beta rooms             " "glep_beta_rooms?select=*&limit=1000"
           probe "beta matches           " "glep_beta_matches?select=*&limit=1000"
           probe "beta login attempts    " "glep_beta_login_attempts?select=*&limit=1000"
-          echo "storage bucket list -> HTTP $(curl -s -o /dev/null -w '%{http_code}' -X POST -H "apikey: $K" -H "Authorization: Bearer $K" -H 'Content-Type: application/json' -d '{"prefix":"","limit":5}' $R/storage/v1/object/list/glep-artwork)"
+          echo "::notice::storage bucket list -> HTTP $(curl -s -o /dev/null -w '%{http_code}' -X POST -H "apikey: $K" -H "Authorization: Bearer $K" -H 'Content-Type: application/json' -d '{"prefix":"","limit":5}' $R/storage/v1/object/list/glep-artwork)"

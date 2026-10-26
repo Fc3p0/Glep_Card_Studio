@@ -202,7 +202,7 @@ async function call(action,data={}){
  const res=await fetch(API,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+token},body:JSON.stringify({action,...data}),cache:"no-store"});
  const body=await res.json();
  if(current!==generation)throw Error("Session changed.");
- if(res.status===401){token="";generation++;stop();clearRoom();show("entry");updateAccess();controls();notice("entryStatus","Session expired. Enter your creator code to continue.");}
+ if(res.status===401){token="";forgetSession();generation++;stop();clearRoom();show("entry");updateAccess();controls();notice("entryStatus","Session expired. Enter your creator code to continue.");}
  if(!res.ok||!body.ok)throw Error(body.error||"Request failed");
  return body;
 }
@@ -228,6 +228,11 @@ async function refresh(){
 function startPoll(){stop();timer=setInterval(()=>{if(!document.hidden)refresh()},3000);refresh();}
 
 let creatorName="";
+// The game session is kept for this browser tab only, so a refresh rejoins the same seat instead of leaving a "ghost" player in the room.
+const SESSION_KEY="glep-beta-session";
+function rememberSession(){try{sessionStorage.setItem(SESSION_KEY,JSON.stringify({token,creator:creatorName}));}catch{}}
+function forgetSession(){try{sessionStorage.removeItem(SESSION_KEY);}catch{}}
+function restoreSession(){try{const s=JSON.parse(sessionStorage.getItem(SESSION_KEY)||"null");if(s&&/^[a-f0-9]{64}$/.test(s.token||"")&&["Billy","Francesca"].includes(s.creator)){token=s.token;creatorName=s.creator;return true;}}catch{}return false;}
 function updateAccess(){
  $("entryAccess").hidden=!!token;$("joinAccess").hidden=!!token;
  $("accessIdentity").hidden=!token;$("accessIdentity").textContent=token?"Playing as "+creatorName:"";
@@ -241,7 +246,7 @@ async function ensureAccess(action){
  const res=await fetch(API,{method:"POST",cache:"no-store",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"login",code:creatorCode})});
  const data=await res.json();
  if(!res.ok||!data.ok||!["Billy","Francesca"].includes(data.creator)||!/^[a-f0-9]{64}$/.test(data.token||""))throw Error(data.error||"Unable to verify your creator code.");
- token=data.token;creatorName=data.creator;
+ token=data.token;creatorName=data.creator;rememberSession();
  $("entryCreatorCode").value="";$("joinCreatorCode").value="";updateAccess();
 }
 
@@ -416,5 +421,5 @@ if(typeof ResizeObserver!=="undefined")new ResizeObserver(reportHeight).observe(
 window.addEventListener("resize",reportHeight);
 reportHeight();
 
-updateAccess();controls();
+const resumed=restoreSession();updateAccess();controls();if(resumed)startPoll();
 </script></body></html>

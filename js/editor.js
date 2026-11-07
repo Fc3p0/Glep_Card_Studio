@@ -126,6 +126,8 @@ function makeCardCanvas(){let c=document.createElement('canvas');c.width=W;c.hei
 window.glepRenderCard=async c=>(await cardToCanvas(c)).toDataURL('image/png');
 // Same image as glepRenderCard, but encoded off the main thread and kept as a blob: link instead of a long text copy. The caller revokes it.
 window.glepRenderCardURL=async c=>URL.createObjectURL(await canvasBlob(await cardToCanvas(c)));
+// The full-size card canvas (750 × 1050, 300 dpi at 2.5 × 3.5 in), used by The Deck's print PDF.
+window.glepCardCanvas=cardToCanvas;
 window.glepArtworkComposite=async c=>{const out=document.createElement('canvas');out.width=AW;out.height=AH;const x=out.getContext('2d');const img=await loadImage(c.image||'');if(img)drawArt(x,img,0,0,AW,AH,c);const over=document.createElement('canvas');over.width=AW;over.height=AH;const oc=over.getContext('2d');for(const st of c.strokes||[])drawStroke(oc,st);x.drawImage(over,0,0);return out.toDataURL('image/png')};
 async function cardToCanvas(c){let out=makeCardCanvas();const img=await loadImage(c.image||'');await loadFrames();let ov=document.createElement('canvas');ov.width=AW;ov.height=AH;let oc=ov.getContext('2d');for(const s of c.strokes||[])drawStroke(oc,s);paint(out.getContext('2d'),c,img,ov);return out}
 function download(blob,name){let a=document.createElement('a'),url=URL.createObjectURL(blob);a.href=url;a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),60000)}

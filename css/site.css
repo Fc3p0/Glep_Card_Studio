@@ -510,3 +510,6 @@ body #decksPage #deckGrid .art-tile small.card-status,.lib-card small.card-statu
 .xp-canvas-frame{align-self:flex-start!important;min-height:0!important;height:auto!important}
 .xp-canvas-scroll{height:auto!important;min-height:0!important;aspect-ratio:538/378!important;background:#c6c6c6!important}
 .xp-paint #drawPad{display:block!important;width:100%!important;height:auto!important;aspect-ratio:538/378!important;max-height:none!important}
+.deck-print{margin:10px 0 4px}
+.deck-print select{background:var(--ground);color:inherit;border:1px solid var(--line-2);padding:8px 10px;font:inherit}
+.deck-print .muted{flex:1 1 260px}

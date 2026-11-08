@@ -29,6 +29,14 @@ async function cardJPEG(row){const c=row.card_data||{};return jpeg(await window.
 
 function loadImg(url){return new Promise(ok=>{const i=new Image();i.onload=()=>ok(i);i.onerror=()=>ok(null);i.src=url+'?v=2026-11-08'})}
 const backCache={};
+// Billy's back designs have a plain margin (about 15 px) outside their outer border, while the fronts' border runs to
+// the very edge, so a back printed as-is looks smaller than its front. Find the outer border (the first row/column
+// from each edge that is mostly dark) and crop to it, so the back's border lands exactly on the card edge like the front.
+function frameEdges(img){const c=document.createElement('canvas');c.width=img.width;c.height=img.height;const x=c.getContext('2d');x.drawImage(img,0,0);
+ const d=x.getImageData(0,0,c.width,c.height).data,W=c.width,H=c.height,dark=(px,py)=>{const i=(py*W+px)*4;return d[i+3]>0&&(d[i]+d[i+1]+d[i+2])/3<110};
+ const colDark=px=>{let n=0;for(let py=0;py<H;py++)n+=dark(px,py);return n/H>.5},rowDark=py=>{let n=0;for(let px=0;px<W;px++)n+=dark(px,py);return n/W>.5};
+ const lim=Math.round(Math.min(W,H)*.08),find=(test,from,step)=>{for(let k=0;k<=lim;k++)if(test(from+k*step))return k;return 0};
+ const l=find(colDark,0,1),r=find(colDark,W-1,-1),t=find(rowDark,0,1),b=find(rowDark,H-1,-1);return {x:l,y:t,w:W-l-r,h:H-t-b}}
 // One card back per type, drawn into a 750 × 1050 canvas (covering it, centred, if the image isn't exactly 5:7).
 // Blank card for hand drawing: the type's frame with an empty white art window, no title, numbers or text.
 const FRAMES={attack:'assets/frames/damage.png',modifier:'assets/frames/modifier.png',fate:'assets/frames/fate.png'},blankCache={};
@@ -36,7 +44,7 @@ function blankJPEG(type){return blankCache[type]||(blankCache[type]=(async()=>{c
  if(img)x.drawImage(img,0,0,750,1050);else{x.fillStyle=PLACEHOLDER[type];x.fillRect(0,0,750,1050);x.fillStyle='#d8c6b9';x.fillRect(43,111,664,828)}
  x.fillStyle='#fff';x.fillRect(85,196,580,408);x.strokeStyle='#1c1512';x.lineWidth=3;x.strokeRect(83.5,194.5,583,411);return jpeg(c)})())}
 function backJPEG(type){return backCache[type]||(backCache[type]=(async()=>{const c=document.createElement('canvas');c.width=750;c.height=1050;const x=c.getContext('2d'),img=await loadImg(BACKS[type]);
- if(img){const s=Math.max(750/img.width,1050/img.height),w=img.width*s,h=img.height*s;x.drawImage(img,(750-w)/2,(1050-h)/2,w,h)}
+ if(img){const r=frameEdges(img);x.drawImage(img,r.x,r.y,r.w,r.h,0,0,750,1050)}
  else{x.fillStyle=PLACEHOLDER[type];x.fillRect(0,0,750,1050);x.strokeStyle='#222';x.lineWidth=14;x.strokeRect(40,40,670,970);x.fillStyle='#222';x.textAlign='center';x.font='bold 84px sans-serif';x.fillText(LABEL[type].toUpperCase(),375,500);x.font='40px sans-serif';x.fillText('card back · placeholder',375,570)}
  return {...await jpeg(c),placeholder:!img}})())}
 

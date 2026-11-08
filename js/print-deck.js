@@ -30,6 +30,11 @@ async function cardJPEG(row){const c=row.card_data||{};return jpeg(await window.
 function loadImg(url){return new Promise(ok=>{const i=new Image();i.onload=()=>ok(i);i.onerror=()=>ok(null);i.src=url+'?v=2026-11-08'})}
 const backCache={};
 // One card back per type, drawn into a 750 × 1050 canvas (covering it, centred, if the image isn't exactly 5:7).
+// Blank card for hand drawing: the type's frame with an empty white art window, no title, numbers or text.
+const FRAMES={attack:'assets/frames/damage.png',modifier:'assets/frames/modifier.png',fate:'assets/frames/fate.png'},blankCache={};
+function blankJPEG(type){return blankCache[type]||(blankCache[type]=(async()=>{const c=document.createElement('canvas');c.width=750;c.height=1050;const x=c.getContext('2d'),img=await loadImg(FRAMES[type]);
+ if(img)x.drawImage(img,0,0,750,1050);else{x.fillStyle=PLACEHOLDER[type];x.fillRect(0,0,750,1050);x.fillStyle='#d8c6b9';x.fillRect(43,111,664,828)}
+ x.fillStyle='#fff';x.fillRect(85,196,580,408);x.strokeStyle='#1c1512';x.lineWidth=3;x.strokeRect(83.5,194.5,583,411);return jpeg(c)})())}
 function backJPEG(type){return backCache[type]||(backCache[type]=(async()=>{const c=document.createElement('canvas');c.width=750;c.height=1050;const x=c.getContext('2d'),img=await loadImg(BACKS[type]);
  if(img){const s=Math.max(750/img.width,1050/img.height),w=img.width*s,h=img.height*s;x.drawImage(img,(750-w)/2,(1050-h)/2,w,h)}
  else{x.fillStyle=PLACEHOLDER[type];x.fillRect(0,0,750,1050);x.strokeStyle='#222';x.lineWidth=14;x.strokeRect(40,40,670,970);x.fillStyle='#222';x.textAlign='center';x.font='bold 84px sans-serif';x.fillText(LABEL[type].toUpperCase(),375,500);x.font='40px sans-serif';x.fillText('card back · placeholder',375,570)}
@@ -43,7 +48,7 @@ function slotXY(g,slot){const col=slot%COLS,row=Math.floor(slot/COLS);return [g.
 // The slot on the back of the sheet behind front slot s. Long-edge flip mirrors left/right; short-edge flip mirrors
 // top/bottom and turns the back upside down.
 function behind(s,flip){const col=s%COLS,row=Math.floor(s/COLS);return flip==='short'?(ROWS-1-row)*COLS+col:row*COLS+(COLS-1-col)}
-// Nudge is what the alignment test shows, seen from the front: the backs look this many mm to the right / down.
+// Nudge is what the alignment test shows, seen from the front: the backs look this many mm to the right / down (the Printing page's "Move backs" boxes pass the opposite).
 // Converted to a move of the back page, in the back page's own coordinates (PDF y goes up), that cancels it.
 function backShift(nudge,flip){const rx=(+nudge.x||0)*MM,ry=(+nudge.y||0)*MM;return flip==='short'?[-rx,-ry]:[rx,ry]}
 
@@ -78,7 +83,9 @@ const text=(x,y,size,t)=>'BT /F1 '+size+' Tf '+f(x)+' '+f(y)+' Td ('+String(t).r
 
 // Fronts as pages of 9. byType: each card type starts on a new page (so every page has one matching back sheet).
 async function frontPages(rows,byType,say){const groups=byType?TYPES.map(t=>rows.filter(r=>r.card_type===t)).filter(g=>g.length):[rows],pages=[];let done=0;
- for(const group of groups)for(let i=0;i<group.length;i++){say('Drawing card '+(++done)+' of '+rows.length+'…');const im=await cardJPEG(group[i]);if(i%PER===0)pages.push({cards:[],type:group[i].card_type});pages[pages.length-1].cards.push({im,slot:i%PER})}
+ for(const group of groups){for(let i=0;i<group.length;i++){say('Drawing card '+(++done)+' of '+rows.length+'…');const im=await cardJPEG(group[i]);if(i%PER===0)pages.push({cards:[],type:group[i].card_type});pages[pages.length-1].cards.push({im,slot:i%PER})}
+  // Printing page: fill the rest of a type's last page with blank cards, so the full 3 × 3 back sheet matches every slot.
+  const last=pages[pages.length-1];if(byType&&last.cards.length<PER){const im=await blankJPEG(last.type);for(let k=last.cards.length;k<PER;k++)last.cards.push({im,slot:k,blank:true})}}
  return pages}
 function backPage(type,im,front,opt){const slots=front?front.cards.map(c=>behind(c.slot,opt.flip)):[...Array(PER).keys()];return {back:true,rotate:opt.flip==='short',shift:backShift(opt.nudge,opt.flip),cards:slots.map(slot=>({im,slot})),type}}
 
@@ -91,11 +98,11 @@ async function printFronts(which,opt){const say=opt.say||(()=>{});say('Loading t
  if(opt.withBacks){const out=[];for(const p of pages){const b=await backJPEG(p.type);out.push(p,backPage(p.type,b,p,opt));if(b.placeholder)note=' Backs are placeholders until the designs are added.'}pages=out}
  say('Building the PDF…');const [pw,ph]=PAPER[opt.paper]||PAPER.letter,sheets=opt.withBacks?pages.length/2:pages.length;
  save(makePDF(pages,pw,ph),'glep-'+(which==='all'?'deck':which)+'-fronts'+(opt.withBacks?'-and-backs':'')+'-'+today()+'-'+opt.paper+'.pdf');
- say('PDF ready: '+rows.length+' card'+(rows.length===1?'':'s')+' on '+sheets+' sheet'+(sheets===1?'':'s')+(opt.withBacks?', with the backs on every second page. Print two-sided, flip on '+opt.flip+' edge.':'.')+' Print at 100% / "Actual size".'+note)}
+ const blanks=pages.reduce((n,p)=>n+p.cards.filter(c=>c.blank).length,0);say('PDF ready: '+rows.length+' card'+(rows.length===1?'':'s')+(blanks?' + '+blanks+' blank':'')+' on '+sheets+' sheet'+(sheets===1?'':'s')+(opt.withBacks?', with the backs on every second page. Print two-sided, flip on '+opt.flip+' edge.':'.')+' Print at "Actual size".'+note)}
 
 async function printBacks(type,opt){const say=opt.say||(()=>{});say('Drawing the '+LABEL[type]+' back sheet…');const b=await backJPEG(type),[pw,ph]=PAPER[opt.paper]||PAPER.letter;
  save(makePDF([backPage(type,b,null,opt)],pw,ph),'glep-'+type+'-backs-3x3-'+today()+'-'+opt.paper+'.pdf');
- say(LABEL[type]+' back sheet ready (9 backs). Put the printed '+LABEL[type]+' fronts back in the tray and print this on the other side at 100% / "Actual size".'+(b.placeholder?' This is a placeholder until the '+LABEL[type]+' back design is added.':''))}
+ say(LABEL[type]+' backs ready. Flip the printed '+LABEL[type]+' fronts and print on the back at "Actual size".'+(b.placeholder?' This is a placeholder until the '+LABEL[type]+' back design is added.':''))}
 
 // Two-sided test: front has the card grid and mm rulers through the middle; back has a cross at the middle, moved
 // by the current nudge. Hold the printed sheet up to a light and read where the cross lands.
@@ -103,16 +110,16 @@ async function printTest(opt){const [pw,ph]=PAPER[opt.paper]||PAPER.letter,g=gri
  for(let i=0;i<PER;i++){const [x,y]=slotXY(g,i);s.push(f(x)+' '+f(y)+' '+CW+' '+CH+' re S')}
  s.push('0.3 w');for(let m=-10;m<=10;m++){const t=m%5===0?7:m%1===0?3.5:2;s.push(f(cx+m*MM)+' '+f(cy-t)+' m '+f(cx+m*MM)+' '+f(cy+t)+' l S',f(cx-t)+' '+f(cy-m*MM)+' m '+f(cx+t)+' '+f(cy-m*MM)+' l S')}
  s.push(f(cx-10*MM)+' '+f(cy)+' m '+f(cx+10*MM)+' '+f(cy)+' l S',f(cx)+' '+f(cy-10*MM)+' m '+f(cx)+' '+f(cy+10*MM)+' l S');
- for(const m of [-10,-5,5,10]){s.push(text(cx+m*MM-(m<0?5:3),cy-14,5,m),text(cx+12,cy-m*MM-2,5,m))}
+ for(const m of [-10,-5,5,10]){s.push(text(cx+m*MM-(m>0?5:3),cy-14,5,-m),text(cx+12,cy-m*MM-2,5,-m))}
  const tx=g.x0+8,ty=cy-CH/2+40;s.push(text(tx,ty+30,9,'Glep alignment test - side 1 (front)'),
   text(tx,ty+18,6.5,'Print both pages on ONE sheet: two-sided, flip on '+opt.flip+' edge, 100% / Actual size.'),
-  text(tx,ty+9,6.5,'Hold it up to a light. Read where the cross from the back lands on the rulers (each tick = 1 mm; right and down are +).'),
-  text(tx,ty,6.5,'Add those numbers to "Backs look shifted". Current: right '+(+opt.nudge.x||0)+' mm, down '+(+opt.nudge.y||0)+' mm, '+opt.paper+' paper.'));
+  text(tx,ty+9,6.5,'Hold it up to a light. Read the ruler number where the cross from the back lands (each tick = 1 mm).'),
+  text(tx,ty,6.5,'Add those numbers to "Move backs" under Needs alignment?. Current: right '+(opt.move?.x||0)+' mm, down '+(opt.move?.y||0)+' mm.'));
  const [dx,dy]=backShift(opt.nudge,opt.flip),b=['0 G 0.6 w',f(cx+dx-14*MM)+' '+f(cy+dy)+' m '+f(cx+dx+14*MM)+' '+f(cy+dy)+' l S',f(cx+dx)+' '+f(cy+dy-14*MM)+' m '+f(cx+dx)+' '+f(cy+dy+14*MM)+' l S','0.3 w'];
  for(let i=0;i<PER;i++){const [x,y]=slotXY(g,i);b.push(f(x+dx)+' '+f(y+dy)+' '+CW+' '+CH+' re S')}
  b.push(text(g.x0+8,cy+CH/2-20,9,'Glep alignment test - side 2 (back)'));
  save(makePDF([{cards:[],extra:s},{cards:[],back:true,extra:b}],pw,ph),'glep-alignment-test-'+opt.paper+'.pdf');
- opt.say?.('Alignment test ready (2 pages). Print it two-sided on one sheet, then read the rulers through the paper.')}
+ opt.say?.('Test sheet ready. Print both pages on one sheet (two-sided), hold it to a light, and add the ruler numbers where the back cross lands.')}
 
 window.glepPrint={fronts:printFronts,backs:printBacks,test:printTest};
 
@@ -129,9 +136,9 @@ el('deckPrintBtn')?.addEventListener('click',()=>{const say=t=>el('deckPrintStat
 // ---- Card Master → Printing ----------------------------------------------------------------------------------
 const PREF='glep-print-settings-v1';
 function prefs(){try{return JSON.parse(localStorage.getItem(PREF)||'{}')}catch{return {}}}
-function opts(){const o={paper:el('printPaper').value==='a4'?'a4':'letter',flip:el('printFlip').value==='short'?'short':'long',nudge:{x:+el('printNudgeX').value||0,y:+el('printNudgeY').value||0},withBacks:el('printWithBacks').checked,say:t=>el('printStatus').textContent=t};
- try{localStorage.setItem(PREF,JSON.stringify({paper:o.paper,flip:o.flip,nudge:o.nudge,withBacks:o.withBacks}))}catch{}return o}
-if(el('printingPanel')){const p=prefs();if(p.paper)el('printPaper').value=p.paper;if(p.flip)el('printFlip').value=p.flip;if(p.nudge){el('printNudgeX').value=p.nudge.x||0;el('printNudgeY').value=p.nudge.y||0}el('printWithBacks').checked=!!p.withBacks;
+function opts(){const o={paper:'letter',flip:'long',move:{x:+el('printNudgeX').value||0,y:+el('printNudgeY').value||0},withBacks:false,say:t=>el('printStatus').textContent=t};
+ o.nudge={x:-o.move.x,y:-o.move.y};try{localStorage.setItem(PREF,JSON.stringify({move:o.move}))}catch{}return o}
+if(el('printingPanel')){const p=prefs();if(p.move){el('printNudgeX').value=p.move.x||0;el('printNudgeY').value=p.move.y||0;if(p.move.x||p.move.y)el('printingPanel').querySelector('.print-align').open=true}
  el('printingPanel').addEventListener('click',e=>{const b=e.target.closest('button[data-print]');if(!b)return;const o=opts(),[kind,arg]=b.dataset.print.split(':');
   guard(b,()=>kind==='front'?printFronts(arg,o):kind==='back'?printBacks(arg,o):printTest(o)).catch(err=>o.say('PDF failed: '+err.message))})}
 })();

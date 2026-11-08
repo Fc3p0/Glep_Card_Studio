@@ -517,4 +517,4 @@ body #decksPage #deckGrid .art-tile small.card-status,.lib-card small.card-statu
 .print-settings label{display:flex;gap:6px;align-items:center;font-size:14px;white-space:nowrap}
 .print-settings select,#printingPanel .print-settings input{background:var(--ground);color:inherit;border:1px solid var(--line-2);padding:7px 9px;font:inherit}
 #masterPage #printingPanel .print-settings input{width:76px;flex:none;min-width:0;max-width:76px}
-.print-check{display:flex;gap:8px;align-items:center;margin:-6px 0 12px}
+.print-align{margin:4px 0 8px}.print-align summary{cursor:pointer;color:var(--acid);font-size:14px}

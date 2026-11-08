@@ -513,3 +513,8 @@ body #decksPage #deckGrid .art-tile small.card-status,.lib-card small.card-statu
 .deck-print{margin:10px 0 4px}
 .deck-print select{background:var(--ground);color:inherit;border:1px solid var(--line-2);padding:8px 10px;font:inherit}
 .deck-print .muted{flex:1 1 260px}
+.print-settings{display:flex;flex-wrap:wrap;gap:10px 18px;margin:14px 0;align-items:center}
+.print-settings label{display:flex;gap:6px;align-items:center;font-size:14px;white-space:nowrap}
+.print-settings select,#printingPanel .print-settings input{background:var(--ground);color:inherit;border:1px solid var(--line-2);padding:7px 9px;font:inherit}
+#masterPage #printingPanel .print-settings input{width:76px;flex:none;min-width:0;max-width:76px}
+.print-check{display:flex;gap:8px;align-items:center;margin:-6px 0 12px}

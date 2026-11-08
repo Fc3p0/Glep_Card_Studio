@@ -121,7 +121,12 @@ async function printTest(opt){const [pw,ph]=PAPER[opt.paper]||PAPER.letter,g=gri
  save(makePDF([{cards:[],extra:s},{cards:[],back:true,extra:b}],pw,ph),'glep-alignment-test-'+opt.paper+'.pdf');
  opt.say?.('Test sheet ready. Print both pages on one sheet (two-sided), hold it to a light, and add the ruler numbers where the back cross lands.')}
 
-window.glepPrint={fronts:printFronts,backs:printBacks,test:printTest};
+// Quick test: just the 3 × 3 grid outline on both sides (no art). The back uses the same shift as real backs.
+async function printGrid(opt){const [pw,ph]=PAPER[opt.paper]||PAPER.letter,g=grid(pw,ph),[dx,dy]=backShift(opt.nudge,opt.flip),box=(ox,oy)=>{const s=['0 G 0.5 w'];for(let i=0;i<PER;i++){const [x,y]=slotXY(g,i);s.push(f(x+ox)+' '+f(y+oy)+' '+CW+' '+CH+' re S')}return s};
+ save(makePDF([{cards:[],extra:box(0,0)},{cards:[],back:true,extra:box(dx,dy)}],pw,ph),'glep-grid-test-'+opt.paper+'.pdf');
+ opt.say?.('Grid test ready (2 pages). Print it two-sided on one sheet and hold it to a light: the lines should sit on top of each other.')}
+
+window.glepPrint={fronts:printFronts,backs:printBacks,test:printTest,grid:printGrid};
 
 // ---- The Deck page button: follows the Deck's search and filters --------------------------------------------
 let busy=false;
@@ -140,5 +145,5 @@ function opts(){const o={paper:'letter',flip:'long',move:{x:+el('printNudgeX').v
  o.nudge={x:-o.move.x,y:-o.move.y};try{localStorage.setItem(PREF,JSON.stringify({move:o.move}))}catch{}return o}
 if(el('printingPanel')){const p=prefs();if(p.move){el('printNudgeX').value=p.move.x||0;el('printNudgeY').value=p.move.y||0;if(p.move.x||p.move.y)el('printingPanel').querySelector('.print-align').open=true}
  el('printingPanel').addEventListener('click',e=>{const b=e.target.closest('button[data-print]');if(!b)return;const o=opts(),[kind,arg]=b.dataset.print.split(':');
-  guard(b,()=>kind==='front'?printFronts(arg,o):kind==='back'?printBacks(arg,o):printTest(o)).catch(err=>o.say('PDF failed: '+err.message))})}
+  guard(b,()=>kind==='front'?printFronts(arg,o):kind==='back'?printBacks(arg,o):kind==='grid'?printGrid(o):printTest(o)).catch(err=>o.say('PDF failed: '+err.message))})}
 })();

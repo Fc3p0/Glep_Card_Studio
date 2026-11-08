@@ -71,11 +71,14 @@ function pageContent(p,pw,ph){const g=grid(pw,ph),[dx,dy]=p.shift||[0,0],s=[];
  p.cards.forEach(({slot},i)=>{const [x,y]=slotXY(g,slot),X=x+dx,Y=y+dy;s.push(p.rotate?'q '+(-CW)+' 0 0 '+(-CH)+' '+f(X+CW)+' '+f(Y+CH)+' cm /C'+i+' Do Q':'q '+CW+' 0 0 '+CH+' '+f(X)+' '+f(Y)+' cm /C'+i+' Do Q')});
  if(!p.back&&p.cards.length)s.push(...frontMarks(g,p.cards.map(c=>c.slot)));
  if(p.extra)s.push(...p.extra);s.push(...feedArrow(pw,ph));return s.join('\n')}
+// PrintScaling /None in the catalog asks PDF viewers to default to Actual size rather than Fit to page.
 // Arrow in both side margins, level with the middle row (clear of cards and cut marks), pointing at the top edge:
 // that edge goes into the printer first. Same on fronts and backs, so the stack goes back in the same way round.
 function feedArrow(pw,ph){const cy=ph/2,s=['0 g 0 G 0.8 w'],t=(x,y,str)=>'BT /F1 6 Tf 0 1 -1 0 '+f(x)+' '+f(y)+' Tm ('+str+') Tj ET';
  for(const ax of [24,pw-24]){s.push(f(ax)+' '+f(cy-44)+' m '+f(ax)+' '+f(cy+30)+' l S',f(ax-4.5)+' '+f(cy+30)+' m '+f(ax+4.5)+' '+f(cy+30)+' l '+f(ax)+' '+f(cy+40)+' l h f')}
- s.push(t(19,cy-44,'FEED THIS WAY - TOP EDGE FIRST'),t(pw-12,cy-44,'FEED THIS WAY - TOP EDGE FIRST'));return s}
+ s.push(t(19,cy-44,'FEED THIS WAY - TOP EDGE FIRST'),t(pw-12,cy-44,'FEED THIS WAY - TOP EDGE FIRST'));
+ // Size check beside the bottom row: if a card doesn't measure this, the print dialog scaled the page.
+ s.push(t(19,cy-CH-110,'CHECK: EACH CARD = 2.5 x 3.5 in (63.5 x 88.9 mm). PRINT AT ACTUAL SIZE / 100%'));return s}
 
 // Small PDF writer: one page per sheet, each card its own image, so cards stay sharp and sit at exact sizes.
 function makePDF(pages,pw,ph){const enc=new TextEncoder(),chunks=[],offsets=[0];let size=0,obj=3;const add=b=>{chunks.push(b);size+=b.length},str=s=>add(enc.encode(s));
@@ -85,7 +88,7 @@ function makePDF(pages,pw,ph){const enc=new TextEncoder(),chunks=[],offsets=[0];
   start(page);str('<< /Type /Page /Parent 2 0 R /MediaBox [0 0 '+f(pw)+' '+f(ph)+'] /Resources << /Font << /F1 3 0 R >> /XObject << '+refs.map((id,i)=>'/C'+i+' '+id+' 0 R').join(' ')+' >> >> /Contents '+content+' 0 R >>');end();
   const draw=enc.encode(pageContent(p,pw,ph));start(content);str('<< /Length '+draw.length+' >>\nstream\n');add(draw);str('\nendstream');end()}
  for(const [im,id] of imgIds){start(id);str('<< /Type /XObject /Subtype /Image /Width '+im.w+' /Height '+im.h+' /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length '+im.bytes.length+' >>\nstream\n');add(im.bytes);str('\nendstream');end()}
- start(1);str('<< /Type /Catalog /Pages 2 0 R >>');end();start(2);str('<< /Type /Pages /Kids ['+pageIds.map(id=>id+' 0 R').join(' ')+'] /Count '+pageIds.length+' >>');end();
+ start(1);str('<< /Type /Catalog /Pages 2 0 R /ViewerPreferences << /PrintScaling /None >> >>');end();start(2);str('<< /Type /Pages /Kids ['+pageIds.map(id=>id+' 0 R').join(' ')+'] /Count '+pageIds.length+' >>');end();
  start(3);str('<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>');end();
  const xref=size;str('xref\n0 '+(obj+1)+'\n0000000000 65535 f \n');for(let i=1;i<=obj;i++)str(String(offsets[i]).padStart(10,'0')+' 00000 n \n');
  str('trailer\n<< /Size '+(obj+1)+' /Root 1 0 R >>\nstartxref\n'+xref+'\n%%EOF\n');return new Blob(chunks,{type:'application/pdf'})}

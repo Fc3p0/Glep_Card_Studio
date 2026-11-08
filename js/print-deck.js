@@ -70,7 +70,12 @@ function frontMarks(g,slots){const s=['0.75 G 0.25 w'];for(const i of slots){con
 function pageContent(p,pw,ph){const g=grid(pw,ph),[dx,dy]=p.shift||[0,0],s=[];
  p.cards.forEach(({slot},i)=>{const [x,y]=slotXY(g,slot),X=x+dx,Y=y+dy;s.push(p.rotate?'q '+(-CW)+' 0 0 '+(-CH)+' '+f(X+CW)+' '+f(Y+CH)+' cm /C'+i+' Do Q':'q '+CW+' 0 0 '+CH+' '+f(X)+' '+f(Y)+' cm /C'+i+' Do Q')});
  if(!p.back&&p.cards.length)s.push(...frontMarks(g,p.cards.map(c=>c.slot)));
- if(p.extra)s.push(...p.extra);return s.join('\n')}
+ if(p.extra)s.push(...p.extra);s.push(...feedArrow(pw,ph));return s.join('\n')}
+// Arrow in both side margins, level with the middle row (clear of cards and cut marks), pointing at the top edge:
+// that edge goes into the printer first. Same on fronts and backs, so the stack goes back in the same way round.
+function feedArrow(pw,ph){const cy=ph/2,s=['0 g 0 G 0.8 w'],t=(x,y,str)=>'BT /F1 6 Tf 0 1 -1 0 '+f(x)+' '+f(y)+' Tm ('+str+') Tj ET';
+ for(const ax of [24,pw-24]){s.push(f(ax)+' '+f(cy-44)+' m '+f(ax)+' '+f(cy+30)+' l S',f(ax-4.5)+' '+f(cy+30)+' m '+f(ax+4.5)+' '+f(cy+30)+' l '+f(ax)+' '+f(cy+40)+' l h f')}
+ s.push(t(19,cy-44,'FEED THIS WAY - TOP EDGE FIRST'),t(pw-12,cy-44,'FEED THIS WAY - TOP EDGE FIRST'));return s}
 
 // Small PDF writer: one page per sheet, each card its own image, so cards stay sharp and sit at exact sizes.
 function makePDF(pages,pw,ph){const enc=new TextEncoder(),chunks=[],offsets=[0];let size=0,obj=3;const add=b=>{chunks.push(b);size+=b.length},str=s=>add(enc.encode(s));

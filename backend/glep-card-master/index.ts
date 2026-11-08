@@ -21,6 +21,8 @@ Deno.serve(async(req:Request)=>{
   switch(data.action){
    case "list":{
      const [cards,codes,artworks]=await Promise.all([call("glep_cards?select=id,name,card_type,card_data,creator_name,review_status,review_note,created_at,artwork_url&order=created_at.desc&limit=300"),call("glep_creator_codes?select=id,creator_name,active,is_admin,created_at&order=created_at.asc"),call("glep_artworks?select=id,name,tags,image_path,creator_name,created_at&order=created_at.desc&limit=300")]);
+     // Card Master never shows old pen strokes or inline images (previews use artwork_url), so leave them out: they were most of the download.
+     for(const c of cards){if(c.card_data&&typeof c.card_data==="object"){const {strokes,image,...rest}=c.card_data;c.card_data=rest}}
      return response({cards,codes,artworks});
    }
    case "review":{
@@ -42,7 +44,7 @@ Deno.serve(async(req:Request)=>{
      }
      if(data.name!==undefined)patch.name=String(data.name).trim().slice(0,100)||c.name;
      if(data.card_type!==undefined){if(!["attack","modifier","fate"].includes(data.card_type))return response({error:"Invalid card type"},400);patch.card_type=data.card_type}
-     if(data.card_data!==undefined){const d=data.card_data;if(!d||typeof d!=="object"||Array.isArray(d))return response({error:"Invalid card data"},400);patch.card_data=d}
+     if(data.card_data!==undefined){const d=data.card_data;if(!d||typeof d!=="object"||Array.isArray(d))return response({error:"Invalid card data"},400);patch.card_data={...(patch.card_data||c.card_data||{}),...d}}// merge so strokes/image left out of the list are kept
      const updated=await call("glep_cards?id=eq."+id,"PATCH",patch);if(!updated?.length||updated[0].review_status!==status)return response({error:"Approval did not persist"},500);return response({ok:true,card:updated[0]});
    }
    case "edit_artwork":{

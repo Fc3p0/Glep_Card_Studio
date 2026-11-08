@@ -114,7 +114,7 @@ async function printFronts(which,opt){const say=opt.say||(()=>{});say('Loading t
  if(opt.withBacks){const out=[];for(const p of pages){const b=await backJPEG(p.type);out.push(p,backPage(p.type,b,p,opt));if(b.placeholder)note=' Backs are placeholders until the designs are added.'}pages=out}
  say('Building the PDF…');const [pw,ph]=PAPER[opt.paper]||PAPER.letter,sheets=opt.withBacks?pages.length/2:pages.length;
  save(makePDF(pages,pw,ph),'glep-'+(which==='all'?'deck':which)+'-fronts'+(opt.withBacks?'-and-backs':'')+'-'+today()+'-'+opt.paper+'.pdf');
- const blanks=pages.reduce((n,p)=>n+p.cards.filter(c=>c.blank).length,0);say('PDF ready: '+rows.length+' card'+(rows.length===1?'':'s')+(blanks?' + '+blanks+' blank':'')+' on '+sheets+' sheet'+(sheets===1?'':'s')+(opt.withBacks?', with the backs on every second page. Print two-sided, flip on '+opt.flip+' edge.':'.')+' Print at "Actual size".'+note)}
+ const blanks=pages.reduce((n,p)=>n+p.cards.filter(c=>c.blank).length,0);say('PDF ready: '+rows.length+' card'+(rows.length===1?'':'s')+(blanks?' + '+blanks+' blank':'')+' on '+sheets+' sheet'+(sheets===1?'':'s')+(opt.withBacks?', each front page followed by its backs. Print 2-sided (auto), long edge, Actual size / 100%, borderless off.':'. Print at "Actual size".')+note)}
 
 async function printBacks(type,opt){const say=opt.say||(()=>{});say('Drawing the '+LABEL[type]+' back sheet…');const b=await backJPEG(type),[pw,ph]=PAPER[opt.paper]||PAPER.letter;
  save(makePDF([backPage(type,b,null,opt)],pw,ph),'glep-'+type+'-backs-3x3-'+today()+'-'+opt.paper+'.pdf');
@@ -157,7 +157,7 @@ el('deckPrintBtn')?.addEventListener('click',()=>{const say=t=>el('deckPrintStat
 // ---- Card Master → Printing ----------------------------------------------------------------------------------
 const PREF='glep-print-settings-v1';
 function prefs(){try{return JSON.parse(localStorage.getItem(PREF)||'{}')}catch{return {}}}
-function opts(){const o={paper:'letter',flip:'long',move:{x:+el('printNudgeX').value||0,y:+el('printNudgeY').value||0},withBacks:false,say:t=>el('printStatus').textContent=t};
+function opts(){const o={paper:'letter',flip:'long',move:{x:+el('printNudgeX').value||0,y:+el('printNudgeY').value||0},withBacks:true,say:t=>el('printStatus').textContent=t};
  o.nudge={x:-o.move.x,y:-o.move.y};try{localStorage.setItem(PREF,JSON.stringify({move:o.move}))}catch{}return o}
 if(el('printingPanel')){const p=prefs();if(p.move){el('printNudgeX').value=p.move.x||0;el('printNudgeY').value=p.move.y||0;if(p.move.x||p.move.y)el('printingPanel').querySelector('.print-align').open=true}
  el('printingPanel').addEventListener('click',e=>{const b=e.target.closest('button[data-print]');if(!b)return;const o=opts(),[kind,arg]=b.dataset.print.split(':');

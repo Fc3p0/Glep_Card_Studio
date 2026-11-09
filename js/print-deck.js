@@ -108,12 +108,13 @@ function backPage(type,im,front,opt){const slots=front?front.cards.map(c=>behind
 // ---- what the buttons make -----------------------------------------------------------------------------------
 // opt: {paper:'letter'|'a4', flip:'long'|'short', nudge:{x,y} in mm, withBacks:bool, say:fn}
 async function printFronts(which,opt){const say=opt.say||(()=>{});say('Loading the Deck…');
- const rows=(await fetchCards()).filter(r=>which==='all'||r.card_type===which).sort(byTypeThenName);
- if(!rows.length)return say('There are no approved '+(which==='all'?'':LABEL[which]+' ')+'cards to print yet.');
+ // which: 'all', a card type, or a Set of card ids (the cards ticked under "Pick cards").
+ const picked=which instanceof Set,rows=(await fetchCards()).filter(r=>picked?which.has(String(r.id)):which==='all'||r.card_type===which).sort(byTypeThenName);
+ if(!rows.length)return say(picked?'None of the ticked cards are in the Deck any more. Reload the list and try again.':'There are no approved '+(which==='all'?'':LABEL[which]+' ')+'cards to print yet.');
  let pages=await frontPages(rows,true,say),note='';
  if(opt.withBacks){const out=[];for(const p of pages){const b=await backJPEG(p.type);out.push(p,backPage(p.type,b,p,opt));if(b.placeholder)note=' Backs are placeholders until the designs are added.'}pages=out}
  say('Building the PDF…');const [pw,ph]=PAPER[opt.paper]||PAPER.letter,sheets=opt.withBacks?pages.length/2:pages.length;
- save(makePDF(pages,pw,ph),'glep-'+(which==='all'?'deck':which)+'-fronts'+(opt.withBacks?'-and-backs':'')+'-'+today()+'-'+opt.paper+'.pdf');
+ save(makePDF(pages,pw,ph),'glep-'+(picked?'picked-'+rows.length:which==='all'?'deck':which)+'-fronts'+(opt.withBacks?'-and-backs':'')+'-'+today()+'-'+opt.paper+'.pdf');
  const blanks=pages.reduce((n,p)=>n+p.cards.filter(c=>c.blank).length,0);say('PDF ready: '+rows.length+' card'+(rows.length===1?'':'s')+(blanks?' + '+blanks+' blank':'')+' on '+sheets+' sheet'+(sheets===1?'':'s')+(opt.withBacks?', each front page followed by its backs. Print 2-sided (auto), long edge, Actual size / 100%, borderless off.':'. Print at "Actual size".')+note)}
 
 async function printBacks(type,opt){const say=opt.say||(()=>{});say('Drawing the '+LABEL[type]+' back sheet…');const b=await backJPEG(type),[pw,ph]=PAPER[opt.paper]||PAPER.letter;
@@ -159,7 +160,24 @@ const PREF='glep-print-settings-v1';
 function prefs(){try{return JSON.parse(localStorage.getItem(PREF)||'{}')}catch{return {}}}
 function opts(){const o={paper:'letter',flip:'long',move:{x:+el('printNudgeX').value||0,y:+el('printNudgeY').value||0},withBacks:true,say:t=>el('printStatus').textContent=t};
  o.nudge={x:-o.move.x,y:-o.move.y};try{localStorage.setItem(PREF,JSON.stringify({move:o.move}))}catch{}return o}
+// "Pick cards": a checkbox per approved card, grouped by type, with a tick-all box per type. Printing the picked
+// cards uses the same two-sided layout as the other buttons (each type starts a new page, backs behind fronts).
+async function loadPickList(){const box=el('printPickList'),say=t=>el('printStatus').textContent=t;box.textContent='Loading cards…';
+ try{const rows=(await fetchCards()).sort(byTypeThenName),frag=document.createDocumentFragment();
+  for(const t of TYPES){const group=rows.filter(r=>r.card_type===t);if(!group.length)continue;const fs=document.createElement('fieldset');fs.className='print-pick-group';
+   const lg=document.createElement('legend'),all=document.createElement('input');all.type='checkbox';all.dataset.pickAll=t;const lab=document.createElement('label');lab.append(all,' '+LABEL[t]+' ('+group.length+')');lg.append(lab);fs.append(lg);
+   const grid=document.createElement('div');grid.className='print-pick-grid';
+   for(const r of group){const l=document.createElement('label'),c=document.createElement('input');c.type='checkbox';c.value=String(r.id);c.dataset.pickType=t;l.append(c,' '+r.name);grid.append(l)}
+   fs.append(grid);frag.append(fs)}
+  box.replaceChildren(frag);updatePickCount()}catch(e){box.textContent='Could not load the cards: '+e.message;say('')}}
+function pickedIds(){return new Set([...el('printPickList').querySelectorAll('input[data-pick-type]:checked')].map(c=>c.value))}
+function updatePickCount(){const list=el('printPickList');for(const all of list.querySelectorAll('input[data-pick-all]')){const boxes=[...list.querySelectorAll('input[data-pick-type="'+all.dataset.pickAll+'"]')],n=boxes.filter(b=>b.checked).length;all.checked=n===boxes.length&&n>0;all.indeterminate=n>0&&n<boxes.length}
+ const n=pickedIds().size,b=el('printPickedBtn');b.textContent='Print selected ('+n+')';b.disabled=!n}
+if(el('printPickList')){el('printPickDetails').addEventListener('toggle',e=>{if(e.target.open&&!el('printPickList').dataset.loaded){el('printPickList').dataset.loaded='1';loadPickList()}});
+ el('printPickList').addEventListener('change',e=>{const a=e.target.dataset.pickAll;if(a)for(const c of el('printPickList').querySelectorAll('input[data-pick-type="'+a+'"]'))c.checked=e.target.checked;updatePickCount()});
+ el('printPickNone').addEventListener('click',()=>{for(const c of el('printPickList').querySelectorAll('input[type=checkbox]'))c.checked=false;updatePickCount()});
+ el('printPickReload').addEventListener('click',()=>loadPickList())}
 if(el('printingPanel')){const p=prefs();if(p.move){el('printNudgeX').value=p.move.x||0;el('printNudgeY').value=p.move.y||0;if(p.move.x||p.move.y)el('printingPanel').querySelector('.print-align').open=true}
  el('printingPanel').addEventListener('click',e=>{const b=e.target.closest('button[data-print]');if(!b)return;const o=opts(),[kind,arg]=b.dataset.print.split(':');
-  guard(b,()=>kind==='front'?printFronts(arg,o):kind==='back'?printBacks(arg,o):kind==='grid'?printGrid(o):printTest(o)).catch(err=>o.say('PDF failed: '+err.message))})}
+  guard(b,()=>kind==='picked'?printFronts(pickedIds(),o):kind==='front'?printFronts(arg,o):kind==='back'?printBacks(arg,o):kind==='grid'?printGrid(o):printTest(o)).catch(err=>o.say('PDF failed: '+err.message))})}
 })();

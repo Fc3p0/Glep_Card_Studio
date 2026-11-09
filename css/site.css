@@ -512,3 +512,16 @@ body #decksPage #deckGrid .art-tile small.card-status,.lib-card small.card-statu
 .xp-canvas-frame{align-self:flex-start!important;min-height:0!important;height:auto!important}
 .xp-canvas-scroll{height:auto!important;min-height:0!important;aspect-ratio:538/378!important;background:#c6c6c6!important}
 .xp-paint #drawPad{display:block!important;width:100%!important;height:auto!important;aspect-ratio:538/378!important;max-height:none!important}
+.deck-print{margin:10px 0 4px}
+.deck-print select{background:var(--ground);color:inherit;border:1px solid var(--line-2);padding:8px 10px;font:inherit}
+.deck-print .muted{flex:1 1 260px}
+.print-settings{display:flex;flex-wrap:wrap;gap:10px 18px;margin:14px 0;align-items:center}
+.print-settings label{display:flex;gap:6px;align-items:center;font-size:14px;white-space:nowrap}
+.print-settings select,#printingPanel .print-settings input{background:var(--ground);color:inherit;border:1px solid var(--line-2);padding:7px 9px;font:inherit}
+#masterPage #printingPanel .print-settings input{width:76px;flex:none;min-width:0;max-width:76px}
+.print-align{margin:4px 0 8px}.print-align summary{cursor:pointer;color:var(--acid);font-size:14px}
+.print-pick{margin:4px 0 14px}.print-pick summary{cursor:pointer;color:var(--acid);font-size:14px}
+.print-pick-group{border:1px solid var(--line-2);margin:0 0 12px;padding:8px 12px 12px}
+.print-pick-group legend{padding:0 6px;font-weight:600}
+.print-pick-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:4px 14px;font-size:14px}
+.print-pick label{display:flex;gap:6px;align-items:center;cursor:pointer}

@@ -293,7 +293,9 @@ body:not(.score-mode) #scorePage{display:none}
 .pixel-card-slot img{width:100%;aspect-ratio:5/7;object-fit:contain;background:#fff}
 .pixel-card-slot strong{font:400 20px/1.05 var(--display);text-transform:uppercase;letter-spacing:.02em;white-space:normal;overflow-wrap:anywhere;color:var(--paper);margin-top:4px}
 .pixel-card-slot small{font:600 11px var(--mono);letter-spacing:.12em;color:var(--mute)}
-.pixel-card-inspector{margin-top:26px;border:2px solid var(--acid);background:var(--ground-2);padding:20px;color:var(--paper)}
+.pixel-card-inspector{position:fixed;inset:0;z-index:1000;overflow-y:auto;overscroll-behavior:contain;padding:24px 16px;background:rgba(0,0,0,.8)}
+.pixel-inspector-panel{max-width:960px;margin:0 auto;border:2px solid var(--acid);background:var(--ground-2);padding:20px;color:var(--paper)}
+body.inspector-open{overflow:hidden}
 .pixel-card-inspector[hidden]{display:none!important}
 #pixelInspectorContent{display:grid;grid-template-columns:minmax(0,360px) minmax(0,1fr);gap:26px;margin-top:16px;align-items:start}
 .pixel-inspector-image{width:100%;aspect-ratio:5/7;object-fit:contain;background:#fff}

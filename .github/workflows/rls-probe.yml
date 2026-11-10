@@ -8,16 +8,18 @@ jobs:
   probe:
     runs-on: ubuntu-latest
     steps:
-      - name: Try reads with the public key (prints only status codes and row counts)
+      - name: Scoreboard table check (read-only; prints only status, counts, yes/no)
         run: |
-          R=https://chfzvfyigycpkcsxbscu.supabase.co
+          R=https://chfzvfyigycpkcsxbscu.supabase.co/rest/v1/glep_scoreboard
           K=sb_publishable_0zmkCJDMk_qAex_bnopfsA_CQP21oxN
-          probe() {
-            body=$(curl -s -w '\n%{http_code}' -H "apikey: $K" -H "Prefer: count=exact" "$R/rest/v1/$2")
-            code=$(echo "$body" | tail -1); rows=$(echo "$body" | head -n -1 | python3 -c 'import sys,json
-          try:
-            d=json.load(sys.stdin); print(len(d) if isinstance(d,list) else "not a list")
-          except Exception: print("?")')
-            echo "::notice::$1 -> HTTP $code, rows: $rows"
-          }
-          echo "::notice::storage bucket list -> items: $(curl -s -X POST -H "apikey: $K" -H "Authorization: Bearer $K" -H 'Content-Type: application/json' -d '{"prefix":"","limit":5}' $R/storage/v1/object/list/glep-artwork | python3 -c 'import sys,json;d=json.load(sys.stdin);print(len(d) if isinstance(d,list) else d)')"
+          code=$(curl -s -o /tmp/b -w '%{http_code}' -H "apikey: $K" "$R?select=winner,margin,played_on")
+          echo "::notice::glep_scoreboard read -> HTTP $code"
+          if [ "$code" = 200 ]; then
+            python3 - <<'PY'
+          import json
+          d=json.load(open('/tmp/b'))
+          want={('kim mom og',20),('francesca',25),('jordan',28)}
+          got={(r['winner'].strip().lower(),r['margin']) for r in d}
+          print(f"::notice::rows: {len(d)}; expected 3 games present: {want<=got}; all dated 2026-11-09: {all(r['played_on']=='2026-11-09' for r in d)}")
+          PY
+          fi

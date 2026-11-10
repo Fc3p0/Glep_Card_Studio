@@ -5,8 +5,21 @@ const go=page=>{
  if(target)target.click();window.scrollTo({top:0,behavior:'instant'});
 };
 document.querySelectorAll('[data-gx-go]').forEach(b=>b.addEventListener('click',()=>go(b.dataset.gxGo)));
+/* Grouped dropdowns: a group name only opens its menu; picking an item navigates and closes it. */
+const groups=[...document.querySelectorAll('.gx-group')];
+const closeAll=except=>groups.forEach(g=>{if(g===except)return;g.classList.remove('open');g.querySelector('.gx-group-btn').setAttribute('aria-expanded','false');g.querySelector('.gx-drop').hidden=true});
+const setOpen=(g,open)=>{if(open)closeAll(g);g.classList.toggle('open',open);g.querySelector('.gx-group-btn').setAttribute('aria-expanded',String(open));g.querySelector('.gx-drop').hidden=!open};
+const hover=matchMedia('(hover:hover) and (pointer:fine)');
+groups.forEach(g=>{const btn=g.querySelector('.gx-group-btn');let t;
+ btn.addEventListener('click',()=>{clearTimeout(t);setOpen(g,hover.matches||!g.classList.contains('open'))});
+ g.addEventListener('mouseenter',()=>{if(hover.matches){clearTimeout(t);setOpen(g,true)}});
+ g.addEventListener('mouseleave',()=>{if(hover.matches){t=setTimeout(()=>setOpen(g,false),180)}});
+ g.querySelectorAll('[data-gx-go]').forEach(b=>b.addEventListener('click',()=>{setOpen(g,false);btn.blur()}));
+ g.addEventListener('keydown',e=>{if(e.key==='Escape'){setOpen(g,false);btn.focus()}});
+});
+document.addEventListener('click',e=>{if(!e.target.closest('.gx-group'))closeAll()});
 document.querySelector('.gx-menu')?.addEventListener('click',()=>document.getElementById('menuToggle')?.click());
-const mark=()=>{const page=document.body.dataset.page;document.querySelectorAll('.gx-bar [data-gx-go]').forEach(b=>{const on=b.dataset.gxGo===page;b.classList.toggle('on',on);if(on)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current')})};
+const mark=()=>{const page=document.body.dataset.page;document.querySelectorAll('.gx-bar [data-gx-go]').forEach(b=>{const on=b.dataset.gxGo===page;b.classList.toggle('on',on);if(on)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current')});groups.forEach(g=>g.classList.toggle('current',!!g.querySelector('[data-gx-go].on')))};
 new MutationObserver(mark).observe(document.body,{attributes:true,attributeFilter:['data-page']});mark();
 
 /* Game: the big "table is open" headline shows on the start screens only; once in a room the table takes the page. */

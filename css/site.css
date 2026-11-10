@@ -348,6 +348,9 @@ body.inspector-open{overflow:hidden}
 #scoreLogView{margin-top:12px}
 .score-log [hidden]{display:none!important}
 #scoreLogForm:not([hidden])~#scoreLogView{display:none}
+.leader-actions [hidden]{display:none!important}
+.score-log.leader-add{border-top:0;padding-top:0;margin-top:18px}
+.leader-add:has(#leaderAddForm[hidden]):has(.score-log-status:empty){display:none}
 @media(max-width:600px){.score-log-fields{grid-template-columns:1fr 1fr}.score-log-fields>div:first-child{grid-column:1/-1}}
 
 /* ---------- LEADERBOARD ---------- */

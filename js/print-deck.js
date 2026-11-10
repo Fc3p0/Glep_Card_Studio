@@ -114,7 +114,7 @@ async function printFronts(which,opt){const say=opt.say||(()=>{});say('Loading t
  let pages=await frontPages(rows,true,say),note='';
  if(opt.withBacks){const out=[];for(const p of pages){const b=await backJPEG(p.type);out.push(p,backPage(p.type,b,p,opt));if(b.placeholder)note=' Backs are placeholders until the designs are added.'}pages=out}
  say('Building the PDF…');const [pw,ph]=PAPER[opt.paper]||PAPER.letter,sheets=opt.withBacks?pages.length/2:pages.length;
- save(makePDF(pages,pw,ph),'glep-'+(picked?'picked-'+rows.length:which==='all'?'deck':which)+'-fronts'+(opt.withBacks?'-and-backs':'')+'-'+today()+'-'+opt.paper+'.pdf');
+ save(makePDF(pages,pw,ph),'glep-'+(opt.name?opt.name:picked?'picked-'+rows.length:which==='all'?'deck':which)+'-fronts'+(opt.withBacks?'-and-backs':'')+'-'+today()+'-'+opt.paper+'.pdf');
  const blanks=pages.reduce((n,p)=>n+p.cards.filter(c=>c.blank).length,0);say('PDF ready: '+rows.length+' card'+(rows.length===1?'':'s')+(blanks?' + '+blanks+' blank':'')+' on '+sheets+' sheet'+(sheets===1?'':'s')+(opt.withBacks?', each front page followed by its backs. Print 2-sided (auto), long edge, Actual size / 100%, borderless off.':'. Print at "Actual size".')+note)}
 
 async function printBacks(type,opt){const say=opt.say||(()=>{});say('Drawing the '+LABEL[type]+' back sheet…');const b=await backJPEG(type),[pw,ph]=PAPER[opt.paper]||PAPER.letter;
@@ -150,10 +150,12 @@ let busy=false;
 async function guard(btn,fn){if(busy)return;if(!window.glepCardCanvas)throw Error('the card drawer has not loaded yet. Reload the page and try again');busy=true;btn.disabled=true;try{await fn()}finally{busy=false;btn.disabled=false}}
 function matches(row){const search=(el('deckSearch')?.value||'').trim().toLowerCase(),type=el('deckTypeFilter')?.value||'',who=el('deckCreatorFilter')?.value||'';
  return (!who||creatorKey(row)===who)&&(!type||row.card_type===type)&&(!search||(row.name+' '+row.creator_name+' '+row.card_type+' '+(row.card_data?.tags||'')).toLowerCase().includes(search))}
+// The Deck's "Download print PDF" makes the same two-sided PDF as Card Master → Printing (each type on its own pages,
+// each front page followed by its matching colour back page), for the cards that match the Deck's search and filters.
+// It uses the "Needs alignment?" move saved on the Printing tab, if any.
 el('deckPrintBtn')?.addEventListener('click',()=>{const say=t=>el('deckPrintStatus').textContent=t;guard(el('deckPrintBtn'),async()=>{say('Loading the Deck…');
- const rows=(await fetchCards()).filter(matches).sort(byTypeThenName);if(!rows.length)return say('No cards match the search and filters, so there is nothing to print.');
- const paper=el('deckPrintPaper').value==='a4'?'a4':'letter',[pw,ph]=PAPER[paper],pages=await frontPages(rows,false,say);say('Building the PDF…');
- save(makePDF(pages,pw,ph),'glep-deck-'+today()+'-'+paper+'.pdf');say('PDF ready: '+rows.length+' card'+(rows.length===1?'':'s')+' on '+pages.length+' page'+(pages.length===1?'':'s')+'. Print at 100% / "Actual size", not "Fit to page".')}).catch(e=>say('PDF export failed: '+e.message))});
+ const ids=new Set((await fetchCards()).filter(matches).map(r=>String(r.id)));if(!ids.size)return say('No cards match the search and filters, so there is nothing to print.');
+ const move=prefs().move||{x:0,y:0};await printFronts(ids,{paper:el('deckPrintPaper').value==='a4'?'a4':'letter',flip:'long',nudge:{x:-(+move.x||0),y:-(+move.y||0)},withBacks:true,name:'deck',say})}).catch(e=>say('PDF export failed: '+e.message))});
 
 // ---- Card Master → Printing ----------------------------------------------------------------------------------
 const PREF='glep-print-settings-v1';

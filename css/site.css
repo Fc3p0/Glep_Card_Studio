@@ -614,3 +614,13 @@ body #decksPage #deckGrid .art-tile small.card-status,.lib-card small.card-statu
 .catalog-del{display:block;margin:2px 0 0 auto;background:none;border:0;color:var(--mute);cursor:pointer;font-size:14px;padding:0 2px}
 .catalog-del:hover{color:var(--red-text)}
 .catalog-grid td.catalog-code{font:400 12px/1.4 var(--mono);color:var(--bone);background:var(--ground)}
+
+.catalog-grid select{display:block;width:100%;margin:0;border:1px solid transparent;border-radius:0;background:transparent;color:var(--paper);font:inherit;padding:7px 6px;min-height:34px}
+.catalog-grid select:focus{outline:none;border-color:var(--acid);background:var(--ground)}
+.catalog-eye{display:block;margin:2px 0 0 auto;background:none;border:0;cursor:pointer;font-size:13px;padding:0 2px;opacity:.7;filter:grayscale(1)}
+.catalog-eye:hover,.catalog-eye:focus-visible{opacity:1;filter:none}
+.catalog-preview{position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.72);display:flex;align-items:center;justify-content:center;padding:16px}
+.catalog-preview[hidden]{display:none}
+.catalog-preview-box{background:var(--ground-2);border:2px solid var(--line-2);padding:12px;max-width:min(380px,100%);width:100%}
+.catalog-preview-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px;color:var(--paper)}
+.catalog-preview-box img{display:block;width:100%;aspect-ratio:5/7;background:var(--well);object-fit:contain}

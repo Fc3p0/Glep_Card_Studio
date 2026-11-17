@@ -1,7 +1,7 @@
 // Card Master → Catalog: a spreadsheet of every card. Approved Deck cards appear on their own (their name, type,
-// damage, stars, elements and effect show live from the card and are edited in Manage Deck); idea lines and
+// damage, stars, elements, effect and Status "In Deck" show live from the card and are edited in Manage Deck); idea lines and
 // printed-only cards are typed straight in. Anyone with the Card Master code can add, rename and hide columns and
-// edit cells; every cell saves on its own as soon as you leave it. The last column (Code to deploy) is read-only on
+// edit cells (any column can be moved or renamed; custom ones removed); a 👁 button previews the card; every cell saves on its own as soon as you leave it. The last column (Code to deploy) is read-only on
 // the site: only Claude fills it, through SQL Francesca runs.
 // Storage: Supabase tables glep_catalog_rows / glep_catalog_settings, reached only through the glep_catalog_*
 // functions in backend/glep-catalog.sql (each checks the admin code). Reads the cards Card Master already loaded,
@@ -11,8 +11,9 @@ const RPC='https://chfzvfyigycpkcsxbscu.supabase.co/rest/v1/rpc/',KEY='sb_publis
 const $=id=>document.getElementById(id);
 const LIVE={name:1,type:1,damage:1,stars:1,elements:1,effect:1,status:1};   // shown from the Deck card when a line is linked
 const LONG={effect:1,art:1};                                              // wider columns
+const STATUS=['Ideas','In Deck'];
 const TYPE_ORDER={attack:0,modifier:1,fate:2};
-const SUGGEST={type:['attack','modifier','fate'],status:['Idea','In progress','Printed','In Deck'],elements:['Earth','Water','Fire','Air']};
+const SUGGEST={type:['attack','modifier','fate'],elements:['Earth','Water','Fire','Air']};
 let columns=[],rows=[],loaded=false,busy=false,sortKey='',sortDir=1;
 
 function make(tag,cls,text){const e=document.createElement(tag);if(cls)e.className=cls;if(text!==undefined)e.textContent=text;return e}
@@ -61,22 +62,26 @@ function visible(){
 function fit(t){t.style.height='auto';t.style.height=Math.min(t.scrollHeight+2,180)+'px'}
 function draw(){
  const host=$('catalogTable'),list=visible(),table=make('table','catalog-grid'),head=make('tr');
- head.append(make('th','catalog-rownum','#'));
- for(const col of columns){const th=make('th',LONG[col.key]||col.locked?'catalog-long':'');if(col.key==='name')th.classList.add('catalog-sticky');
+ const stick=columns[0]?.key==='name';head.append(make('th','catalog-rownum','#'));
+ for(const col of columns){const th=make('th',LONG[col.key]||col.locked?'catalog-long':'');if(stick&&col.key==='name')th.classList.add('catalog-sticky');
   const b=make('button','catalog-sort',col.label+(sortKey===col.key?(sortDir>0?' ▲':' ▼'):''));b.type='button';b.title='Sort by '+col.label;
   b.onclick=()=>{if(sortKey===col.key){if(sortDir>0)sortDir=-1;else sortKey=''}else{sortKey=col.key;sortDir=1}draw()};th.append(b);
-  if(!col.builtin){const ren=make('button','catalog-col-btn','✎');ren.type='button';ren.title='Rename column';ren.onclick=()=>renameColumn(col);
-   const hide=make('button','catalog-col-btn','×');hide.type='button';hide.title='Remove column';hide.onclick=()=>removeColumn(col);th.append(ren,hide)}
+  if(!col.locked){const btn=(t,title,fn)=>{const x=make('button','catalog-col-btn',t);x.type='button';x.title=title;x.setAttribute('aria-label',title+': '+col.label);x.onclick=fn;th.append(x)};
+   const ci=columns.indexOf(col);if(ci>0)btn('◀','Move column left',()=>moveColumn(col,-1));if(columns[ci+1]&&!columns[ci+1].locked)btn('▶','Move column right',()=>moveColumn(col,1));btn('✎','Rename column',()=>renameColumn(col));
+   if(!col.builtin)btn('×','Remove column',()=>removeColumn(col))}
   head.append(th)}
  const thead=make('thead');thead.append(head);const body=make('tbody');
  list.forEach((line,i)=>{const tr=make('tr');if(!line.card)tr.className='catalog-idea';
   const num=make('td','catalog-rownum',String(i+1));
+  const eye=make('button','catalog-eye','👁');eye.type='button';eye.title='Preview card';eye.setAttribute('aria-label','Preview '+(value(line,'name')||'card'));eye.onclick=()=>preview(line);num.append(eye);
   if(!line.card&&line.row&&!line.gone){const del=make('button','catalog-del','×');del.type='button';del.title='Delete this line';del.onclick=()=>deleteLine(line);num.append(del)}
   tr.append(num);
-  for(const col of columns){const td=make('td',LONG[col.key]||col.locked?'catalog-long':'');if(col.key==='name')td.classList.add('catalog-sticky');
+  for(const col of columns){const td=make('td',LONG[col.key]||col.locked?'catalog-long':'');if(stick&&col.key==='name')td.classList.add('catalog-sticky');
    const v=value(line,col.key);
    if(col.locked){td.classList.add('catalog-live','catalog-code');td.textContent=v;td.title='Only Fran fills this in: the code this behavior needs deployed.'}
    else if(line.card&&LIVE[col.key]){td.classList.add('catalog-live');td.textContent=v;td.title='From the Deck card. Edit it in Manage Deck.'}
+   else if(col.key==='status'){const t=make('select');for(const x of STATUS){const o=make('option','',x);o.value=x;t.append(o)}t.value=STATUS.includes(v)?v:'Ideas';
+    t.setAttribute('aria-label','Status for '+(value(line,'name')||'new line'));t.addEventListener('change',()=>saveCell(line,col,t));td.append(t)}
    else{const t=make('textarea');t.rows=1;t.value=v;t.setAttribute('aria-label',col.label+' for '+(value(line,'name')||'new line'));
     if(SUGGEST[col.key])t.setAttribute('list','catalogList-'+col.key);
     t.addEventListener('input',()=>fit(t));t.addEventListener('focus',()=>fit(t));
@@ -89,7 +94,7 @@ function draw(){
  host.replaceChildren(table,...lists);
  requestAnimationFrame(()=>{const ts=[...host.querySelectorAll('textarea')].filter(t=>t.value);const hs=ts.map(t=>t.scrollHeight);ts.forEach((t,i)=>{if(hs[i]>t.clientHeight+1)t.style.height=Math.min(hs[i]+2,180)+'px'})});
  const all=lines(),inDeck=all.filter(l=>l.card).length;
- say(list.length+' of '+all.length+' lines shown · '+inDeck+' in the Deck · '+(all.length-inDeck)+' ideas or printed-only. Cells save when you click away.')}
+ say(list.length+' of '+all.length+' lines shown · '+inDeck+' in the Deck · '+(all.length-inDeck)+' ideas. Cells save when you click away.')}
 
 async function saveCell(line,col,t){
  const val=t.value.slice(0,5000);t.classList.remove('catalog-err');t.classList.add('catalog-saving');
@@ -101,7 +106,7 @@ async function saveCell(line,col,t){
 async function addLine(){
  const name=(prompt('Name of the new card idea:')||'').trim();if(!name)return;
  try{const saved=await rpc('glep_catalog_set_cell',{p_row_id:null,p_card_id:null,p_key:'name',p_value:name.slice(0,200)});
-  await rpc('glep_catalog_set_cell',{p_row_id:saved.id,p_card_id:null,p_key:'status',p_value:'Idea'}).then(s=>rows.push(s)).catch(()=>rows.push(saved));
+  await rpc('glep_catalog_set_cell',{p_row_id:saved.id,p_card_id:null,p_key:'status',p_value:'Ideas'}).then(s=>rows.push(s)).catch(()=>rows.push(saved));
   $('catalogSearch').value='';$('catalogWhere').value='';$('catalogType').value='';draw();say('Added "'+name+'". Fill in the rest of its line.');
   const row=[...$('catalogTable').querySelectorAll('textarea')].find(t=>t.value===name);row?.scrollIntoView({block:'center'});row?.focus()
  }catch(e){say('Could not add the line: '+(e.message==='SETUP'?'run the catalog setup SQL first.':e.message),true)}}
@@ -121,6 +126,20 @@ function addColumn(){
 function renameColumn(col){
  const label=(prompt('New name for "'+col.label+'":',col.label)||'').trim().slice(0,60);if(!label||label===col.label)return;
  changeColumns(cols=>cols.map(c=>c.key===col.key?{...c,label}:c),'Renamed to "'+label+'".')}
+function moveColumn(col,dir){
+ changeColumns(cols=>{const i=cols.findIndex(c=>c.key===col.key),j=i+dir;if(i<0||j<0||j>=cols.length||cols[j].locked)return null;[cols[i],cols[j]]=[cols[j],cols[i]];return cols},'Moved "'+col.label+'".')}
+// Preview: draws just this one card on click (same renderer as the Deck). Ideas preview from what's typed in their line.
+let previewURL='';
+async function preview(line){
+ const box=$('catalogPreview'),img=$('catalogPreviewImg');if(previewURL){URL.revokeObjectURL(previewURL);previewURL=''}
+ img.removeAttribute('src');img.alt='Preview: '+(value(line,'name')||'card');$('catalogPreviewName').textContent=value(line,'name')||'(no name)';box.hidden=false;$('catalogPreviewClose').focus();
+ const c=line.card;let card;
+ if(c)card={...(c.card_data||{}),name:c.name,type:c.card_type,image:c.artwork_url||'',strokes:[]};
+ else{const el=value(line,'elements').split(/[,/]+/).map(x=>x.trim()).map(x=>x.charAt(0).toUpperCase()+x.slice(1).toLowerCase()).filter(x=>['Earth','Water','Fire','Air'].includes(x)),t=value(line,'type').toLowerCase(),n=k=>{const x=parseInt(value(line,k),10);return isNaN(x)?0:Math.max(-10,Math.min(10,x))};
+  card={name:value(line,'name')||'Untitled',type:TYPE_ORDER[t]!=null?t:'attack',damage:n('damage'),stars:n('stars'),element1:el[0]||'None',element2:el[1]||'None',effect:value(line,'effect'),tags:'',image:'',strokes:[]}}
+ try{const draw=window.glepRenderCardURL||window.glepRenderCard;if(!draw){if(c?.artwork_url)img.src=c.artwork_url;return}const u=await draw(card);if(box.hidden||$('catalogPreviewName').textContent!==(value(line,'name')||'(no name)')){if(u.startsWith('blob:'))URL.revokeObjectURL(u);return}if(u.startsWith('blob:'))previewURL=u;img.src=u}
+ catch(e){if(c?.artwork_url)img.src=c.artwork_url;else say('Preview failed: '+e.message,true)}}
+function closePreview(){$('catalogPreview').hidden=true;if(previewURL){URL.revokeObjectURL(previewURL);previewURL=''}}
 function removeColumn(col){
  if(!confirm('Remove the column "'+col.label+'"? It disappears for everyone. What was typed in it is kept in Supabase, so it can be brought back.'))return;
  changeColumns(cols=>cols.filter(c=>c.key!==col.key),'Removed the column "'+col.label+'".')}
@@ -134,7 +153,7 @@ function csv(){
 const panelOpen=()=>!$('catalogPanel').hidden;
 document.querySelector('[data-master-tab="catalog"]')?.addEventListener('click',()=>{if(!loaded)load();else draw()});
 window.addEventListener('glep-master-refreshed',()=>{if(panelOpen())load()});
-$('catalogReload').onclick=load;$('catalogAddLine').onclick=addLine;$('catalogAddColumn').onclick=addColumn;$('catalogCsv').onclick=csv;
+$('catalogReload').onclick=load;$('catalogPreviewClose').onclick=closePreview;$('catalogPreview').addEventListener('click',e=>{if(e.target.id==='catalogPreview')closePreview()});document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('catalogPreview').hidden)closePreview()});$('catalogAddLine').onclick=addLine;$('catalogAddColumn').onclick=addColumn;$('catalogCsv').onclick=csv;
 for(const id of ['catalogType','catalogWhere'])$(id).addEventListener('change',()=>loaded&&draw());
 let typing;$('catalogSearch').addEventListener('input',()=>{clearTimeout(typing);typing=setTimeout(()=>loaded&&draw(),200)});
 $('masterLock')?.addEventListener('click',()=>{columns=[];rows=[];loaded=false;$('catalogTable').replaceChildren();say('')});

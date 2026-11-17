@@ -624,3 +624,6 @@ body #decksPage #deckGrid .art-tile small.card-status,.lib-card small.card-statu
 .catalog-preview-box{background:var(--ground-2);border:2px solid var(--line-2);padding:12px;max-width:min(380px,100%);width:100%}
 .catalog-preview-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px;color:var(--paper)}
 .catalog-preview-box img{display:block;width:100%;aspect-ratio:5/7;background:var(--well);object-fit:contain}
+/* Manage Deck: "Remove from Deck" sits inside Edit card, small and separated from Save changes */
+.master-edit .btn.master-remove{display:block;width:auto;margin:26px 0 0 auto;padding:6px 10px!important;font-size:12px;border-width:1px;opacity:.85}
+.master-edit .btn.master-remove:hover{opacity:1}

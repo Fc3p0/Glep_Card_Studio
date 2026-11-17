@@ -85,7 +85,7 @@ end $$;
 -- The last column holds the code each behavior needs deployed. Only Claude fills it (by SQL you run), so the site
 -- shows it read-only and the functions above refuse to change it.
 create or replace function public.glep_catalog_code_column() returns jsonb language sql immutable as $$
-  select '{"key":"claude_code","label":"Code to deploy (Claude only)","builtin":true,"locked":true}'::jsonb
+  select '{"key":"claude_code","label":"Code to deploy (Fran only)","builtin":true,"locked":true}'::jsonb
 $$;
 
 -- Replace the column list: [{"key":"c_printed","label":"Printed version"}, ...].
@@ -99,7 +99,7 @@ begin
     if jsonb_typeof(c) <> 'object' or coalesce(c->>'key', '') !~ '^[a-z0-9_]{1,40}$'
        or char_length(btrim(coalesce(c->>'label', ''))) not between 1 and 60 then raise exception 'Bad column: %', c; end if;
   end loop;
-  -- The Claude-only column can't be renamed, removed or unlocked from the site, and always stays last.
+  -- The locked code column can't be renamed, removed or unlocked from the site, and always stays last.
   select coalesce(jsonb_agg(x), '[]'::jsonb) || jsonb_build_array(public.glep_catalog_code_column())
     into p_columns from jsonb_array_elements(p_columns) x where x->>'key' <> 'claude_code';
   insert into public.glep_catalog_settings (id, columns, updated_at) values (1, p_columns, now())
@@ -127,16 +127,16 @@ insert into public.glep_catalog_settings (id, columns) values (1, '[
   {"key":"c_behavior","label":"Printed version"},
   {"key":"c_online","label":"ONLINE version"},
   {"key":"c_notes","label":"Notes"},
-  {"key":"claude_code","label":"Code to deploy (Claude only)","builtin":true,"locked":true}
+  {"key":"claude_code","label":"Code to deploy (Fran only)","builtin":true,"locked":true}
 ]'::jsonb) on conflict (id) do nothing;
 
 -- If this file was run before: rename Behavior -> Printed version, add ONLINE version after it, and put the
--- Claude-only code column last. Leaves everything else (and every cell) as it is.
+-- code column last with its current name. Leaves everything else (and every cell) as it is.
 do $$
 declare cols jsonb; out jsonb := '[]'::jsonb; c jsonb;
 begin
   select columns into cols from public.glep_catalog_settings where id = 1;
-  if cols is null or cols @> '[{"key":"c_online"}]' and cols @> '[{"key":"claude_code"}]' then return; end if;
+  if cols is null then return; end if;
   for c in select * from jsonb_array_elements(cols) loop
     continue when c->>'key' = 'claude_code';
     if c->>'key' = 'c_behavior' and c->>'label' = 'Behavior' then c := c || '{"label":"Printed version"}'; end if;

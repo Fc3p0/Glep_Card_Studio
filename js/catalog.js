@@ -75,7 +75,7 @@ function draw(){
   tr.append(num);
   for(const col of columns){const td=make('td',LONG[col.key]||col.locked?'catalog-long':'');if(col.key==='name')td.classList.add('catalog-sticky');
    const v=value(line,col.key);
-   if(col.locked){td.classList.add('catalog-live','catalog-code');td.textContent=v;td.title='Only Claude fills this in: the code this behavior needs deployed.'}
+   if(col.locked){td.classList.add('catalog-live','catalog-code');td.textContent=v;td.title='Only Fran fills this in: the code this behavior needs deployed.'}
    else if(line.card&&LIVE[col.key]){td.classList.add('catalog-live');td.textContent=v;td.title='From the Deck card. Edit it in Manage Deck.'}
    else{const t=make('textarea');t.rows=1;t.value=v;t.setAttribute('aria-label',col.label+' for '+(value(line,'name')||'new line'));
     if(SUGGEST[col.key])t.setAttribute('list','catalogList-'+col.key);

@@ -1,0 +1,29 @@
+name: Catalog probe
+on:
+  push:
+    branches: [claude/catalog-probe]
+permissions:
+  contents: read
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Read-only checks with the public key (prints only status codes)
+        run: |
+          U=https://chfzvfyigycpkcsxbscu.supabase.co/rest/v1; K=sb_publishable_0zmkCJDMk_qAex_bnopfsA_CQP21oxN
+          for t in glep_catalog_rows glep_catalog_settings; do
+            r=$(curl -s -o /tmp/b -w '%{http_code}' "$U/$t?select=id&limit=1" -H "apikey: $K"); c=$(jq -r '.code // "rows"' /tmp/b 2>/dev/null)
+            echo "::notice::table $t public read -> HTTP $r $c"
+          done
+          for f in glep_catalog_load glep_catalog_set_cell glep_catalog_save_columns glep_catalog_delete_row; do
+            case $f in
+              glep_catalog_load) d='{"p_code":"probe-not-a-code"}';;
+              glep_catalog_set_cell) d='{"p_code":"probe-not-a-code","p_row_id":null,"p_card_id":null,"p_key":"name","p_value":"x"}';;
+              glep_catalog_save_columns) d='{"p_code":"probe-not-a-code","p_columns":[]}';;
+              glep_catalog_delete_row) d='{"p_code":"probe-not-a-code","p_row_id":"00000000-0000-0000-0000-000000000000"}';;
+            esac
+            r=$(curl -s -o /tmp/b -w '%{http_code}' -X POST "$U/rpc/$f" -H "apikey: $K" -H 'Content-Type: application/json' -d "$d")
+            echo "::notice::rpc $f wrong code -> HTTP $r $(jq -r '(.code//"")+" "+(.message//"")' /tmp/b | cut -c1-80)"
+          done
+          r=$(curl -s -o /dev/null -w '%{http_code}' -X POST "$U/rpc/glep_catalog_admin_ok" -H "apikey: $K" -H 'Content-Type: application/json' -d '{"p_code":"x"}')
+          echo "::notice::rpc glep_catalog_admin_ok (should be hidden) -> HTTP $r"

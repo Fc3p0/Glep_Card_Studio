@@ -51,7 +51,7 @@ function value(line,key){
 function visible(){
  const q=($('catalogSearch').value||'').trim().toLowerCase(),t=$('catalogType').value,w=$('catalogWhere').value;
  let list=lines().filter(l=>{
-  if(w==='deck'&&!l.card)return false;if(w==='other'&&l.card)return false;
+  const st=value(l,'status')==='In Deck'?'deck':'ideas';if(w&&st!==w)return false;   // opens on In Deck
   const ty=value(l,'type').toLowerCase();if(t==='none'?TYPE_ORDER[ty]!=null:t&&ty!==t)return false;
   if(q&&!columns.some(c=>value(l,c.key).toLowerCase().includes(q)))return false;return true});
  const cmp=(a,b)=>{if(!sortKey){return (TYPE_ORDER[value(a,'type').toLowerCase()]??9)-(TYPE_ORDER[value(b,'type').toLowerCase()]??9)||value(a,'name').localeCompare(value(b,'name'),undefined,{sensitivity:'base'})}
@@ -93,7 +93,7 @@ function draw(){
  const lists=Object.entries(SUGGEST).map(([k,vals])=>{const d=make('datalist');d.id='catalogList-'+k;for(const x of vals){const o=make('option');o.value=x;d.append(o)}return d});
  host.replaceChildren(table,...lists);
  requestAnimationFrame(()=>{const ts=[...host.querySelectorAll('textarea')].filter(t=>t.value);const hs=ts.map(t=>t.scrollHeight);ts.forEach((t,i)=>{if(hs[i]>t.clientHeight+1)t.style.height=Math.min(hs[i]+2,180)+'px'})});
- const all=lines(),inDeck=all.filter(l=>l.card).length;
+ const all=lines(),inDeck=all.filter(l=>value(l,'status')==='In Deck').length;
  say(list.length+' of '+all.length+' lines shown · '+inDeck+' in the Deck · '+(all.length-inDeck)+' ideas. Cells save when you click away.')}
 
 async function saveCell(line,col,t){
@@ -107,7 +107,7 @@ async function addLine(){
  const name=(prompt('Name of the new card idea:')||'').trim();if(!name)return;
  try{const saved=await rpc('glep_catalog_set_cell',{p_row_id:null,p_card_id:null,p_key:'name',p_value:name.slice(0,200)});
   await rpc('glep_catalog_set_cell',{p_row_id:saved.id,p_card_id:null,p_key:'status',p_value:'Ideas'}).then(s=>rows.push(s)).catch(()=>rows.push(saved));
-  $('catalogSearch').value='';$('catalogWhere').value='';$('catalogType').value='';draw();say('Added "'+name+'". Fill in the rest of its line.');
+  $('catalogSearch').value='';$('catalogWhere').value='ideas';$('catalogType').value='';draw();say('Added "'+name+'". Fill in the rest of its line.');
   const row=[...$('catalogTable').querySelectorAll('textarea')].find(t=>t.value===name);row?.scrollIntoView({block:'center'});row?.focus()
  }catch(e){say('Could not add the line: '+(e.message==='SETUP'?'run the catalog setup SQL first.':e.message),true)}}
 

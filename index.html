@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#121315"><title>Bag of Gleps</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Anton&family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=Permanent+Marker&family=Pirata+One&display=swap" rel="stylesheet"><link rel="stylesheet" href="css/site.css?v=2026-11-10c"></head><body><div class="gx-bar" role="banner"><button type="button" class="gx-brand" data-gx-go="home" aria-label="Bag of Gleps home">Bag of Gleps <small>est. game night</small></button>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#121315"><title>Bag of Gleps</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Anton&family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=Permanent+Marker&family=Pirata+One&display=swap" rel="stylesheet"><link rel="stylesheet" href="css/site.css?v=2026-11-17"></head><body><div class="gx-bar" role="banner"><button type="button" class="gx-brand" data-gx-go="home" aria-label="Bag of Gleps home">Bag of Gleps <small>est. game night</small></button>
 <nav class="gx-nav" aria-label="Main"><div class="gx-group"><button type="button" class="gx-group-btn" aria-expanded="false" aria-haspopup="true">Make</button><div class="gx-drop" hidden><button type="button" data-gx-go="cards">Make a card</button><button type="button" data-gx-go="decks">My cards</button></div></div><div class="gx-group"><button type="button" class="gx-group-btn" aria-expanded="false" aria-haspopup="true">Cards</button><div class="gx-drop" hidden><button type="button" data-gx-go="shared">The Deck</button><button type="button" data-gx-go="gallery">Gallery</button></div></div><div class="gx-group"><button type="button" class="gx-group-btn" aria-expanded="false" aria-haspopup="true">Play</button><div class="gx-drop" hidden><button type="button" data-gx-go="game">Play online</button><button type="button" data-gx-go="score">Score</button><button type="button" data-gx-go="leaderboard">Leaderboard</button></div></div><button type="button" class="gx-link" data-gx-go="wiki">How to play</button></nav>
 <div class="gx-side"><button type="button" data-gx-go="feedback">Bugs</button><button type="button" data-gx-go="master">Card Master</button></div>
 <button type="button" class="gx-menu" aria-label="Open navigation">Menu</button></div>
@@ -108,6 +108,7 @@
 <button type="button" class="btn" data-master-tab="deck" role="tab" aria-selected="false">Manage Deck</button>
 <button type="button" class="btn" data-master-tab="gallery" role="tab" aria-selected="false">Gallery Management</button>
 <button type="button" class="btn" data-master-tab="users" role="tab" aria-selected="false">User Management</button>
+<button type="button" class="btn" data-master-tab="catalog" role="tab" aria-selected="false">Catalog</button>
 <button type="button" class="btn" data-master-tab="printing" role="tab" aria-selected="false">Printing</button>
 <button type="button" class="btn" data-master-tab="templates" role="tab" aria-selected="false">Template Designer · Beta</button>
 </div>
@@ -125,6 +126,12 @@
 <div data-master-panel="gallery" role="tabpanel" hidden>
 <h3>Shared Gallery Management</h3><p class="muted">Edit names and tags, replace artwork, or remove images from the public gallery.</p>
 <div id="masterArtwork" class="master-grid"></div>
+</div>
+<div data-master-panel="catalog" role="tabpanel" hidden id="catalogPanel">
+<h3>Card Catalog</h3><p class="muted">Every card in one sheet. Deck cards fill in on their own (grey cells come from the card; edit those in Manage Deck). Type anything into the other cells, add card ideas, and add your own columns. Cells save when you click away.</p>
+<div class="catalog-tools"><input id="catalogSearch" type="search" placeholder="Search any column" aria-label="Search the catalog"><select id="catalogType" aria-label="Type"><option value="">All types</option><option value="attack">Attack</option><option value="modifier">Modifier</option><option value="fate">Fate</option><option value="none">No type yet</option></select><select id="catalogWhere" aria-label="Show"><option value="">Everything</option><option value="deck">In the Deck</option><option value="other">Ideas and printed-only</option></select><button class="btn primary" type="button" id="catalogAddLine">+ Add card idea</button><button class="btn" type="button" id="catalogAddColumn">+ Add column</button><button class="btn" type="button" id="catalogCsv">Download CSV</button><button class="btn" type="button" id="catalogReload">Reload</button></div>
+<p class="muted catalog-status" id="catalogStatus" role="status" aria-live="polite"></p>
+<div id="catalogTable" class="catalog-scroll"></div>
 </div>
 <div data-master-panel="printing" role="tabpanel" hidden id="printingPanel">
 <h3>Printing</h3>
@@ -191,4 +198,4 @@
  </div>
 </section>
 <script src="js/editor.js?v=2026-11-07"></script><script src="js/scorekeeper.js?v=2026-11-10"></script><script src="js/leaderboard.js?v=2026-11-10b"></script><script src="js/gallery.js?v=2026-10-26"></script>
-<script src="js/cloud.js?v=2026-11-09"></script><script src="js/card-master.js?v=2026-11-08"></script><script src="js/print-deck.js?v=2026-11-10"></script><script src="js/feedback.js?v=2026-10-26"></script><script src="js/template-designer.js?v=2026-10-26"></script><script src="js/game-frame.js?v=2026-10-26b"></script><script src="js/topbar.js?v=2026-11-10"></script></body></html>
+<script src="js/cloud.js?v=2026-11-09"></script><script src="js/card-master.js?v=2026-11-17"></script><script src="js/catalog.js?v=2026-11-17"></script><script src="js/print-deck.js?v=2026-11-10"></script><script src="js/feedback.js?v=2026-10-26"></script><script src="js/template-designer.js?v=2026-10-26"></script><script src="js/game-frame.js?v=2026-10-26b"></script><script src="js/topbar.js?v=2026-11-10"></script></body></html>

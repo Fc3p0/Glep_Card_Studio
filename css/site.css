@@ -582,3 +582,35 @@ body #decksPage #deckGrid .art-tile small.card-status,.lib-card small.card-statu
 .print-pick-group legend{padding:0 6px;font-weight:600}
 .print-pick-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:4px 14px;font-size:14px}
 .print-pick label{display:flex;gap:6px;align-items:center;cursor:pointer}
+
+/* Card Master → Catalog (js/catalog.js): spreadsheet of every card */
+.catalog-tools{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:10px 0}
+.catalog-tools input[type=search]{flex:1 1 200px;min-width:0;margin:0}
+.catalog-tools select{width:auto;margin:0;background:var(--well);color:var(--paper);border:2px solid var(--line-2);border-radius:0;padding:10px 12px;font:500 14px var(--body)}
+.catalog-status{margin:6px 0 10px}
+.catalog-status[data-result=error]{color:var(--red-text)}
+.catalog-scroll{overflow:auto;max-height:75vh;border:2px solid var(--line-2);background:var(--well)}
+.catalog-grid{border-collapse:separate;border-spacing:0;font:400 14px/1.35 var(--body);color:var(--paper);min-width:100%}
+.catalog-grid th,.catalog-grid td{border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:0;vertical-align:top;min-width:90px;max-width:220px;text-align:left}
+.catalog-grid th{position:sticky;top:0;z-index:2;background:var(--ground-3);white-space:nowrap;padding:0 4px 0 0}
+.catalog-grid .catalog-long{min-width:240px;max-width:360px}
+.catalog-grid .catalog-sticky{position:sticky;left:42px;z-index:1;background:var(--ground-2);min-width:170px}
+.catalog-grid th.catalog-sticky{z-index:3;background:var(--ground-3)}
+.catalog-grid .catalog-rownum{position:sticky;left:0;z-index:1;min-width:42px;width:42px;background:var(--ground-2);color:var(--mute);font:500 11px var(--mono);padding:8px 4px;text-align:right}
+.catalog-grid th.catalog-rownum{z-index:3;background:var(--ground-3)}
+.catalog-sort{background:none;border:0;color:var(--paper);font:600 12px var(--mono);letter-spacing:.04em;text-transform:uppercase;padding:9px 8px;cursor:pointer}
+.catalog-sort:hover{color:var(--acid)}
+.catalog-col-btn{background:none;border:0;color:var(--mute);cursor:pointer;font-size:13px;padding:4px}
+.catalog-col-btn:hover{color:var(--acid)}
+.catalog-grid td.catalog-live{color:var(--mute);padding:7px 8px;white-space:pre-wrap;overflow-wrap:anywhere}
+.catalog-grid td.catalog-sticky.catalog-live{color:var(--paper);font-weight:600}
+.catalog-grid textarea{display:block;width:100%;box-sizing:border-box;margin:0;min-height:34px;resize:none;border:1px solid transparent;border-radius:0;background:transparent;color:var(--paper);font:inherit;padding:7px 8px;overflow:hidden}
+.catalog-grid textarea:hover{background:var(--ground-3)}
+.catalog-grid textarea:focus{outline:none;border-color:var(--acid);background:var(--ground);overflow:auto}
+.catalog-grid textarea.catalog-saving{border-color:var(--gold)}
+.catalog-grid textarea.catalog-saved{border-color:var(--acid)}
+.catalog-grid textarea.catalog-err{border-color:var(--blood)}
+.catalog-idea .catalog-sticky textarea{font-weight:600}
+.catalog-del{display:block;margin:2px 0 0 auto;background:none;border:0;color:var(--mute);cursor:pointer;font-size:14px;padding:0 2px}
+.catalog-del:hover{color:var(--red-text)}
+.catalog-grid td.catalog-code{font:400 12px/1.4 var(--mono);color:var(--bone);background:var(--ground)}

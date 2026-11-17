@@ -1,7 +1,8 @@
 // Card Master → Catalog: a spreadsheet of every card. Approved Deck cards appear on their own (their name, type,
 // damage, stars, elements and effect show live from the card and are edited in Manage Deck); idea lines and
 // printed-only cards are typed straight in. Anyone with the Card Master code can add, rename and hide columns and
-// edit cells; every cell saves on its own as soon as you leave it.
+// edit cells; every cell saves on its own as soon as you leave it. The last column (Code to deploy) is read-only on
+// the site: only Claude fills it, through SQL Francesca runs.
 // Storage: Supabase tables glep_catalog_rows / glep_catalog_settings, reached only through the glep_catalog_*
 // functions in backend/glep-catalog.sql (each checks the admin code). Reads the cards Card Master already loaded,
 // so the existing Card Master views and loading are untouched.
@@ -61,7 +62,7 @@ function fit(t){t.style.height='auto';t.style.height=Math.min(t.scrollHeight+2,1
 function draw(){
  const host=$('catalogTable'),list=visible(),table=make('table','catalog-grid'),head=make('tr');
  head.append(make('th','catalog-rownum','#'));
- for(const col of columns){const th=make('th',LONG[col.key]?'catalog-long':'');if(col.key==='name')th.classList.add('catalog-sticky');
+ for(const col of columns){const th=make('th',LONG[col.key]||col.locked?'catalog-long':'');if(col.key==='name')th.classList.add('catalog-sticky');
   const b=make('button','catalog-sort',col.label+(sortKey===col.key?(sortDir>0?' ▲':' ▼'):''));b.type='button';b.title='Sort by '+col.label;
   b.onclick=()=>{if(sortKey===col.key){if(sortDir>0)sortDir=-1;else sortKey=''}else{sortKey=col.key;sortDir=1}draw()};th.append(b);
   if(!col.builtin){const ren=make('button','catalog-col-btn','✎');ren.type='button';ren.title='Rename column';ren.onclick=()=>renameColumn(col);
@@ -72,9 +73,10 @@ function draw(){
   const num=make('td','catalog-rownum',String(i+1));
   if(!line.card&&line.row&&!line.gone){const del=make('button','catalog-del','×');del.type='button';del.title='Delete this line';del.onclick=()=>deleteLine(line);num.append(del)}
   tr.append(num);
-  for(const col of columns){const td=make('td',LONG[col.key]?'catalog-long':'');if(col.key==='name')td.classList.add('catalog-sticky');
+  for(const col of columns){const td=make('td',LONG[col.key]||col.locked?'catalog-long':'');if(col.key==='name')td.classList.add('catalog-sticky');
    const v=value(line,col.key);
-   if(line.card&&LIVE[col.key]){td.classList.add('catalog-live');td.textContent=v;td.title='From the Deck card. Edit it in Manage Deck.'}
+   if(col.locked){td.classList.add('catalog-live','catalog-code');td.textContent=v;td.title='Only Claude fills this in: the code this behavior needs deployed.'}
+   else if(line.card&&LIVE[col.key]){td.classList.add('catalog-live');td.textContent=v;td.title='From the Deck card. Edit it in Manage Deck.'}
    else{const t=make('textarea');t.rows=1;t.value=v;t.setAttribute('aria-label',col.label+' for '+(value(line,'name')||'new line'));
     if(SUGGEST[col.key])t.setAttribute('list','catalogList-'+col.key);
     t.addEventListener('input',()=>fit(t));t.addEventListener('focus',()=>fit(t));
@@ -115,7 +117,7 @@ async function changeColumns(fn,done){
 function addColumn(){
  const label=(prompt('Name of the new column (for example Behavior, Rules, Artist):')||'').trim().slice(0,60);if(!label)return;
  const key='c_'+(label.toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_|_$/g,'').slice(0,24)||'col')+'_'+Math.random().toString(36).slice(2,6);
- changeColumns(cols=>cols.concat({key,label}),'Added the column "'+label+'".')}
+ changeColumns(cols=>{const i=cols.findIndex(c=>c.locked);if(i<0)return cols.concat({key,label});cols.splice(i,0,{key,label});return cols},'Added the column "'+label+'".')}
 function renameColumn(col){
  const label=(prompt('New name for "'+col.label+'":',col.label)||'').trim().slice(0,60);if(!label||label===col.label)return;
  changeColumns(cols=>cols.map(c=>c.key===col.key?{...c,label}:c),'Renamed to "'+label+'".')}

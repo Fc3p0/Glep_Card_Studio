@@ -57,6 +57,7 @@ declare r public.glep_catalog_rows;
 begin
   if not public.glep_catalog_admin_ok(p_code) then raise exception 'Invalid admin password' using errcode = '28000'; end if;
   if p_key is null or p_key !~ '^[a-z0-9_]{1,40}$' then raise exception 'Bad column key'; end if;
+  if p_key = 'claude_code' then raise exception 'Only Claude can edit the Code to deploy column'; end if;
   if char_length(coalesce(p_value, '')) > 5000 then raise exception 'Cell is too long (5000 characters max)'; end if;
   patch := jsonb_build_object(p_key, coalesce(p_value, ''));
   if p_row_id is not null then
@@ -81,7 +82,13 @@ begin
   return found;
 end $$;
 
--- Replace the column list: [{"key":"c_behavior","label":"Behavior"}, ...]. Built-in columns are always kept.
+-- The last column holds the code each behavior needs deployed. Only Claude fills it (by SQL you run), so the site
+-- shows it read-only and the functions above refuse to change it.
+create or replace function public.glep_catalog_code_column() returns jsonb language sql immutable as $$
+  select '{"key":"claude_code","label":"Code to deploy (Claude only)","builtin":true,"locked":true}'::jsonb
+$$;
+
+-- Replace the column list: [{"key":"c_printed","label":"Printed version"}, ...].
 create or replace function public.glep_catalog_save_columns(p_code text, p_columns jsonb) returns jsonb
 language plpgsql volatile security definer set search_path = public, pg_temp as $$
 declare c jsonb;
@@ -92,6 +99,9 @@ begin
     if jsonb_typeof(c) <> 'object' or coalesce(c->>'key', '') !~ '^[a-z0-9_]{1,40}$'
        or char_length(btrim(coalesce(c->>'label', ''))) not between 1 and 60 then raise exception 'Bad column: %', c; end if;
   end loop;
+  -- The Claude-only column can't be renamed, removed or unlocked from the site, and always stays last.
+  select coalesce(jsonb_agg(x), '[]'::jsonb) || jsonb_build_array(public.glep_catalog_code_column())
+    into p_columns from jsonb_array_elements(p_columns) x where x->>'key' <> 'claude_code';
   insert into public.glep_catalog_settings (id, columns, updated_at) values (1, p_columns, now())
   on conflict (id) do update set columns = excluded.columns, updated_at = now();
   return p_columns;
@@ -102,7 +112,8 @@ revoke all on function public.glep_catalog_load(text), public.glep_catalog_set_c
 grant execute on function public.glep_catalog_load(text), public.glep_catalog_set_cell(text, uuid, uuid, text, text),
   public.glep_catalog_delete_row(text, uuid), public.glep_catalog_save_columns(text, jsonb) to anon, authenticated;
 
--- Starting columns (only if none saved yet). Built-ins come from the two PDFs; Behavior and Notes are yours to edit.
+-- Starting columns (only if none saved yet). Built-ins come from the two PDFs. Printed version, ONLINE version and
+-- Notes are yours to edit, rename or remove; Code to deploy is Claude's.
 insert into public.glep_catalog_settings (id, columns) values (1, '[
   {"key":"name","label":"Card","builtin":true},
   {"key":"type","label":"Type","builtin":true},
@@ -113,9 +124,28 @@ insert into public.glep_catalog_settings (id, columns) values (1, '[
   {"key":"art","label":"Art","builtin":true},
   {"key":"status","label":"Status","builtin":true},
   {"key":"source","label":"Source","builtin":true},
-  {"key":"c_behavior","label":"Behavior"},
-  {"key":"c_notes","label":"Notes"}
+  {"key":"c_behavior","label":"Printed version"},
+  {"key":"c_online","label":"ONLINE version"},
+  {"key":"c_notes","label":"Notes"},
+  {"key":"claude_code","label":"Code to deploy (Claude only)","builtin":true,"locked":true}
 ]'::jsonb) on conflict (id) do nothing;
+
+-- If this file was run before: rename Behavior -> Printed version, add ONLINE version after it, and put the
+-- Claude-only code column last. Leaves everything else (and every cell) as it is.
+do $$
+declare cols jsonb; out jsonb := '[]'::jsonb; c jsonb;
+begin
+  select columns into cols from public.glep_catalog_settings where id = 1;
+  if cols is null or cols @> '[{"key":"c_online"}]' and cols @> '[{"key":"claude_code"}]' then return; end if;
+  for c in select * from jsonb_array_elements(cols) loop
+    continue when c->>'key' = 'claude_code';
+    if c->>'key' = 'c_behavior' and c->>'label' = 'Behavior' then c := c || '{"label":"Printed version"}'; end if;
+    out := out || jsonb_build_array(c);
+    if c->>'key' = 'c_behavior' and not cols @> '[{"key":"c_online"}]' then out := out || '[{"key":"c_online","label":"ONLINE version"}]'::jsonb; end if;
+  end loop;
+  if not out @> '[{"key":"c_online"}]' then out := out || '[{"key":"c_online","label":"ONLINE version"}]'::jsonb; end if;
+  update public.glep_catalog_settings set columns = out || jsonb_build_array(public.glep_catalog_code_column()), updated_at = now() where id = 1;
+end $$;
 
 -- Starting lines (only if the catalog is empty): the physical catalog (Oct 13) and New Cards list 2.
 -- A line whose name matches an approved Deck card (same type preferred) is linked to it (only Art, Source and Notes are stored;

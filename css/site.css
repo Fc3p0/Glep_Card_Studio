@@ -613,3 +613,4 @@ body #decksPage #deckGrid .art-tile small.card-status,.lib-card small.card-statu
 .catalog-idea .catalog-sticky textarea{font-weight:600}
 .catalog-del{display:block;margin:2px 0 0 auto;background:none;border:0;color:var(--mute);cursor:pointer;font-size:14px;padding:0 2px}
 .catalog-del:hover{color:var(--red-text)}
+.catalog-grid td.catalog-code{font:400 12px/1.4 var(--mono);color:var(--bone);background:var(--ground)}

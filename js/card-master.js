@@ -19,6 +19,8 @@ function deckEditor(c){
   }catch(e){msg('Could not save "'+c.name+'": '+e.message);save.disabled=false;save.textContent='Save changes'}};
  return editor}
 let pass='';let currentCards=[];
+// Read-only handle for the Catalog tab (js/catalog.js), so it reuses the cards loaded here instead of fetching again.
+window.glepMaster={pass:()=>pass,cards:()=>currentCards};
 // Card previews are drawn only when they scroll into view, three at a time, as blob URLs.
 // Drawing all 100+ at once (as PNG data URLs) froze the page for many seconds after every login and save.
 let previewRun=0,previewURLs=[],previewQueue=[],previewBusy=0,previewSeen=null;
@@ -64,7 +66,7 @@ for(const c of data.codes){
  button.onclick=async()=>{if(!confirm((c.active?'Revoke':'Reactivate')+' '+c.creator_name+'?'))return;try{await action({action:'set_creator',id:c.id,active:!c.active});refresh()}catch(e){msg(e.message)}};
  actions.append(edit,button);line.append(label,actions);$('masterCreators').append(line)
 }
-msg(data.cards.length+' total submissions · '+data.cards.filter(c=>c.review_status==='pending').length+' pending approval.');return true}catch(e){msg(e.message);return false}}
+msg(data.cards.length+' total submissions · '+data.cards.filter(c=>c.review_status==='pending').length+' pending approval.');window.dispatchEvent(new Event('glep-master-refreshed'));return true}catch(e){msg(e.message);return false}}
 $('masterUnlock').onclick=()=>{pass=$('masterPass').value;refresh().then(ok=>{if(ok){$('masterGate').hidden=true;$('masterControls').hidden=false}})};
 function masterOpenSection(chosen){
 const dedicated=chosen==='deck';

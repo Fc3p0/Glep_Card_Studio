@@ -88491,14 +88491,14 @@
   {
     "id": "f100cb9b-1142-456d-9ca6-f069920fabb4",
     "name": "AppaTamagotchi",
-    "card_type": "modifier",
+    "card_type": "attack",
     "card_data": {
       "id": "c-mvuie80l-hel5f71",
       "artX": 0,
       "artY": 0,
       "name": "AppaTamagotchi",
       "tags": "",
-      "type": "modifier",
+      "type": "attack",
       "image": "",
       "stars": 10,
       "damage": -5,
